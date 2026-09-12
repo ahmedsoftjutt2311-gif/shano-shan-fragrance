@@ -1452,8 +1452,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   errorBuilder:
                       (
                     _,
-                    __,
-                    ___,
+                    _,
+                    _,
                   ) =>
                           const Icon(
                     Icons.qr_code_2,
@@ -1964,8 +1964,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
         errorBuilder:
             (
           _,
-          __,
-          ___,
+          _,
+          _,
         ) =>
                 const Icon(
           Icons
@@ -1982,8 +1982,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
       errorBuilder:
           (
         _,
-        __,
-        ___,
+        _,
+        _,
       ) =>
               const Icon(
         Icons
@@ -2027,8 +2027,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
         errorBuilder:
             (
           _,
-          __,
-          ___,
+          _,
+          _,
         ) =>
                 const Icon(
           Icons
@@ -2045,8 +2045,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
       errorBuilder:
           (
         _,
-        __,
-        ___,
+        _,
+        _,
       ) =>
               const Icon(
         Icons

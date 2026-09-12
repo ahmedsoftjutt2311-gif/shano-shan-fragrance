@@ -795,7 +795,7 @@ class _FragranceFinderPageState extends State<FragranceFinderPage>
                   'that feels distinctly yours.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(.58),
+                    color: Colors.white.withValues(alpha: .58),
                     fontSize: 15,
                     height: 1.7,
                     letterSpacing: .2,
@@ -860,7 +860,7 @@ class _FragranceFinderPageState extends State<FragranceFinderPage>
                       _questionDescription,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.white.withOpacity(.45),
+                        color: Colors.white.withValues(alpha: .45),
                         fontSize: 13,
                         letterSpacing: .3,
                       ),
@@ -1302,7 +1302,7 @@ class _FragranceFinderPageState extends State<FragranceFinderPage>
                   _recommendationReason,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(.65),
+                    color: Colors.white.withValues(alpha: .65),
                     fontFamily: 'Georgia',
                     fontStyle: FontStyle.italic,
                     fontSize: 17,
@@ -1457,7 +1457,7 @@ class _FragranceFinderPageState extends State<FragranceFinderPage>
             child: Container(
               width: 1,
               height: 55,
-              color: gold.withOpacity(.65),
+              color: gold.withValues(alpha: .65),
             ),
           ),
           Positioned(
@@ -1466,7 +1466,7 @@ class _FragranceFinderPageState extends State<FragranceFinderPage>
             child: Container(
               width: 55,
               height: 1,
-              color: gold.withOpacity(.65),
+              color: gold.withValues(alpha: .65),
             ),
           ),
           if (imageUrl.isNotEmpty)
@@ -1524,7 +1524,7 @@ class _FragranceFinderPageState extends State<FragranceFinderPage>
           height: 86,
           decoration: BoxDecoration(
             border: Border.all(
-              color: gold.withOpacity(.65),
+              color: gold.withValues(alpha: .65),
             ),
             shape: BoxShape.circle,
           ),
@@ -1615,7 +1615,7 @@ class _FragranceFinderPageState extends State<FragranceFinderPage>
         Text(
           description,
           style: TextStyle(
-            color: Colors.white.withOpacity(.62),
+            color: Colors.white.withValues(alpha: .62),
             fontSize: 14,
             height: 1.8,
           ),
@@ -1684,7 +1684,7 @@ class _FragranceFinderPageState extends State<FragranceFinderPage>
               height: 90,
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: gold.withOpacity(.5),
+                  color: gold.withValues(alpha: .5),
                 ),
                 shape: BoxShape.circle,
               ),
@@ -1713,7 +1713,7 @@ class _FragranceFinderPageState extends State<FragranceFinderPage>
               'We could not find a fragrance match right now.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white.withOpacity(.55),
+                color: Colors.white.withValues(alpha: .55),
                 fontSize: 14,
               ),
             ),
@@ -1762,7 +1762,7 @@ class _FragranceFinderPageState extends State<FragranceFinderPage>
       decoration: BoxDecoration(
         color: const Color(0xFF110D08),
         border: Border.all(
-          color: gold.withOpacity(.18),
+          color: gold.withValues(alpha: .18),
         ),
       ),
       child: Row(
@@ -1866,7 +1866,7 @@ class _BackgroundGlow extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    const Color(0xFFD6A33A).withOpacity(.055),
+                    const Color(0xFFD6A33A).withValues(alpha: .055),
                     Colors.transparent,
                   ],
                 ),
@@ -1883,7 +1883,7 @@ class _BackgroundGlow extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    const Color(0xFFD6A33A).withOpacity(.035),
+                    const Color(0xFFD6A33A).withValues(alpha: .035),
                     Colors.transparent,
                   ],
                 ),
@@ -1963,10 +1963,10 @@ class _FinderOptionState extends State<_FinderOption> {
             ),
           decoration: BoxDecoration(
             color: widget.selected
-                ? gold.withOpacity(.09)
+                ? gold.withValues(alpha: .09)
                 : _hovered
-                    ? Colors.white.withOpacity(.035)
-                    : Colors.white.withOpacity(.018),
+                    ? Colors.white.withValues(alpha: .035)
+                    : Colors.white.withValues(alpha: .018),
             border: Border.all(
               color: widget.selected
                   ? gold
@@ -1994,7 +1994,7 @@ class _FinderOptionState extends State<_FinderOption> {
                     ),
                     shape: BoxShape.circle,
                     color: widget.selected
-                        ? gold.withOpacity(.12)
+                        ? gold.withValues(alpha: .12)
                         : Colors.transparent,
                   ),
                   child: Center(
@@ -2021,7 +2021,7 @@ class _FinderOptionState extends State<_FinderOption> {
                     style: TextStyle(
                       color: widget.selected
                           ? gold
-                          : Colors.white.withOpacity(.88),
+                          : Colors.white.withValues(alpha: .88),
                       fontSize: 14,
                       fontWeight: widget.selected
                           ? FontWeight.w600
