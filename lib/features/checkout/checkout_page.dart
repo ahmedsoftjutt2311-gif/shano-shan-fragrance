@@ -518,19 +518,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         _buyNowQuantity;
   }
 
-  // ==========================================================
-  // BUY NOW CURRENCY
-  // ==========================================================
-
-  String get _buyNowCurrency {
-    if (_buyNowProduct == null) {
-      return 'PKR';
-    }
-
-    return _buyNowProduct!['currency']
-            ?.toString() ??
-        'PKR';
-  }
+  
 
   // ==========================================================
   // BUY NOW TOTAL

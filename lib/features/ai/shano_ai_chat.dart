@@ -228,11 +228,11 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
             color: background,
             borderRadius: BorderRadius.circular(30),
             border: Border.all(
-              color: gold.withOpacity(0.75),
+              color: gold.withValues(alpha: 0.75),
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.45),
+                color: Colors.black.withValues(alpha: 0.45),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -285,11 +285,11 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
           color: panel,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: gold.withOpacity(0.30),
+            color: gold.withValues(alpha: 0.30),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.60),
+              color: Colors.black.withValues(alpha: 0.60),
               blurRadius: 35,
               offset: const Offset(0, 18),
             ),
@@ -352,7 +352,7 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: gold.withOpacity(0.45),
+                color: gold.withValues(alpha: 0.45),
               ),
             ),
             child: const Icon(
@@ -438,7 +438,7 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
                 style: TextStyle(
                   color: isUser
                       ? Colors.black
-                      : Colors.white.withOpacity(0.90),
+                      : Colors.white.withValues(alpha: 0.90),
                   fontSize: 13,
                   height: 1.5,
                 ),
@@ -467,7 +467,7 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
         color: const Color(0xFF121212),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: gold.withOpacity(0.25),
+          color: gold.withValues(alpha: 0.25),
         ),
       ),
       child: Column(
@@ -679,7 +679,7 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
         ),
         scrollDirection: Axis.horizontal,
         itemCount: suggestions.length,
-        separatorBuilder: (_, __) {
+        separatorBuilder: (_, _) {
           return const SizedBox(width: 7);
         },
         itemBuilder: (context, index) {
@@ -697,7 +697,7 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.035),
+                  color: Colors.white.withValues(alpha: 0.035),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: border,

@@ -292,7 +292,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
           color: Color(0xFFC9A45C),
         ),
         hintStyle: TextStyle(
-          color: Colors.white.withOpacity(0.30),
+          color: Colors.white.withValues(alpha: 0.30),
         ),
         prefixIcon: Icon(
           icon,
@@ -300,11 +300,11 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
           size: 20,
         ),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.035),
+        fillColor: Colors.white.withValues(alpha: 0.035),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(3),
           borderSide: BorderSide(
-            color: Colors.white.withOpacity(0.10),
+            color: Colors.white.withValues(alpha: 0.10),
           ),
         ),
         focusedBorder: const OutlineInputBorder(
@@ -333,10 +333,10 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
         vertical: compact ? 42 : 64,
       ),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.018),
+        color: Colors.white.withValues(alpha: 0.018),
         border: Border(
           bottom: BorderSide(
-            color: Colors.white.withOpacity(0.07),
+            color: Colors.white.withValues(alpha: 0.07),
           ),
         ),
       ),
@@ -368,7 +368,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
                 'Follow your SHANO SHAN fragrance journey.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.78),
+                  color: Colors.white.withValues(alpha: 0.78),
                   fontSize: compact ? 27 : 36,
                   fontWeight: FontWeight.w300,
                   letterSpacing: 0.5,
@@ -381,7 +381,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
                 'Enter your order number and the phone number used at checkout.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.48),
+                  color: Colors.white.withValues(alpha: 0.48),
                   fontSize: 14,
                   height: 1.7,
                 ),
@@ -456,10 +456,10 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
                   padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
                     color:
-                        Colors.red.withOpacity(0.07),
+                        Colors.red.withValues(alpha: 0.07),
                     border: Border.all(
                       color:
-                          Colors.red.withOpacity(0.25),
+                          Colors.red.withValues(alpha: 0.25),
                     ),
                     borderRadius:
                         BorderRadius.circular(3),
@@ -608,9 +608,9 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         border: Border.all(
-          color: Colors.white.withOpacity(0.09),
+          color: Colors.white.withValues(alpha: 0.09),
         ),
-        color: Colors.white.withOpacity(0.018),
+        color: Colors.white.withValues(alpha: 0.018),
       ),
       child: Wrap(
         spacing: 30,
@@ -624,7 +624,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
               Text(
                 'ORDER',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.40),
+                  color: Colors.white.withValues(alpha: 0.40),
                   fontSize: 10,
                   letterSpacing: 3,
                 ),
@@ -647,7 +647,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
               Text(
                 _formatDate(order['created_at']),
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.42),
+                  color: Colors.white.withValues(alpha: 0.42),
                   fontSize: 12,
                 ),
               ),
@@ -661,7 +661,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
               Text(
                 'TOTAL',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.40),
+                  color: Colors.white.withValues(alpha: 0.40),
                   fontSize: 10,
                   letterSpacing: 3,
                 ),
@@ -686,7 +686,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
               Text(
                 'Payment: ${_statusLabel(paymentStatus)}',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.48),
+                  color: Colors.white.withValues(alpha: 0.48),
                   fontSize: 12,
                 ),
               ),
@@ -714,14 +714,14 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
       ),
       decoration: BoxDecoration(
         color: cancelled
-            ? Colors.red.withOpacity(0.08)
+            ? Colors.red.withValues(alpha: 0.08)
             : const Color(0xFFC9A45C)
-                .withOpacity(0.09),
+                .withValues(alpha: 0.09),
         border: Border.all(
           color: cancelled
-              ? Colors.red.withOpacity(0.35)
+              ? Colors.red.withValues(alpha: 0.35)
               : const Color(0xFFC9A45C)
-                  .withOpacity(0.35),
+                  .withValues(alpha: 0.35),
         ),
       ),
       child: Text(
@@ -760,9 +760,9 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         border: Border.all(
-          color: Colors.white.withOpacity(0.09),
+          color: Colors.white.withValues(alpha: 0.09),
         ),
-        color: Colors.white.withOpacity(0.018),
+        color: Colors.white.withValues(alpha: 0.018),
       ),
       child: Column(
         crossAxisAlignment:
@@ -784,9 +784,9 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.06),
+                color: Colors.red.withValues(alpha: 0.06),
                 border: Border.all(
-                  color: Colors.red.withOpacity(0.22),
+                  color: Colors.red.withValues(alpha: 0.22),
                 ),
               ),
               child: Row(
@@ -801,7 +801,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
                       'This order has been cancelled.',
                       style: TextStyle(
                         color:
-                            Colors.white.withOpacity(0.72),
+                            Colors.white.withValues(alpha: 0.72),
                         fontSize: 13,
                       ),
                     ),
@@ -835,7 +835,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
             Text(
               'Current status: ${_statusLabel(status)}',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.42),
+                color: Colors.white.withValues(alpha: 0.42),
                 fontSize: 12,
               ),
             ),
@@ -873,7 +873,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
                 border: Border.all(
                   color: completed
                       ? const Color(0xFFC9A45C)
-                      : Colors.white.withOpacity(0.18),
+                      : Colors.white.withValues(alpha: 0.18),
                   width: 1,
                 ),
               ),
@@ -882,7 +882,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
                 size: 17,
                 color: completed
                     ? Colors.black
-                    : Colors.white.withOpacity(0.30),
+                    : Colors.white.withValues(alpha: 0.30),
               ),
             ),
 
@@ -892,7 +892,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
                 height: 35,
                 color: completed
                     ? const Color(0xFFC9A45C)
-                    : Colors.white.withOpacity(0.10),
+                    : Colors.white.withValues(alpha: 0.10),
               ),
           ],
         ),
@@ -911,8 +911,8 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
                 color: active
                     ? Colors.white
                     : completed
-                        ? Colors.white.withOpacity(0.72)
-                        : Colors.white.withOpacity(0.30),
+                        ? Colors.white.withValues(alpha: 0.72)
+                        : Colors.white.withValues(alpha: 0.30),
                 fontSize: 14,
                 fontWeight: active
                     ? FontWeight.w600
@@ -939,9 +939,9 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         border: Border.all(
-          color: Colors.white.withOpacity(0.09),
+          color: Colors.white.withValues(alpha: 0.09),
         ),
-        color: Colors.white.withOpacity(0.018),
+        color: Colors.white.withValues(alpha: 0.018),
       ),
       child: Column(
         crossAxisAlignment:
@@ -963,7 +963,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
             Text(
               'No item details available.',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.45),
+                color: Colors.white.withValues(alpha: 0.45),
               ),
             )
           else
@@ -987,7 +987,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
                 'Subtotal',
                 style: TextStyle(
                   color:
-                      Colors.white.withOpacity(0.45),
+                      Colors.white.withValues(alpha: 0.45),
                   fontSize: 13,
                 ),
               ),
@@ -1014,7 +1014,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
                 'Delivery',
                 style: TextStyle(
                   color:
-                      Colors.white.withOpacity(0.45),
+                      Colors.white.withValues(alpha: 0.45),
                   fontSize: 13,
                 ),
               ),
@@ -1102,7 +1102,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
             decoration: BoxDecoration(
               border: Border.all(
                 color: const Color(0xFFC9A45C)
-                    .withOpacity(0.18),
+                    .withValues(alpha: 0.18),
               ),
             ),
             child: const Icon(
@@ -1134,7 +1134,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
                   'Quantity: $quantity',
                   style: TextStyle(
                     color:
-                        Colors.white.withOpacity(0.40),
+                        Colors.white.withValues(alpha: 0.40),
                     fontSize: 12,
                   ),
                 ),
@@ -1184,9 +1184,9 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         border: Border.all(
-          color: Colors.white.withOpacity(0.09),
+          color: Colors.white.withValues(alpha: 0.09),
         ),
-        color: Colors.white.withOpacity(0.018),
+        color: Colors.white.withValues(alpha: 0.018),
       ),
       child: Column(
         crossAxisAlignment:
@@ -1219,7 +1219,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
             Text(
               address,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.55),
+                color: Colors.white.withValues(alpha: 0.55),
                 fontSize: 13,
                 height: 1.6,
               ),
@@ -1237,7 +1237,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
                 (item) => item.isNotEmpty,
               ).join(', '),
               style: TextStyle(
-                color: Colors.white.withOpacity(0.55),
+                color: Colors.white.withValues(alpha: 0.55),
                 fontSize: 13,
               ),
             ),
@@ -1248,7 +1248,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
             Text(
               phone,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.42),
+                color: Colors.white.withValues(alpha: 0.42),
                 fontSize: 12,
               ),
             ),

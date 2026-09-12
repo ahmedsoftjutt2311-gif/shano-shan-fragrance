@@ -1,6 +1,6 @@
 
-import 'dart:convert';
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -77,28 +77,16 @@ class _HomePageState extends State<HomePage> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // ========================================================
-          // HERO
-          // ========================================================
-
           HomeHero(
             onShop: () => context.go('/shop'),
             onFindScent: () => context.go('/find-your-scent'),
           ),
 
-          const SizedBox(height: 120),
-
-          // ========================================================
-          // BRAND STATEMENT
-          // ========================================================
+          const SizedBox(height: 105),
 
           const _BrandStatement(),
 
-          const SizedBox(height: 130),
-
-          // ========================================================
-          // FEATURED FRAGRANCES
-          // ========================================================
+          const SizedBox(height: 115),
 
           _FeaturedFragrancesSection(
             products: _featuredProducts,
@@ -106,43 +94,23 @@ class _HomePageState extends State<HomePage> {
             onViewAll: () => context.go('/shop'),
           ),
 
-          const SizedBox(height: 150),
-
-          // ========================================================
-          // FOUNDER
-          // ========================================================
+          const SizedBox(height: 125),
 
           _FounderSection(
-            onMeetFounder: () {
-              context.go('/about');
-            },
+            onMeetFounder: () => context.go('/about'),
           ),
 
-          const SizedBox(height: 150),
-
-          // ========================================================
-          // FIND YOUR SCENT
-          // ========================================================
+          const SizedBox(height: 125),
 
           _ScentExperienceSection(
-            onExplore: () {
-              context.go('/shop');
-            },
+            onExplore: () => context.go('/shop'),
           ),
 
-          const SizedBox(height: 130),
-
-          // ========================================================
-          // FINAL BRAND CTA
-          // ========================================================
+          const SizedBox(height: 120),
 
           const _FinalBrandSection(),
 
           const SizedBox(height: 1),
-
-          // ========================================================
-          // STAY CONNECTED
-          // ========================================================
 
           const _StayConnectedSection(),
 
@@ -153,53 +121,51 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// ==================================================================
+// ============================================================================
 // BRAND STATEMENT
-// ==================================================================
+// ============================================================================
 
 class _BrandStatement extends StatelessWidget {
   const _BrandStatement();
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final mobile = width < 650;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: 950,
-        ),
+        constraints: const BoxConstraints(maxWidth: 950),
         child: Column(
           children: [
-            const Text(
-              'THE SHANO SHAN PHILOSOPHY',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Color(0xFFD4AF37),
-                fontSize: 12,
-                letterSpacing: 4,
-                fontWeight: FontWeight.w600,
-              ),
+            const _SectionEyebrow(
+              label: 'THE SHANO SHAN PHILOSOPHY',
             ),
-            const SizedBox(height: 28),
-            const Text(
+            SizedBox(height: mobile ? 22 : 28),
+            Text(
               'A fragrance is more than a scent.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 38,
+                fontSize: mobile ? 30 : 40,
                 fontWeight: FontWeight.w300,
                 height: 1.25,
+                letterSpacing: -.4,
               ),
             ),
-            const SizedBox(height: 24),
-            Text(
-              'It is an impression. A memory. A quiet statement '
-              'that stays long after you have left the room.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white.withOpacity(.62),
-                fontSize: 17,
-                height: 1.8,
+            SizedBox(height: mobile ? 18 : 24),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: Text(
+                'It is an impression. A memory. A quiet statement '
+                'that stays long after you have left the room.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: .60),
+                  fontSize: mobile ? 14 : 17,
+                  height: 1.85,
+                ),
               ),
             ),
           ],
@@ -209,20 +175,62 @@ class _BrandStatement extends StatelessWidget {
   }
 }
 
-// ==================================================================
+// ============================================================================
+// SECTION EYEBROW
+// ============================================================================
+
+class _SectionEyebrow extends StatelessWidget {
+  const _SectionEyebrow({
+    required this.label,
+  });
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 34,
+          height: 1,
+          color: const Color(0xFFD4AF37),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFFD4AF37),
+            fontSize: 10,
+            letterSpacing: 3.2,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Container(
+          width: 34,
+          height: 1,
+          color: Color(0xFFD4AF37),
+        ),
+      ],
+    );
+  }
+}
+
+// ============================================================================
 // FEATURED FRAGRANCES
-// ==================================================================
+// ============================================================================
 
 class _FeaturedFragrancesSection extends StatelessWidget {
-  final List<Map<String, dynamic>> products;
-  final bool loading;
-  final VoidCallback onViewAll;
-
   const _FeaturedFragrancesSection({
     required this.products,
     required this.loading,
     required this.onViewAll,
   });
+
+  final List<Map<String, dynamic>> products;
+  final bool loading;
+  final VoidCallback onViewAll;
 
   @override
   Widget build(BuildContext context) {
@@ -233,52 +241,42 @@ class _FeaturedFragrancesSection extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: 1200,
-        ),
+        constraints: const BoxConstraints(maxWidth: 1220),
         child: Column(
           children: [
-            const Text(
-              'THE COLLECTION',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Color(0xFFD4AF37),
-                fontSize: 12,
-                letterSpacing: 4,
-                fontWeight: FontWeight.w600,
-              ),
+            const _SectionEyebrow(
+              label: 'THE COLLECTION',
             ),
+
             const SizedBox(height: 20),
-            const Text(
+
+            Text(
               'SIGNATURE FRAGRANCES',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 32,
+                fontSize: mobile ? 28 : 34,
                 fontWeight: FontWeight.w300,
-                letterSpacing: 2,
+                letterSpacing: mobile ? 1 : 2.5,
               ),
             ),
-            const SizedBox(height: 18),
+
+            const SizedBox(height: 14),
+
             Text(
               'Discover the fragrances that define SHANO SHAN.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white.withOpacity(.55),
-                fontSize: 15,
+                color: Colors.white.withValues(alpha: .52),
+                fontSize: mobile ? 13 : 15,
+                height: 1.5,
               ),
             ),
-            const SizedBox(height: 50),
+
+            SizedBox(height: mobile ? 35 : 48),
+
             if (loading)
-              const SizedBox(
-                height: 320,
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: Color(0xFFD4AF37),
-                    strokeWidth: 1.5,
-                  ),
-                ),
-              )
+              const _CollectionLoader()
             else if (products.isEmpty)
               const _EmptyCollection()
             else
@@ -294,8 +292,8 @@ class _FeaturedFragrancesSection extends StatelessWidget {
                           ? 2
                           : 4,
                   crossAxisSpacing: 18,
-                  mainAxisSpacing: 24,
-                  childAspectRatio: mobile ? 0.95 : 0.72,
+                  mainAxisSpacing: 22,
+                  childAspectRatio: mobile ? 1.05 : .73,
                 ),
                 itemBuilder: (context, index) {
                   return _FeaturedProductCard(
@@ -303,26 +301,50 @@ class _FeaturedFragrancesSection extends StatelessWidget {
                   );
                 },
               ),
-            const SizedBox(height: 45),
-            OutlinedButton(
+
+            SizedBox(height: mobile ? 35 : 45),
+
+            _GoldOutlineButton(
+              label: 'VIEW ALL FRAGRANCES',
               onPressed: onViewAll,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFFD4AF37),
-                side: const BorderSide(
-                  color: Color(0xFFD4AF37),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 18,
-                ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// COLLECTION LOADER
+// ============================================================================
+
+class _CollectionLoader extends StatelessWidget {
+  const _CollectionLoader();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 320,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(
+              width: 28,
+              height: 28,
+              child: CircularProgressIndicator(
+                color: Color(0xFFD4AF37),
+                strokeWidth: 1.3,
               ),
-              child: const Text(
-                'VIEW ALL FRAGRANCES',
-                style: TextStyle(
-                  letterSpacing: 1.5,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 11,
-                ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'CURATING THE COLLECTION',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: .38),
+                fontSize: 9,
+                letterSpacing: 2.5,
               ),
             ),
           ],
@@ -332,31 +354,48 @@ class _FeaturedFragrancesSection extends StatelessWidget {
   }
 }
 
-// ==================================================================
+// ============================================================================
 // FEATURED PRODUCT CARD
-// ==================================================================
+// ============================================================================
 
-class _FeaturedProductCard extends StatelessWidget {
-  final Map<String, dynamic> product;
-
+class _FeaturedProductCard extends StatefulWidget {
   const _FeaturedProductCard({
     required this.product,
   });
 
+  final Map<String, dynamic> product;
+
+  @override
+  State<_FeaturedProductCard> createState() =>
+      _FeaturedProductCardState();
+}
+
+class _FeaturedProductCardState
+    extends State<_FeaturedProductCard> {
+  bool _hovering = false;
+
   static const Color gold = Color(0xFFD4AF37);
 
   String _stringValue(String key) {
-    return product[key]?.toString().trim() ?? '';
+    return widget.product[key]?.toString().trim() ?? '';
   }
 
   double _price() {
-    final raw = product['price'];
+    final raw = widget.product['price'];
 
     if (raw is num) {
       return raw.toDouble();
     }
 
     return double.tryParse(raw?.toString() ?? '') ?? 0;
+  }
+
+  String _formatPrice(double price) {
+    if (price == price.roundToDouble()) {
+      return price.toInt().toString();
+    }
+
+    return price.toStringAsFixed(2);
   }
 
   @override
@@ -370,95 +409,179 @@ class _FeaturedProductCard extends StatelessWidget {
         ? 'PKR'
         : _stringValue('currency');
 
-    return InkWell(
-      onTap: slug.isEmpty
-          ? null
-          : () {
-              context.go('/product/$slug');
-            },
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF0B0B0B),
-          border: Border.all(
-            color: Colors.white12,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) {
+        setState(() {
+          _hovering = true;
+        });
+      },
+      onExit: (_) {
+        setState(() {
+          _hovering = false;
+        });
+      },
+      child: GestureDetector(
+        onTap: slug.isEmpty
+            ? null
+            : () => context.go('/product/$slug'),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 280),
+          curve: Curves.easeOut,
+          transform: Matrix4.translationValues(
+            0,
+            _hovering ? -5 : 0,
+            0,
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: _ProductImage(
-                imageUrl: imageUrl,
-                name: name,
-              ),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0A0A0A),
+            border: Border.all(
+              color: _hovering
+                  ? gold.withValues(alpha: .55)
+                  : Colors.white.withValues(alpha: .09),
             ),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (category.isNotEmpty)
+            boxShadow: _hovering
+                ? [
+                    BoxShadow(
+                      color: gold.withValues(alpha: .08),
+                      blurRadius: 30,
+                      spreadRadius: 1,
+                    ),
+                  ]
+                : const [],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    _ProductImage(
+                      imageUrl: imageUrl,
+                      name: name,
+                    ),
+
+                    Positioned(
+                      top: 14,
+                      left: 14,
+                      child: AnimatedOpacity(
+                        opacity: _hovering ? 1 : .75,
+                        duration: const Duration(milliseconds: 200),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          color: const Color(0xCC050505),
+                          child: const Text(
+                            'SHANO SHAN',
+                            style: TextStyle(
+                              color: gold,
+                              fontSize: 7,
+                              letterSpacing: 1.8,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    Positioned(
+                      right: 15,
+                      bottom: 15,
+                      child: AnimatedOpacity(
+                        opacity: _hovering ? 1 : 0,
+                        duration: const Duration(milliseconds: 220),
+                        child: Container(
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color: gold,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward,
+                            size: 17,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  18,
+                  18,
+                  18,
+                  20,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (category.isNotEmpty)
+                      Text(
+                        category.toUpperCase(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: gold,
+                          fontSize: 8,
+                          letterSpacing: 2.1,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+
+                    const SizedBox(height: 9),
+
                     Text(
-                      category.toUpperCase(),
+                      name.isEmpty ? 'SHANO SHAN' : name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        color: gold,
-                        fontSize: 9,
-                        letterSpacing: 2,
-                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        fontSize: 16,
+                        letterSpacing: 1.1,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
-                  const SizedBox(height: 10),
-                  Text(
-                    name.isEmpty ? 'SHANO SHAN' : name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 17,
-                      letterSpacing: 1.2,
-                      fontWeight: FontWeight.w400,
+
+                    const SizedBox(height: 10),
+
+                    Text(
+                      '$currency ${_formatPrice(_price())}',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: .55),
+                        fontSize: 13,
+                        letterSpacing: .5,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    '$currency ${_formatPrice(_price())}',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(.65),
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
-
-  String _formatPrice(double price) {
-    if (price == price.roundToDouble()) {
-      return price.toInt().toString();
-    }
-
-    return price.toStringAsFixed(2);
-  }
 }
 
-// ==================================================================
+// ============================================================================
 // PRODUCT IMAGE
-// ==================================================================
+// ============================================================================
 
 class _ProductImage extends StatelessWidget {
-  final String imageUrl;
-  final String name;
-
   const _ProductImage({
     required this.imageUrl,
     required this.name,
   });
+
+  final String imageUrl;
+  final String name;
 
   @override
   Widget build(BuildContext context) {
@@ -467,7 +590,7 @@ class _ProductImage extends StatelessWidget {
         imageUrl,
         width: double.infinity,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) {
+        errorBuilder: (_, _, _) {
           return _fallback();
         },
       );
@@ -484,40 +607,68 @@ class _ProductImage extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Color(0xFF181818),
-            Color(0xFF080808),
+            Color(0xFF191919),
+            Color(0xFF070707),
           ],
         ),
       ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.auto_awesome,
-              color: Color(0xFFD4AF37),
-              size: 38,
-            ),
-            const SizedBox(height: 18),
-            Text(
-              name.isEmpty ? 'SHANO SHAN' : name,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 13,
-                letterSpacing: 2,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  radius: .75,
+                  colors: [
+                    const Color(0xFFD4AF37).withValues(alpha: .10),
+                    Colors.transparent,
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
+          ),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'SS',
+                  style: TextStyle(
+                    color: Color(0xFFD4AF37),
+                    fontFamily: 'Georgia',
+                    fontSize: 38,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 5,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Container(
+                  width: 30,
+                  height: 1,
+                  color: const Color(0x66D4AF37),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  name.isEmpty ? 'SHANO SHAN' : name.toUpperCase(),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white54,
+                    fontSize: 10,
+                    letterSpacing: 2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-// ==================================================================
+// ============================================================================
 // EMPTY COLLECTION
-// ==================================================================
+// ============================================================================
 
 class _EmptyCollection extends StatelessWidget {
   const _EmptyCollection();
@@ -527,39 +678,44 @@ class _EmptyCollection extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(
-        vertical: 70,
+        vertical: 65,
         horizontal: 30,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFF0B0B0B),
+        color: const Color(0xFF0A0A0A),
         border: Border.all(
-          color: Colors.white12,
+          color: Colors.white.withValues(alpha: .08),
         ),
       ),
       child: Column(
         children: [
-          const Icon(
-            Icons.auto_awesome_outlined,
-            color: Color(0xFFD4AF37),
-            size: 40,
+          const Text(
+            'SS',
+            style: TextStyle(
+              color: Color(0xFFD4AF37),
+              fontFamily: 'Georgia',
+              fontSize: 34,
+              letterSpacing: 4,
+            ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
           const Text(
             'THE COLLECTION IS GROWING',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white,
-              fontSize: 16,
+              fontSize: 14,
               letterSpacing: 2,
+              fontWeight: FontWeight.w400,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 11),
           Text(
-            'Discover our fragrance collection in the shop.',
+            'Discover the latest fragrances in our collection.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white.withOpacity(.5),
-              fontSize: 14,
+              color: Colors.white.withValues(alpha: .48),
+              fontSize: 13,
             ),
           ),
         ],
@@ -568,35 +724,33 @@ class _EmptyCollection extends StatelessWidget {
   }
 }
 
-// ==================================================================
+// ============================================================================
 // FOUNDER SECTION
-// ==================================================================
+// ============================================================================
 
 class _FounderSection extends StatelessWidget {
-  final VoidCallback onMeetFounder;
-
   const _FounderSection({
     required this.onMeetFounder,
   });
+
+  final VoidCallback onMeetFounder;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: 1200,
-        ),
+        constraints: const BoxConstraints(maxWidth: 1200),
         child: LayoutBuilder(
           builder: (context, constraints) {
             final mobile = constraints.maxWidth < 750;
 
             final image = Container(
-              height: mobile ? 420 : 560,
+              height: mobile ? 390 : 545,
               decoration: BoxDecoration(
-                color: const Color(0xFF0D0D0D),
+                color: const Color(0xFF0B0B0B),
                 border: Border.all(
-                  color: Colors.white12,
+                  color: Colors.white.withValues(alpha: .09),
                 ),
               ),
               child: Stack(
@@ -605,21 +759,47 @@ class _FounderSection extends StatelessWidget {
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         gradient: RadialGradient(
-                          radius: 0.8,
+                          radius: .75,
                           colors: [
-                            const Color(0xFFD4AF37)
-                                .withOpacity(.08),
+                            const Color(0xFFD4AF37).withValues(alpha: .11),
                             Colors.transparent,
                           ],
                         ),
                       ),
                     ),
                   ),
-                  const Center(
-                    child: Icon(
-                      Icons.person_outline_rounded,
-                      color: Colors.white24,
-                      size: 82,
+
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'SS',
+                          style: TextStyle(
+                            color: Color(0xFFD4AF37),
+                            fontFamily: 'Georgia',
+                            fontSize: 70,
+                            fontWeight: FontWeight.w300,
+                            letterSpacing: 8,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        Container(
+                          width: 42,
+                          height: 1,
+                          color: const Color(0x66D4AF37),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'SHANO SHAN',
+                          style: TextStyle(
+                            color: Colors.white54,
+                            fontSize: 9,
+                            letterSpacing: 4,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -628,8 +808,8 @@ class _FounderSection extends StatelessWidget {
 
             final content = Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: mobile ? 5 : 55,
-                vertical: mobile ? 45 : 20,
+                horizontal: mobile ? 8 : 58,
+                vertical: mobile ? 42 : 20,
               ),
               child: Column(
                 crossAxisAlignment: mobile
@@ -637,61 +817,48 @@ class _FounderSection extends StatelessWidget {
                     : CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    'THE MAN BEHIND SHANO SHAN',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Color(0xFFD4AF37),
-                      fontSize: 12,
-                      letterSpacing: 3,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  const _SectionEyebrow(
+                    label: 'THE MAN BEHIND SHANO SHAN',
                   ),
-                  const SizedBox(height: 28),
-                  const Text(
+
+                  const SizedBox(height: 25),
+
+                  Text(
                     'Every fragrance has a story.\n'
                     'This is ours.',
-                    textAlign: TextAlign.center,
+                    textAlign: mobile
+                        ? TextAlign.center
+                        : TextAlign.left,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 36,
+                      fontSize: mobile ? 29 : 38,
                       fontWeight: FontWeight.w300,
-                      height: 1.3,
+                      height: 1.28,
                     ),
                   ),
-                  const SizedBox(height: 28),
+
+                  const SizedBox(height: 25),
+
                   Text(
                     'SHANO SHAN was created with a simple belief: '
                     'fragrance should feel personal. Every detail, '
                     'from the bottle to the final note, is designed '
                     'to become part of your story.',
-                    textAlign: TextAlign.center,
+                    textAlign: mobile
+                        ? TextAlign.center
+                        : TextAlign.left,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(.62),
-                      fontSize: 15,
-                      height: 1.8,
+                      color: Colors.white.withValues(alpha: .58),
+                      fontSize: 14,
+                      height: 1.85,
                     ),
                   ),
-                  const SizedBox(height: 35),
-                  OutlinedButton(
+
+                  const SizedBox(height: 32),
+
+                  _GoldOutlineButton(
+                    label: 'MEET THE FOUNDER',
                     onPressed: onMeetFounder,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFFD4AF37),
-                      side: const BorderSide(
-                        color: Color(0xFFD4AF37),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 30,
-                        vertical: 18,
-                      ),
-                    ),
-                    child: const Text(
-                      'MEET THE FOUNDER',
-                      style: TextStyle(
-                        letterSpacing: 1.5,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
                   ),
                 ],
               ),
@@ -709,12 +876,8 @@ class _FounderSection extends StatelessWidget {
             return Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Expanded(
-                  child: image,
-                ),
-                Expanded(
-                  child: content,
-                ),
+                Expanded(child: image),
+                Expanded(child: content),
               ],
             );
           },
@@ -724,108 +887,100 @@ class _FounderSection extends StatelessWidget {
   }
 }
 
-// ==================================================================
+// ============================================================================
 // SCENT EXPERIENCE
-// ==================================================================
+// ============================================================================
 
 class _ScentExperienceSection extends StatelessWidget {
-  final VoidCallback onExplore;
-
   const _ScentExperienceSection({
     required this.onExplore,
   });
 
+  final VoidCallback onExplore;
+
   @override
   Widget build(BuildContext context) {
+    final mobile = MediaQuery.of(context).size.width < 650;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Container(
-        constraints: const BoxConstraints(
-          maxWidth: 1100,
-        ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 30,
-          vertical: 85,
-        ),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.white12,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1100),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: mobile ? 25 : 50,
+            vertical: mobile ? 65 : 82,
           ),
-          color: Colors.white.withOpacity(.015),
-        ),
-        child: Column(
-          children: [
-            const Text(
-              'DISCOVER YOUR SIGNATURE',
-              style: TextStyle(
-                color: Color(0xFFD4AF37),
-                fontSize: 12,
-                letterSpacing: 4,
-                fontWeight: FontWeight.w600,
-              ),
+          decoration: BoxDecoration(
+            color: const Color(0xFF090909),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: .09),
             ),
-            const SizedBox(height: 25),
-            const Text(
-              'Find the fragrance\nthat feels like you.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 38,
-                fontWeight: FontWeight.w300,
-                height: 1.3,
+          ),
+          child: Column(
+            children: [
+              const _SectionEyebrow(
+                label: 'DISCOVER YOUR SIGNATURE',
               ),
-            ),
-            const SizedBox(height: 25),
-            Text(
-              'Not sure where to begin? Let SHANO SHAN guide you.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white.withOpacity(.6),
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 35),
-            ElevatedButton(
-              onPressed: () {
-                context.go('/find-your-scent');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD4AF37),
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 34,
-                  vertical: 19,
-                ),
-              ),
-              child: const Text(
-                'FIND YOUR SCENT',
+
+              const SizedBox(height: 25),
+
+              Text(
+                'Find the fragrance\nthat feels like you.',
+                textAlign: TextAlign.center,
                 style: TextStyle(
-                  letterSpacing: 1.5,
-                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                  fontSize: mobile ? 29 : 39,
+                  fontWeight: FontWeight.w300,
+                  height: 1.3,
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: onExplore,
-              child: const Text(
-                'EXPLORE ALL FRAGRANCES',
+
+              const SizedBox(height: 22),
+
+              Text(
+                'Not sure where to begin? Let SHANO SHAN guide you.',
+                textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white54,
-                  letterSpacing: 1,
+                  color: Colors.white.withValues(alpha: .56),
+                  fontSize: mobile ? 13 : 15,
                 ),
               ),
-            ),
-          ],
+
+              const SizedBox(height: 32),
+
+              _GoldFilledButton(
+                label: 'FIND YOUR SCENT',
+                onPressed: () {
+                  context.go('/find-your-scent');
+                },
+              ),
+
+              const SizedBox(height: 10),
+
+              TextButton(
+                onPressed: onExplore,
+                child: const Text(
+                  'EXPLORE ALL FRAGRANCES',
+                  style: TextStyle(
+                    color: Colors.white54,
+                    fontSize: 10,
+                    letterSpacing: 1.6,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-// ==================================================================
-// FINAL BRAND SECTION — LETTER BY LETTER ANIMATION
-// ==================================================================
+// ============================================================================
+// FINAL BRAND SECTION
+// ============================================================================
 
 class _FinalBrandSection extends StatefulWidget {
   const _FinalBrandSection();
@@ -835,7 +990,8 @@ class _FinalBrandSection extends StatefulWidget {
       _FinalBrandSectionState();
 }
 
-class _FinalBrandSectionState extends State<_FinalBrandSection> {
+class _FinalBrandSectionState
+    extends State<_FinalBrandSection> {
   static const String _signature = 'WEAR THE MOMENT.';
 
   Timer? _timer;
@@ -844,7 +1000,6 @@ class _FinalBrandSectionState extends State<_FinalBrandSection> {
   @override
   void initState() {
     super.initState();
-
     _startTypewriter();
   }
 
@@ -852,7 +1007,7 @@ class _FinalBrandSectionState extends State<_FinalBrandSection> {
     _timer?.cancel();
 
     _timer = Timer.periodic(
-      const Duration(milliseconds: 115),
+      const Duration(milliseconds: 105),
       (timer) {
         if (!mounted) {
           timer.cancel();
@@ -890,7 +1045,7 @@ class _FinalBrandSectionState extends State<_FinalBrandSection> {
       width: double.infinity,
       padding: EdgeInsets.symmetric(
         horizontal: 24,
-        vertical: mobile ? 80 : 120,
+        vertical: mobile ? 80 : 115,
       ),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -898,34 +1053,31 @@ class _FinalBrandSectionState extends State<_FinalBrandSection> {
           end: Alignment.bottomCenter,
           colors: [
             Color(0xFF0D0D0D),
-            Color(0xFF050505),
+            Color(0xFF040404),
           ],
         ),
       ),
       child: Column(
         children: [
           Container(
-            width: 45,
+            width: 42,
             height: 1,
             color: const Color(0xFFD4AF37),
           ),
 
-          const SizedBox(height: 35),
-
-          // --------------------------------------------------------
-          // TYPEWRITER SIGNATURE
-          // --------------------------------------------------------
+          const SizedBox(height: 32),
 
           SizedBox(
-            height: mobile ? 45 : 65,
+            height: mobile ? 43 : 62,
             child: Text(
               visibleText,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: mobile ? 30 : 46,
+                fontFamily: 'Georgia',
+                fontSize: mobile ? 28 : 45,
                 fontWeight: FontWeight.w300,
-                letterSpacing: 4,
+                letterSpacing: mobile ? 2.5 : 4,
               ),
             ),
           ),
@@ -936,34 +1088,17 @@ class _FinalBrandSectionState extends State<_FinalBrandSection> {
             'Discover a fragrance that becomes part of your story.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white.withOpacity(.52),
-              fontSize: 15,
+              color: Colors.white.withValues(alpha: .50),
+              fontSize: mobile ? 13 : 15,
               height: 1.7,
             ),
           ),
 
-          const SizedBox(height: 35),
+          const SizedBox(height: 32),
 
-          ElevatedButton(
-            onPressed: () {
-              context.go('/shop');
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFD4AF37),
-              foregroundColor: Colors.black,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 38,
-                vertical: 20,
-              ),
-            ),
-            child: const Text(
-              'SHOP SHANO SHAN',
-              style: TextStyle(
-                fontSize: 11,
-                letterSpacing: 2,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+          _GoldFilledButton(
+            label: 'SHOP SHANO SHAN',
+            onPressed: () => context.go('/shop'),
           ),
         ],
       ),
@@ -971,9 +1106,9 @@ class _FinalBrandSectionState extends State<_FinalBrandSection> {
   }
 }
 
-// ==================================================================
+// ============================================================================
 // STAY CONNECTED
-// ==================================================================
+// ============================================================================
 
 class _StayConnectedSection extends StatelessWidget {
   const _StayConnectedSection();
@@ -990,10 +1125,6 @@ class _StayConnectedSection extends StatelessWidget {
       color: const Color(0xFF030303),
       child: Stack(
         children: [
-          // --------------------------------------------------------
-          // OVERSIZED BACKGROUND BRAND NAME
-          // --------------------------------------------------------
-
           Positioned(
             left: mobile ? -20 : -50,
             right: mobile ? -20 : -50,
@@ -1005,7 +1136,7 @@ class _StayConnectedSection extends StatelessWidget {
                   'SHANO SHAN',
                   maxLines: 1,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(.025),
+                    color: Colors.white.withValues(alpha: .022),
                     fontSize: mobile ? 90 : 190,
                     fontWeight: FontWeight.w800,
                     letterSpacing: mobile ? 5 : 15,
@@ -1015,14 +1146,10 @@ class _StayConnectedSection extends StatelessWidget {
             ),
           ),
 
-          // --------------------------------------------------------
-          // MAIN CONTENT
-          // --------------------------------------------------------
-
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: mobile ? 24 : 55,
-              vertical: mobile ? 75 : 95,
+              vertical: mobile ? 72 : 92,
             ),
             child: ConstrainedBox(
               constraints: const BoxConstraints(
@@ -1031,10 +1158,6 @@ class _StayConnectedSection extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ------------------------------------------------
-                  // TOP LINE
-                  // ------------------------------------------------
-
                   Row(
                     children: [
                       Container(
@@ -1055,28 +1178,20 @@ class _StayConnectedSection extends StatelessWidget {
                     ],
                   ),
 
-                  const SizedBox(height: 30),
-
-                  // ------------------------------------------------
-                  // TITLE
-                  // ------------------------------------------------
+                  const SizedBox(height: 28),
 
                   Text(
                     'STAY\nCONNECTED.',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: mobile ? 46 : 78,
+                      fontSize: mobile ? 44 : 76,
                       height: .95,
                       fontWeight: FontWeight.w300,
                       letterSpacing: mobile ? 1 : 2,
                     ),
                   ),
 
-                  const SizedBox(height: 30),
-
-                  // ------------------------------------------------
-                  // DESCRIPTION
-                  // ------------------------------------------------
+                  const SizedBox(height: 28),
 
                   ConstrainedBox(
                     constraints: const BoxConstraints(
@@ -1087,48 +1202,38 @@ class _StayConnectedSection extends StatelessWidget {
                       'Follow our journey, explore new fragrances, '
                       'and stay close to the stories behind every scent.',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(.58),
+                        color: Colors.white.withValues(alpha: .56),
                         fontSize: mobile ? 14 : 16,
                         height: 1.8,
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 55),
-
-                  // ------------------------------------------------
-                  // LINKS + CONTACT
-                  // ------------------------------------------------
+                  const SizedBox(height: 48),
 
                   if (mobile)
                     const _MobileConnectionLinks()
                   else
                     const _DesktopConnectionLinks(),
 
-                  const SizedBox(height: 70),
-
-                  // ------------------------------------------------
-                  // BOTTOM LINE
-                  // ------------------------------------------------
+                  const SizedBox(height: 65),
 
                   Container(
                     width: double.infinity,
                     height: 1,
-                    color: Colors.white.withOpacity(.10),
+                    color: Colors.white.withValues(alpha: .09),
                   ),
 
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 23),
 
                   Row(
                     mainAxisAlignment:
                         MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment:
-                        CrossAxisAlignment.center,
                     children: [
                       Text(
                         '© SHANO SHAN FRAGRANCE',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(.32),
+                          color: Colors.white.withValues(alpha: .30),
                           fontSize: 9,
                           letterSpacing: 1.5,
                         ),
@@ -1137,7 +1242,7 @@ class _StayConnectedSection extends StatelessWidget {
                         Text(
                           'CRAFTED FOR THOSE WHO LEAVE AN IMPRESSION.',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(.25),
+                            color: Colors.white.withValues(alpha: .22),
                             fontSize: 9,
                             letterSpacing: 1.5,
                           ),
@@ -1154,14 +1259,12 @@ class _StayConnectedSection extends StatelessWidget {
   }
 }
 
-// ==================================================================
+// ============================================================================
 // DESKTOP CONNECTION LINKS
-// ==================================================================
+// ============================================================================
 
 class _DesktopConnectionLinks extends StatelessWidget {
   const _DesktopConnectionLinks();
-
-  static const Color gold = Color(0xFFD4AF37);
 
   @override
   Widget build(BuildContext context) {
@@ -1169,56 +1272,39 @@ class _DesktopConnectionLinks extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Expanded(
-          child: Row(
-            children: [
+          child: Wrap(
+            spacing: 30,
+            runSpacing: 18,
+            children: const [
               _ConnectionLink(
                 icon: Icons.camera_alt_outlined,
                 label: 'INSTAGRAM',
-                onTap: () {
-                  _showComingSoon(context, 'Instagram');
-                },
               ),
-              const SizedBox(width: 35),
               _ConnectionLink(
                 icon: Icons.music_note_outlined,
                 label: 'TIKTOK',
-                onTap: () {
-                  _showComingSoon(context, 'TikTok');
-                },
               ),
-              const SizedBox(width: 35),
               _ConnectionLink(
                 icon: Icons.facebook,
                 label: 'FACEBOOK',
-                onTap: () {
-                  _showComingSoon(context, 'Facebook');
-                },
               ),
-              const SizedBox(width: 35),
               _ConnectionLink(
                 icon: Icons.mail_outline_rounded,
                 label: 'EMAIL',
-                onTap: () {
-                  _showComingSoon(context, 'Email');
-                },
               ),
             ],
           ),
         ),
-        const SizedBox(width: 40),
-        _ContactButton(
-          onTap: () {
-            context.go('/contact');
-          },
-        ),
+        const SizedBox(width: 35),
+        _ContactButton(),
       ],
     );
   }
 }
 
-// ==================================================================
+// ============================================================================
 // MOBILE CONNECTION LINKS
-// ==================================================================
+// ============================================================================
 
 class _MobileConnectionLinks extends StatelessWidget {
   const _MobileConnectionLinks();
@@ -1226,69 +1312,50 @@ class _MobileConnectionLinks extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: [
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const [
         _ConnectionLink(
           icon: Icons.camera_alt_outlined,
           label: 'INSTAGRAM',
-          onTap: () {
-            _showComingSoon(context, 'Instagram');
-          },
         ),
-        const SizedBox(height: 25),
+        SizedBox(height: 22),
         _ConnectionLink(
           icon: Icons.music_note_outlined,
           label: 'TIKTOK',
-          onTap: () {
-            _showComingSoon(context, 'TikTok');
-          },
         ),
-        const SizedBox(height: 25),
+        SizedBox(height: 22),
         _ConnectionLink(
           icon: Icons.facebook,
           label: 'FACEBOOK',
-          onTap: () {
-            _showComingSoon(context, 'Facebook');
-          },
         ),
-        const SizedBox(height: 25),
+        SizedBox(height: 22),
         _ConnectionLink(
           icon: Icons.mail_outline_rounded,
           label: 'EMAIL',
-          onTap: () {
-            _showComingSoon(context, 'Email');
-          },
         ),
-        const SizedBox(height: 45),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: _ContactButton(
-            onTap: () {
-              context.go('/contact');
-            },
-          ),
-        ),
+        SizedBox(height: 42),
+        _ContactButton(),
       ],
     );
   }
 }
 
-// ==================================================================
+// ============================================================================
 // CONNECTION LINK
-// ==================================================================
+// ============================================================================
 
 class _ConnectionLink extends StatefulWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
   const _ConnectionLink({
     required this.icon,
     required this.label,
-    required this.onTap,
   });
 
+  final IconData icon;
+  final String label;
+
   @override
-  State<_ConnectionLink> createState() => _ConnectionLinkState();
+  State<_ConnectionLink> createState() =>
+      _ConnectionLinkState();
 }
 
 class _ConnectionLinkState extends State<_ConnectionLink> {
@@ -1311,18 +1378,16 @@ class _ConnectionLinkState extends State<_ConnectionLink> {
         });
       },
       child: GestureDetector(
-        onTap: widget.onTap,
+        onTap: () => context.go('/contact'),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 220),
-          padding: const EdgeInsets.only(
-            bottom: 9,
-          ),
+          padding: const EdgeInsets.only(bottom: 8),
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
                 color: _hovering
                     ? gold
-                    : Colors.white.withOpacity(.12),
+                    : Colors.white.withValues(alpha: .12),
                 width: _hovering ? 1.2 : 1,
               ),
             ),
@@ -1330,20 +1395,12 @@ class _ConnectionLinkState extends State<_ConnectionLink> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                transform: Matrix4.translationValues(
-                  _hovering ? 0 : -2,
-                  0,
-                  0,
-                ),
-                child: Icon(
-                  widget.icon,
-                  size: 17,
-                  color: _hovering
-                      ? gold
-                      : Colors.white.withOpacity(.58),
-                ),
+              Icon(
+                widget.icon,
+                size: 17,
+                color: _hovering
+                    ? gold
+                    : Colors.white.withValues(alpha: .55),
               ),
               const SizedBox(width: 10),
               Text(
@@ -1351,7 +1408,7 @@ class _ConnectionLinkState extends State<_ConnectionLink> {
                 style: TextStyle(
                   color: _hovering
                       ? Colors.white
-                      : Colors.white.withOpacity(.58),
+                      : Colors.white.withValues(alpha: .55),
                   fontSize: 10,
                   letterSpacing: 2,
                   fontWeight: FontWeight.w600,
@@ -1365,19 +1422,16 @@ class _ConnectionLinkState extends State<_ConnectionLink> {
   }
 }
 
-// ==================================================================
+// ============================================================================
 // CONTACT BUTTON
-// ==================================================================
+// ============================================================================
 
 class _ContactButton extends StatefulWidget {
-  final VoidCallback onTap;
-
-  const _ContactButton({
-    required this.onTap,
-  });
+  const _ContactButton();
 
   @override
-  State<_ContactButton> createState() => _ContactButtonState();
+  State<_ContactButton> createState() =>
+      _ContactButtonState();
 }
 
 class _ContactButtonState extends State<_ContactButton> {
@@ -1400,17 +1454,15 @@ class _ContactButtonState extends State<_ContactButton> {
         });
       },
       child: GestureDetector(
-        onTap: widget.onTap,
+        onTap: () => context.go('/contact'),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 220),
           padding: const EdgeInsets.symmetric(
-            horizontal: 25,
-            vertical: 17,
+            horizontal: 24,
+            vertical: 16,
           ),
           decoration: BoxDecoration(
-            color: _hovering
-                ? gold
-                : Colors.transparent,
+            color: _hovering ? gold : Colors.transparent,
             border: Border.all(
               color: gold,
             ),
@@ -1421,27 +1473,17 @@ class _ContactButtonState extends State<_ContactButton> {
               Text(
                 'CONTACT US',
                 style: TextStyle(
-                  color: _hovering
-                      ? Colors.black
-                      : gold,
+                  color: _hovering ? Colors.black : gold,
                   fontSize: 10,
                   letterSpacing: 2,
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(width: 15),
-              AnimatedPadding(
-                duration: const Duration(milliseconds: 220),
-                padding: EdgeInsets.only(
-                  left: _hovering ? 4 : 0,
-                ),
-                child: Icon(
-                  Icons.arrow_forward_rounded,
-                  size: 16,
-                  color: _hovering
-                      ? Colors.black
-                      : gold,
-                ),
+              const SizedBox(width: 14),
+              Icon(
+                Icons.arrow_forward_rounded,
+                size: 16,
+                color: _hovering ? Colors.black : gold,
               ),
             ],
           ),
@@ -1451,24 +1493,139 @@ class _ContactButtonState extends State<_ContactButton> {
   }
 }
 
-// ==================================================================
-// TEMPORARY SOCIAL LINK MESSAGE
-// ==================================================================
+// ============================================================================
+// GOLD OUTLINE BUTTON
+// ============================================================================
 
-void _showComingSoon(
-  BuildContext context,
-  String platform,
-) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      backgroundColor: const Color(0xFF111111),
-      behavior: SnackBarBehavior.floating,
-      content: Text(
-        '$platform link will be available soon.',
-        style: const TextStyle(
-          color: Colors.white,
+class _GoldOutlineButton extends StatefulWidget {
+  const _GoldOutlineButton({
+    required this.label,
+    required this.onPressed,
+  });
+
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  State<_GoldOutlineButton> createState() =>
+      _GoldOutlineButtonState();
+}
+
+class _GoldOutlineButtonState
+    extends State<_GoldOutlineButton> {
+  bool _hovering = false;
+
+  static const Color gold = Color(0xFFD4AF37);
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) {
+        setState(() => _hovering = true);
+      },
+      onExit: (_) {
+        setState(() => _hovering = false);
+      },
+      child: GestureDetector(
+        onTap: widget.onPressed,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 29,
+            vertical: 16,
+          ),
+          decoration: BoxDecoration(
+            color: _hovering ? gold : Colors.transparent,
+            border: Border.all(
+              color: gold,
+              width: 1,
+            ),
+          ),
+          child: Text(
+            widget.label,
+            style: TextStyle(
+              color: _hovering ? Colors.black : gold,
+              fontSize: 10,
+              letterSpacing: 1.7,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
+}
+
+// ============================================================================
+// GOLD FILLED BUTTON
+// ============================================================================
+
+class _GoldFilledButton extends StatefulWidget {
+  const _GoldFilledButton({
+    required this.label,
+    required this.onPressed,
+  });
+
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  State<_GoldFilledButton> createState() =>
+      _GoldFilledButtonState();
+}
+
+class _GoldFilledButtonState
+    extends State<_GoldFilledButton> {
+  bool _hovering = false;
+
+  static const Color gold = Color(0xFFD4AF37);
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) {
+        setState(() => _hovering = true);
+      },
+      onExit: (_) {
+        setState(() => _hovering = false);
+      },
+      child: GestureDetector(
+        onTap: widget.onPressed,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 34,
+            vertical: 18,
+          ),
+          decoration: BoxDecoration(
+            color: _hovering
+                ? const Color(0xFFE5BC55)
+                : gold,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                widget.label,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 10,
+                  letterSpacing: 1.7,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(width: 14),
+              const Icon(
+                Icons.arrow_forward,
+                color: Colors.black,
+                size: 16,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

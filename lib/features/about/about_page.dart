@@ -7,6 +7,74 @@ class AboutPage extends StatelessWidget {
   static const Color gold = Color(0xFFD4AF37);
   static const Color softGold = Color(0xFFE8D49A);
   static const Color background = Color(0xFF050505);
+  static const Color panel = Color(0xFF0B0B0B);
+  static const Color line = Color(0xFF252525);
+
+  // ============================================================
+  // ADMIN-READY CONTENT
+  //
+  // Later these values will come from:
+  //
+  // Admin Panel → Worker API → D1 → AboutPage
+  //
+  // For now they act as safe editable defaults.
+  // ============================================================
+
+  static const String heroEyebrow = 'THE WORLD OF SHANO SHAN';
+  static const String heroTitle = 'MORE THAN\nA FRAGRANCE.';
+  static const String heroDescription =
+      'A fragrance can become part of a moment, a memory, '
+      'and the way you express yourself.';
+
+  static const String storyEyebrow = 'OUR STORY';
+  static const String storyTitle = 'CRAFTED FOR\nMEMORABLE MOMENTS.';
+  static const String storyParagraphOne =
+      'SHANO SHAN is built around the idea that fragrance '
+      'should feel personal, expressive, and memorable.';
+  static const String storyParagraphTwo =
+      'From the scent itself to the experience surrounding it, '
+      'every detail is designed to create a sense of elegance '
+      'and individuality.';
+
+  static const String philosophyEyebrow = 'OUR PHILOSOPHY';
+  static const String philosophyTitle = 'WHAT WE BELIEVE.';
+
+  static const List<Map<String, String>> philosophyItems = [
+    {
+      'number': '01',
+      'title': 'CHARACTER',
+      'description':
+          'A fragrance should feel distinctive and personal.',
+    },
+    {
+      'number': '02',
+      'title': 'CRAFT',
+      'description':
+          'Every detail matters, from presentation to experience.',
+    },
+    {
+      'number': '03',
+      'title': 'MEMORY',
+      'description':
+          'The best fragrance is the one that stays with you.',
+    },
+  ];
+
+  static const String founderEyebrow = 'THE MAN BEHIND SHANO SHAN';
+
+  // Leave these empty until the real founder information is
+  // entered through the Admin Panel.
+  static const String founderName = '';
+  static const String founderTitle = '';
+  static const String founderImageUrl = '';
+  static const String founderStory = '';
+  static const String founderStoryTwo = '';
+
+  static const String closingEyebrow = 'THE SHANO SHAN EXPERIENCE';
+  static const String closingTitle = 'EVERY FRAGRANCE\nHAS A STORY.';
+  static const String closingDescription =
+      'Discover a fragrance that feels like your own.';
+  static const String closingButton = 'EXPLORE FRAGRANCES';
 
   @override
   Widget build(BuildContext context) {
@@ -18,11 +86,11 @@ class AboutPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _buildHero(context, isMobile),
-            _buildBrandStory(context, isMobile),
-            _buildPhilosophy(context, isMobile),
-            _buildFounderSection(context, isMobile),
-            _buildClosingSection(context, isMobile),
+            _buildHero(isMobile),
+            _buildStory(isMobile),
+            _buildPhilosophy(isMobile),
+            _buildFounder(context, isMobile),
+            _buildClosing(context, isMobile),
           ],
         ),
       ),
@@ -33,72 +101,63 @@ class AboutPage extends StatelessWidget {
   // HERO
   // ============================================================
 
-  Widget _buildHero(BuildContext context, bool isMobile) {
+  Widget _buildHero(bool isMobile) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 24 : 70,
-        vertical: isMobile ? 80 : 120,
+        horizontal: isMobile ? 24 : 80,
+        vertical: isMobile ? 95 : 145,
       ),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Color(0xFF111111),
+            Color(0xFF151515),
             background,
           ],
         ),
       ),
       child: Column(
         children: [
-          const Text(
-            'ABOUT',
-            style: TextStyle(
-              color: gold,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 5,
-            ),
-          ),
+          _eyebrow(heroEyebrow),
 
-          const SizedBox(height: 22),
+          const SizedBox(height: 28),
 
           Text(
-            'THE WORLD OF\nSHANO SHAN',
+            heroTitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white,
-              fontSize: isMobile ? 38 : 64,
-              height: 1.05,
+              fontSize: isMobile ? 42 : 72,
+              height: 1.02,
               fontWeight: FontWeight.w300,
               letterSpacing: 3,
             ),
           ),
 
-          const SizedBox(height: 28),
+          const SizedBox(height: 32),
 
           Container(
-            width: 55,
+            width: 60,
             height: 1,
             color: gold,
           ),
 
-          const SizedBox(height: 28),
+          const SizedBox(height: 30),
 
           ConstrainedBox(
             constraints: const BoxConstraints(
-              maxWidth: 650,
+              maxWidth: 680,
             ),
             child: Text(
-              'A fragrance is more than a scent. '
-              'It is an atmosphere, a memory, and a way of expressing who you are.',
+              heroDescription,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.65),
+                color: Colors.white.withValues(alpha: 0.62),
                 fontSize: isMobile ? 15 : 18,
-                height: 1.8,
-                letterSpacing: 0.5,
+                height: 1.9,
+                letterSpacing: 0.4,
               ),
             ),
           ),
@@ -108,22 +167,23 @@ class AboutPage extends StatelessWidget {
   }
 
   // ============================================================
-  // BRAND STORY
+  // STORY
   // ============================================================
 
-  Widget _buildBrandStory(BuildContext context, bool isMobile) {
+  Widget _buildStory(bool isMobile) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 24 : 80,
-        vertical: isMobile ? 70 : 110,
+        horizontal: isMobile ? 25 : 90,
+        vertical: isMobile ? 80 : 125,
       ),
       child: isMobile
           ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _storyLabel(),
-                const SizedBox(height: 25),
-                _storyText(),
+                _eyebrow(storyEyebrow),
+                const SizedBox(height: 30),
+                _storyContent(isMobile),
               ],
             )
           : Row(
@@ -131,72 +191,40 @@ class AboutPage extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 2,
-                  child: _storyLabel(),
+                  child: _eyebrow(storyEyebrow),
                 ),
-                const SizedBox(width: 70),
+                const SizedBox(width: 90),
                 Expanded(
                   flex: 5,
-                  child: _storyText(),
+                  child: _storyContent(isMobile),
                 ),
               ],
             ),
     );
   }
 
-  Widget _storyLabel() {
-    return const Align(
-      alignment: Alignment.topLeft,
-      child: Text(
-        'THE BRAND',
-        style: TextStyle(
-          color: gold,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 4,
-        ),
-      ),
-    );
-  }
-
-  Widget _storyText() {
+  Widget _storyContent(bool isMobile) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'CRAFTED FOR\nMEMORABLE MOMENTS.',
+        Text(
+          storyTitle,
           style: TextStyle(
             color: Colors.white,
-            fontSize: 30,
-            height: 1.25,
+            fontSize: isMobile ? 30 : 42,
+            height: 1.18,
             fontWeight: FontWeight.w300,
             letterSpacing: 1.5,
           ),
         ),
 
-        const SizedBox(height: 30),
+        const SizedBox(height: 38),
 
-        Text(
-          'SHANO SHAN is built around the idea that fragrance '
-          'should feel personal. Every scent should have its own '
-          'character and leave a lasting impression.',
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.62),
-            fontSize: 16,
-            height: 1.9,
-          ),
-        ),
+        _bodyText(storyParagraphOne),
 
-        const SizedBox(height: 20),
+        const SizedBox(height: 22),
 
-        Text(
-          'Our customer experience, presentation, and fragrances '
-          'are designed around simplicity, elegance, and individuality.',
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.62),
-            fontSize: 16,
-            height: 1.9,
-          ),
-        ),
+        _bodyText(storyParagraphTwo),
       ],
     );
   }
@@ -205,66 +233,48 @@ class AboutPage extends StatelessWidget {
   // PHILOSOPHY
   // ============================================================
 
-  Widget _buildPhilosophy(BuildContext context, bool isMobile) {
-    final items = [
-      (
-        '01',
-        'CHARACTER',
-        'A fragrance should feel distinctive and personal.'
-      ),
-      (
-        '02',
-        'CRAFT',
-        'Every detail matters, from presentation to experience.'
-      ),
-      (
-        '03',
-        'MEMORY',
-        'The best fragrance is the one people remember.'
-      ),
-    ];
-
+  Widget _buildPhilosophy(bool isMobile) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 24 : 70,
-        vertical: isMobile ? 65 : 100,
+        horizontal: isMobile ? 25 : 80,
+        vertical: isMobile ? 75 : 110,
       ),
       decoration: const BoxDecoration(
-        color: Color(0xFF0B0B0B),
+        color: panel,
         border: Border(
-          top: BorderSide(
-            color: Color(0xFF202020),
-          ),
-          bottom: BorderSide(
-            color: Color(0xFF202020),
-          ),
+          top: BorderSide(color: line),
+          bottom: BorderSide(color: line),
         ),
       ),
       child: Column(
         children: [
-          const Text(
-            'OUR PHILOSOPHY',
+          _eyebrow(philosophyEyebrow),
+
+          const SizedBox(height: 22),
+
+          Text(
+            philosophyTitle,
+            textAlign: TextAlign.center,
             style: TextStyle(
-              color: gold,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 4,
+              color: Colors.white,
+              fontSize: isMobile ? 28 : 40,
+              fontWeight: FontWeight.w300,
+              letterSpacing: 2,
             ),
           ),
 
-          const SizedBox(height: 55),
+          const SizedBox(height: 60),
 
           if (isMobile)
             Column(
               children: [
-                for (final item in items) ...[
+                for (int i = 0; i < philosophyItems.length; i++) ...[
                   _philosophyCard(
-                    number: item.$1,
-                    title: item.$2,
-                    description: item.$3,
+                    philosophyItems[i],
                   ),
-                  const SizedBox(height: 35),
+                  if (i != philosophyItems.length - 1)
+                    const SizedBox(height: 45),
                 ],
               ],
             )
@@ -272,20 +282,20 @@ class AboutPage extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (int i = 0; i < items.length; i++) ...[
+                for (int i = 0; i < philosophyItems.length; i++) ...[
                   Expanded(
                     child: _philosophyCard(
-                      number: items[i].$1,
-                      title: items[i].$2,
-                      description: items[i].$3,
+                      philosophyItems[i],
                     ),
                   ),
-                  if (i != items.length - 1)
+                  if (i != philosophyItems.length - 1)
                     Container(
                       width: 1,
-                      height: 150,
-                      margin: const EdgeInsets.symmetric(horizontal: 35),
-                      color: const Color(0xFF252525),
+                      height: 170,
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 45,
+                      ),
+                      color: line,
                     ),
                 ],
               ],
@@ -295,27 +305,23 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Widget _philosophyCard({
-    required String number,
-    required String title,
-    required String description,
-  }) {
+  Widget _philosophyCard(Map<String, String> item) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          number,
+          item['number'] ?? '',
           style: const TextStyle(
             color: gold,
             fontSize: 12,
-            letterSpacing: 2,
+            letterSpacing: 3,
           ),
         ),
 
-        const SizedBox(height: 18),
+        const SizedBox(height: 20),
 
         Text(
-          title,
+          item['title'] ?? '',
           style: const TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -324,14 +330,14 @@ class AboutPage extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(height: 15),
+        const SizedBox(height: 16),
 
         Text(
-          description,
+          item['description'] ?? '',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.55),
+            color: Colors.white.withValues(alpha: 0.52),
             fontSize: 14,
-            height: 1.7,
+            height: 1.8,
           ),
         ),
       ],
@@ -342,131 +348,162 @@ class AboutPage extends StatelessWidget {
   // FOUNDER
   // ============================================================
 
-  Widget _buildFounderSection(BuildContext context, bool isMobile) {
+  Widget _buildFounder(
+    BuildContext context,
+    bool isMobile,
+  ) {
+    final hasImage = founderImageUrl.trim().isNotEmpty;
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 24 : 80,
-        vertical: isMobile ? 75 : 120,
+        horizontal: isMobile ? 25 : 90,
+        vertical: isMobile ? 85 : 125,
       ),
       child: isMobile
           ? Column(
               children: [
-                _founderPlaceholder(),
-                const SizedBox(height: 45),
-                _founderContent(context),
+                _founderImage(hasImage, isMobile),
+                const SizedBox(height: 55),
+                _founderContent(context, isMobile),
               ],
             )
           : Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
                   flex: 5,
-                  child: _founderPlaceholder(),
+                  child: _founderImage(hasImage, isMobile),
                 ),
-                const SizedBox(width: 80),
+                const SizedBox(width: 90),
                 Expanded(
                   flex: 5,
-                  child: _founderContent(context),
+                  child: _founderContent(context, isMobile),
                 ),
               ],
             ),
     );
   }
 
-  Widget _founderPlaceholder() {
+  Widget _founderImage(
+    bool hasImage,
+    bool isMobile,
+  ) {
     return AspectRatio(
-      aspectRatio: 0.82,
+      aspectRatio: isMobile ? 0.85 : 0.82,
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF101010),
+          color: const Color(0xFF0D0D0D),
           border: Border.all(
-            color: const Color(0xFF292929),
+            color: line,
           ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.person_outline_rounded,
-              size: 58,
-              color: gold.withOpacity(0.65),
-            ),
-
-            const SizedBox(height: 20),
-
-            Text(
-              'FOUNDER IMAGE',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.35),
-                fontSize: 11,
-                letterSpacing: 3,
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            Text(
-              'Managed from Admin',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.25),
-                fontSize: 12,
-              ),
-            ),
-          ],
-        ),
+        child: hasImage
+            ? Image.network(
+                founderImageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) {
+                  return _founderPlaceholder();
+                },
+              )
+            : _founderPlaceholder(),
       ),
     );
   }
 
-  Widget _founderContent(BuildContext context) {
+  Widget _founderPlaceholder() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.person_outline_rounded,
+          size: 64,
+          color: gold.withValues(alpha: 0.55),
+        ),
+
+        const SizedBox(height: 22),
+
+        Text(
+          'FOUNDER PORTRAIT',
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.3),
+            fontSize: 11,
+            letterSpacing: 3,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _founderContent(
+    BuildContext context,
+    bool isMobile,
+  ) {
+    final hasFounderName = founderName.trim().isNotEmpty;
+    final hasFounderTitle = founderTitle.trim().isNotEmpty;
+    final hasFounderStory = founderStory.trim().isNotEmpty;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'THE MAN BEHIND\nSHANO SHAN',
+        _eyebrow(founderEyebrow),
+
+        const SizedBox(height: 28),
+
+        Text(
+          hasFounderName
+              ? founderName
+              : 'THE PERSON\nBEHIND THE BRAND',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 32,
-            height: 1.2,
+            fontSize: isMobile ? 31 : 43,
+            height: 1.15,
             fontWeight: FontWeight.w300,
             letterSpacing: 1.5,
           ),
         ),
 
-        const SizedBox(height: 25),
+        if (hasFounderTitle) ...[
+          const SizedBox(height: 14),
+          Text(
+            founderTitle,
+            style: const TextStyle(
+              color: softGold,
+              fontSize: 13,
+              letterSpacing: 2,
+            ),
+          ),
+        ],
+
+        const SizedBox(height: 28),
 
         Container(
-          width: 45,
+          width: 48,
           height: 1,
           color: gold,
         ),
 
-        const SizedBox(height: 28),
+        const SizedBox(height: 30),
 
-        Text(
-          'Founder story and personal details will be managed '
-          'through the SHANO SHAN Admin Panel.',
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.58),
-            fontSize: 15,
-            height: 1.8,
+        if (hasFounderStory)
+          _bodyText(founderStory)
+        else
+          Text(
+            'A dedicated space for the founder’s story, '
+            'vision, and connection to SHANO SHAN.',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.5),
+              fontSize: 15,
+              height: 1.9,
+            ),
           ),
-        ),
 
-        const SizedBox(height: 18),
+        if (founderStoryTwo.trim().isNotEmpty) ...[
+          const SizedBox(height: 20),
+          _bodyText(founderStoryTwo),
+        ],
 
-        Text(
-          'This section is intentionally prepared for dynamic '
-          'brand content so it can be updated without changing '
-          'the customer website.',
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.45),
-            fontSize: 14,
-            height: 1.8,
-          ),
-        ),
-
-        const SizedBox(height: 35),
+        const SizedBox(height: 38),
 
         OutlinedButton(
           onPressed: () {
@@ -485,8 +522,8 @@ class AboutPage extends StatelessWidget {
           child: const Text(
             'CONNECT WITH US',
             style: TextStyle(
-              letterSpacing: 2,
               fontSize: 11,
+              letterSpacing: 2,
             ),
           ),
         ),
@@ -498,42 +535,57 @@ class AboutPage extends StatelessWidget {
   // CLOSING
   // ============================================================
 
-  Widget _buildClosingSection(
+  Widget _buildClosing(
     BuildContext context,
     bool isMobile,
   ) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        horizontal: 24,
-        vertical: isMobile ? 80 : 110,
+        horizontal: 25,
+        vertical: isMobile ? 95 : 135,
+      ),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            background,
+            Color(0xFF101010),
+          ],
+        ),
       ),
       child: Column(
         children: [
+          _eyebrow(closingEyebrow),
+
+          const SizedBox(height: 30),
+
           Text(
-            'EVERY FRAGRANCE\nHAS A STORY.',
+            closingTitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white,
-              fontSize: isMobile ? 30 : 44,
-              height: 1.2,
+              fontSize: isMobile ? 32 : 50,
+              height: 1.15,
               fontWeight: FontWeight.w300,
               letterSpacing: 2,
             ),
           ),
 
-          const SizedBox(height: 25),
+          const SizedBox(height: 24),
 
           Text(
-            'Discover yours.',
+            closingDescription,
+            textAlign: TextAlign.center,
             style: TextStyle(
-              color: gold.withOpacity(0.9),
-              fontSize: 17,
-              letterSpacing: 2,
+              color: gold.withValues(alpha: 0.9),
+              fontSize: 16,
+              letterSpacing: 1.5,
             ),
           ),
 
-          const SizedBox(height: 35),
+          const SizedBox(height: 40),
 
           ElevatedButton(
             onPressed: () {
@@ -542,14 +594,15 @@ class AboutPage extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: gold,
               foregroundColor: Colors.black,
+              elevation: 0,
               padding: const EdgeInsets.symmetric(
-                horizontal: 35,
-                vertical: 20,
+                horizontal: 36,
+                vertical: 21,
               ),
             ),
-            child: const Text(
-              'EXPLORE FRAGRANCES',
-              style: TextStyle(
+            child: Text(
+              closingButton,
+              style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 2,
@@ -557,6 +610,34 @@ class AboutPage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // SHARED UI
+  // ============================================================
+
+  Widget _eyebrow(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        color: gold,
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 4,
+      ),
+    );
+  }
+
+  Widget _bodyText(String text) {
+    return Text(
+      text,
+      style: TextStyle(
+        color: Colors.white.withValues(alpha: 0.6),
+        fontSize: 15,
+        height: 1.9,
+        letterSpacing: 0.15,
       ),
     );
   }
