@@ -16,4 +16,7 @@ abstract final class AppAssets {
 
   static const String introVideo =
       'assets/videos/shano_shan_intro.mp4';
+
+  static const String productMistBackground =
+      'assets/videos/product_mist_background.mp4';
 }

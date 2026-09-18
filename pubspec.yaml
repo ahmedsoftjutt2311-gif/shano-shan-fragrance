@@ -64,6 +64,7 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/videos/shano_shan_intro.mp4
+    - assets/videos/product_mist_background.mp4
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

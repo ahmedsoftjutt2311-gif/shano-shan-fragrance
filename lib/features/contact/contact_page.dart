@@ -84,7 +84,7 @@ class ContactPage extends StatelessWidget {
               'an order, or SHANO SHAN itself, we are here to help.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.6),
+                color: Colors.white.withOpacity(0.6),
                 fontSize: isMobile ? 15 : 17,
                 height: 1.8,
               ),
@@ -209,7 +209,7 @@ class ContactPage extends StatelessWidget {
               height: 58,
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: gold.withValues(alpha: 0.55),
+                  color: gold.withOpacity(0.55),
                 ),
               ),
               child: Icon(
@@ -240,7 +240,7 @@ class ContactPage extends StatelessWidget {
                   Text(
                     option.description,
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.45),
+                      color: Colors.white.withOpacity(0.45),
                       fontSize: 13,
                     ),
                   ),
@@ -251,7 +251,7 @@ class ContactPage extends StatelessWidget {
             Icon(
               Icons.arrow_forward_ios_rounded,
               size: 14,
-              color: Colors.white.withValues(alpha: 0.35),
+              color: Colors.white.withOpacity(0.35),
             ),
           ],
         ),
@@ -317,7 +317,7 @@ class ContactPage extends StatelessWidget {
             'orders, and any questions you may have.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.5),
+              color: Colors.white.withOpacity(0.5),
               fontSize: 14,
               height: 1.8,
             ),

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
@@ -25,9 +24,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
   // ==========================================================
 
   static const Color gold = Color(0xFFD4AF37);
+
   static const Color background = Color(0xFF050505);
+
   static const Color panel = Color(0xFF0D0D0D);
+
   static const Color border = Color(0xFF252525);
+
   static const Color muted = Color(0xFF777777);
 
   // ==========================================================
@@ -38,21 +41,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
       'https://shano-shan-api.hareem-pay-ahmed.workers.dev';
 
   // ==========================================================
-  // CLOUDINARY
-  // ==========================================================
-
-  static const String _cloudinaryCloudName = 'tbg6pn88';
-
-  static const String _cloudinaryUploadPreset =
-      'shano_shan_products';
-
-  static const String _cloudinaryReceiptFolder =
-      'shano-shan/receipts';
-
-  // ==========================================================
   // DELIVERY
   // ==========================================================
 
+  // Fallback only.
+  // The real value comes from the Worker.
   static const int _fallbackDeliveryFee = 250;
 
   int _deliveryFee = _fallbackDeliveryFee;
@@ -63,18 +56,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
   // EASYPAISA
   // ==========================================================
 
-  String _easypaisaAccountName =
+  static const String easypaisaAccountName =
       'SHANO SHAN FRAGRANCE';
 
-  String _easypaisaAccountNumber =
+  static const String easypaisaAccountNumber =
       '03XX-XXXXXXX';
 
-  String _easypaisaQrImage = '';
-
-  String _paymentInstructions =
-      'Make your payment through Easypaisa and upload your payment receipt below.';
-
-  bool _loadingPaymentSettings = true;
+  static const String easypaisaQrImage = '';
 
   // ==========================================================
   // FORM
@@ -96,21 +84,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   final _postalCodeController = TextEditingController();
 
-  // ==========================================================
-  // PAYMENT RECEIPT
-  // ==========================================================
-
-  PlatformFile? _selectedReceipt;
-
-  String? _receiptUrl;
-
-  String? _receiptType;
-
-  String? _receiptName;
-
-  bool _uploadingReceipt = false;
-
-  double _receiptUploadProgress = 0;
+  final _transactionController = TextEditingController();
 
   // ==========================================================
   // STATE
@@ -149,8 +123,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
     _restoreCheckoutDetails();
 
     _loadDeliveryFee();
-
-    _loadPaymentSettings();
   }
 
   @override
@@ -253,102 +225,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   // ==========================================================
-  // LOAD PAYMENT SETTINGS
-  // ==========================================================
-
-  Future<void> _loadPaymentSettings() async {
-    try {
-      final response = await http.get(
-        Uri.parse(
-          '$_apiBaseUrl/api/settings/site',
-        ),
-        headers: const {
-          'Accept': 'application/json',
-        },
-      );
-
-      debugPrint(
-        'PAYMENT SETTINGS RESPONSE: ${response.statusCode}',
-      );
-
-      debugPrint(
-        'PAYMENT SETTINGS BODY: ${response.body}',
-      );
-
-      if (response.statusCode >= 200 &&
-          response.statusCode < 300) {
-        final decoded = jsonDecode(response.body);
-
-        if (decoded is Map) {
-          final data = Map<String, dynamic>.from(
-            decoded,
-          );
-
-          dynamic rawSettings = data['settings'];
-
-          if (rawSettings is Map) {
-            final settings =
-                Map<String, dynamic>.from(rawSettings);
-
-            if (mounted) {
-              setState(() {
-                final accountName =
-                    settings['easypaisa_name']
-                        ?.toString()
-                        .trim();
-
-                final accountNumber =
-                    settings['easypaisa_number']
-                        ?.toString()
-                        .trim();
-
-                final qrUrl =
-                    settings['easypaisa_qr_url']
-                        ?.toString()
-                        .trim();
-
-                final instructions =
-                    settings['payment_instructions']
-                        ?.toString()
-                        .trim();
-
-                if (accountName != null &&
-                    accountName.isNotEmpty) {
-                  _easypaisaAccountName = accountName;
-                }
-
-                if (accountNumber != null &&
-                    accountNumber.isNotEmpty) {
-                  _easypaisaAccountNumber = accountNumber;
-                }
-
-                if (qrUrl != null) {
-                  _easypaisaQrImage = qrUrl;
-                }
-
-                if (instructions != null &&
-                    instructions.isNotEmpty) {
-                  _paymentInstructions = instructions;
-                }
-              });
-            }
-          }
-        }
-      }
-    } catch (e) {
-      debugPrint(
-        'PAYMENT SETTINGS LOAD ERROR: $e',
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _loadingPaymentSettings = false;
-        });
-      }
-    }
-  }
-
-  // ==========================================================
   // RESTORE DETAILS
   // ==========================================================
 
@@ -436,6 +312,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
         );
       }
 
+      // --------------------------------------------------------
+      // Create completely separate guest cart ID.
+      // --------------------------------------------------------
+
       final temporaryCartId =
           _generateCartId();
 
@@ -473,7 +353,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
             jsonDecode(response.body);
 
         if (decoded is Map) {
-          data = Map<String, dynamic>.from(
+          data =
+              Map<String, dynamic>.from(
             decoded,
           );
         }
@@ -487,6 +368,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
               'Could not prepare your order.',
         );
       }
+
+      // --------------------------------------------------------
+      // Prefer server-returned cart ID.
+      // --------------------------------------------------------
 
       final returnedCartId =
           data?['cart_id']?.toString();
@@ -568,6 +453,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     _cityController.dispose();
     _provinceController.dispose();
     _postalCodeController.dispose();
+    _transactionController.dispose();
 
     super.dispose();
   }
@@ -633,6 +519,20 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   // ==========================================================
+  // BUY NOW CURRENCY
+  // ==========================================================
+
+  String get _buyNowCurrency {
+    if (_buyNowProduct == null) {
+      return 'PKR';
+    }
+
+    return _buyNowProduct!['currency']
+            ?.toString() ??
+        'PKR';
+  }
+
+  // ==========================================================
   // BUY NOW TOTAL
   // ==========================================================
 
@@ -648,6 +548,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
   Widget build(
     BuildContext context,
   ) {
+    // --------------------------------------------------------
+    // BUY NOW preparation.
+    // --------------------------------------------------------
+
     if (_isBuyNow &&
         (!_buyNowReady ||
             _preparingBuyNow)) {
@@ -703,11 +607,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
             context,
             _,
           ) {
+            // ==================================================
+            // BUY NOW MODE
+            // ==================================================
+
             if (_isBuyNow) {
               return _buildBuyNowCheckout(
                 context,
               );
             }
+
+            // ==================================================
+            // NORMAL CART MODE
+            // ==================================================
 
             final cart =
                 CartService.instance;
@@ -758,9 +670,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
             children: [
               _buildHeader(context),
               const SizedBox(height: 45),
+
               if (_loadingSavedDetails ||
-                  _loadingDeliveryFee ||
-                  _loadingPaymentSettings)
+                  _loadingDeliveryFee)
                 const Padding(
                   padding:
                       EdgeInsets.only(
@@ -774,6 +686,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         border,
                   ),
                 ),
+
               if (desktop)
                 _buildDesktopLayout(
                   context,
@@ -820,9 +733,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
             children: [
               _buildHeader(context),
               const SizedBox(height: 45),
+
               if (_loadingSavedDetails ||
-                  _loadingDeliveryFee ||
-                  _loadingPaymentSettings)
+                  _loadingDeliveryFee)
                 const Padding(
                   padding:
                       EdgeInsets.only(
@@ -836,6 +749,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         border,
                   ),
                 ),
+
               if (desktop)
                 Row(
                   crossAxisAlignment:
@@ -982,6 +896,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             'CONTACT INFORMATION',
           ),
           const SizedBox(height: 20),
+
           _buildField(
             controller:
                 _nameController,
@@ -994,7 +909,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
               'Please enter your name',
             ),
           ),
+
           const SizedBox(height: 15),
+
           _buildField(
             controller:
                 _phoneController,
@@ -1009,7 +926,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
               'Please enter your phone number',
             ),
           ),
+
           const SizedBox(height: 15),
+
           _buildField(
             controller:
                 _emailController,
@@ -1020,12 +939,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
             keyboardType:
                 TextInputType.emailAddress,
           ),
+
           const SizedBox(height: 45),
+
           _buildSectionTitle(
             '02',
             'DELIVERY ADDRESS',
           ),
+
           const SizedBox(height: 20),
+
           _buildField(
             controller:
                 _addressController,
@@ -1040,7 +963,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
               'Please enter your delivery address',
             ),
           ),
+
           const SizedBox(height: 15),
+
           Row(
             children: [
               Expanded(
@@ -1070,7 +995,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
             ],
           ),
+
           const SizedBox(height: 15),
+
           _buildField(
             controller:
                 _postalCodeController,
@@ -1081,17 +1008,25 @@ class _CheckoutPageState extends State<CheckoutPage> {
             keyboardType:
                 TextInputType.number,
           ),
+
           const SizedBox(height: 45),
+
           _buildSectionTitle(
             '03',
             'PAYMENT METHOD',
           ),
+
           const SizedBox(height: 20),
+
           _buildPaymentSelector(),
+
           const SizedBox(height: 20),
+
           if (_paymentMethod == 'online')
             _buildOnlinePaymentDetails(),
+
           const SizedBox(height: 35),
+
           _buildPlaceOrderButton(context),
         ],
       ),
@@ -1294,14 +1229,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
           : () {
               setState(() {
                 _paymentMethod = value;
-
-                if (_paymentMethod == 'cod') {
-                  _selectedReceipt = null;
-                  _receiptUrl = null;
-                  _receiptType = null;
-                  _receiptName = null;
-                  _receiptUploadProgress = 0;
-                }
               });
             },
       child: AnimatedContainer(
@@ -1452,7 +1379,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
             ],
           ),
+
           const SizedBox(height: 22),
+
           const Text(
             'SEND YOUR PAYMENT TO',
             style: TextStyle(
@@ -1463,7 +1392,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
               letterSpacing: 1.5,
             ),
           ),
+
           const SizedBox(height: 14),
+
           Container(
             width: double.infinity,
             padding:
@@ -1483,9 +1414,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ),
                 ),
                 const SizedBox(height: 6),
-                Text(
-                  _easypaisaAccountName,
-                  style: const TextStyle(
+                const Text(
+                  easypaisaAccountName,
+                  style: TextStyle(
                     color: Colors.white,
                     fontSize: 14,
                     fontWeight:
@@ -1503,9 +1434,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ),
                 ),
                 const SizedBox(height: 6),
-                Text(
-                  _easypaisaAccountNumber,
-                  style: const TextStyle(
+                const Text(
+                  easypaisaAccountNumber,
+                  style: TextStyle(
                     color: gold,
                     fontSize: 18,
                     fontWeight:
@@ -1516,13 +1447,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ],
             ),
           ),
+
           const SizedBox(height: 20),
 
-          // ====================================================
-          // QR CODE
-          // ====================================================
-
-          if (_easypaisaQrImage.isNotEmpty)
+          if (easypaisaQrImage.isNotEmpty)
             Center(
               child: Container(
                 width: 220,
@@ -1531,13 +1459,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     const EdgeInsets.all(15),
                 color: Colors.white,
                 child: Image.network(
-                  _easypaisaQrImage,
+                  easypaisaQrImage,
                   fit: BoxFit.contain,
                   errorBuilder:
                       (
                     _,
-                    _,
-                    _,
+                    __,
+                    ___,
                   ) =>
                           const Icon(
                     Icons.qr_code_2,
@@ -1597,69 +1525,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
           const SizedBox(height: 22),
 
-          // ====================================================
-          // PAYMENT INSTRUCTIONS
-          // ====================================================
-
-          Container(
-            width: double.infinity,
-            padding:
-                const EdgeInsets.all(16),
-            decoration:
-                BoxDecoration(
+          const Text(
+            'After making the payment, enter your transaction/reference number below.',
+            style: TextStyle(
               color:
-                  const Color(0xFF111111),
-              border:
-                  Border.all(
-                color:
-                    const Color(0xFF242424),
-              ),
-            ),
-            child: Row(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                const Icon(
-                  Icons.info_outline,
-                  color: gold,
-                  size: 18,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    _paymentInstructions,
-                    style:
-                        const TextStyle(
-                      color:
-                          Color(0xFFAAAAAA),
-                      fontSize: 11,
-                      height: 1.6,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 22),
-
-          const Text(
-            'PAYMENT RECEIPT',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 11,
-              fontWeight:
-                  FontWeight.w600,
-              letterSpacing: 1.5,
-            ),
-          ),
-
-          const SizedBox(height: 8),
-
-          const Text(
-            'After making the payment, upload your Easypaisa receipt or payment screenshot.',
-            style: TextStyle(
-              color: Color(0xFF888888),
+                  Color(0xFF888888),
               fontSize: 11,
               height: 1.6,
             ),
@@ -1667,567 +1537,22 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
           const SizedBox(height: 15),
 
-          _buildReceiptPicker(),
-
-          if (_uploadingReceipt) ...[
-            const SizedBox(height: 15),
-            LinearProgressIndicator(
-              value: _receiptUploadProgress > 0
-                  ? _receiptUploadProgress
-                  : null,
-              minHeight: 2,
-              color: gold,
-              backgroundColor: border,
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'UPLOADING RECEIPT...',
-              style: TextStyle(
-                color: gold,
-                fontSize: 9,
-                letterSpacing: 1.2,
-              ),
-            ),
-          ],
-
-          if (_receiptUrl != null &&
-              _receiptUrl!.isNotEmpty &&
-              !_uploadingReceipt) ...[
-            const SizedBox(height: 15),
-            _buildUploadedReceipt(),
-          ],
-        ],
-      ),
-    );
-  }
-
-  // ==========================================================
-  // RECEIPT PICKER
-  // ==========================================================
-
-  Widget _buildReceiptPicker() {
-    final hasReceipt =
-        _selectedReceipt != null &&
-            _receiptUrl != null &&
-            _receiptUrl!.isNotEmpty;
-
-    return InkWell(
-      onTap: _placingOrder ||
-              _uploadingReceipt
-          ? null
-          : _pickReceipt,
-      child: Container(
-        width: double.infinity,
-        padding:
-            const EdgeInsets.all(20),
-        decoration:
-            BoxDecoration(
-          color: panel,
-          border:
-              Border.all(
-            color:
-                hasReceipt
-                    ? gold
-                    : border,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              hasReceipt
-                  ? Icons.check_circle_outline
-                  : Icons.cloud_upload_outlined,
-              color:
-                  hasReceipt
-                      ? gold
-                      : const Color(0xFF777777),
-              size: 32,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              hasReceipt
-                  ? 'RECEIPT UPLOADED'
-                  : 'UPLOAD PAYMENT RECEIPT',
-              style:
-                  TextStyle(
-                color:
-                    hasReceipt
-                        ? gold
-                        : Colors.white,
-                fontSize: 10,
-                fontWeight:
-                    FontWeight.w600,
-                letterSpacing: 1.4,
-              ),
-            ),
-            const SizedBox(height: 7),
-            const Text(
-              'JPG, PNG, WEBP or PDF',
-              style: TextStyle(
-                color: muted,
-                fontSize: 10,
-              ),
-            ),
-            if (!hasReceipt) ...[
-              const SizedBox(height: 12),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 9,
-                ),
-                decoration:
-                    BoxDecoration(
-                  border:
-                      Border.all(
-                    color:
-                        const Color(0xFF3A3A3A),
-                  ),
-                ),
-                child: const Text(
-                  'CHOOSE FILE',
-                  style: TextStyle(
-                    color: gold,
-                    fontSize: 9,
-                    fontWeight:
-                        FontWeight.w600,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ==========================================================
-  // PICK RECEIPT
-  // ==========================================================
-
-  Future<void> _pickReceipt() async {
-    if (_uploadingReceipt ||
-        _placingOrder) {
-      return;
-    }
-
-    try {
-      // file_picker 13.x:
-      // FilePicker.platform was removed.
-      // pickFile() directly returns PlatformFile?.
-      final file = await FilePicker.pickFile(
-        type: FileType.custom,
-        allowedExtensions: [
-          'jpg',
-          'jpeg',
-          'png',
-          'webp',
-          'pdf',
-        ],
-      );
-
-      if (file == null) {
-        return;
-      }
-
-      final extension =
-          _fileExtension(file.name);
-
-      final isPdf =
-          extension == 'pdf';
-
-      final isImage =
-          [
-            'jpg',
-            'jpeg',
-            'png',
-            'webp',
-          ].contains(extension);
-
-      if (!isPdf && !isImage) {
-        _showError(
-          'Please select an image or PDF receipt.',
-        );
-        return;
-      }
-
-      // file_picker 13.x:
-      // PlatformFile.bytes was removed.
-      // Read the selected file using readAsBytes().
-      final bytes =
-          await file.readAsBytes();
-
-      if (bytes.isEmpty) {
-        _showError(
-          'Could not read the selected file. Please try another file.',
-        );
-        return;
-      }
-
-      // --------------------------------------------------------
-      // 10 MB client-side limit.
-      // --------------------------------------------------------
-
-      const maxBytes =
-          10 * 1024 * 1024;
-
-      if (bytes.length > maxBytes) {
-        _showError(
-          'Receipt must be 10 MB or smaller.',
-        );
-        return;
-      }
-
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        _selectedReceipt = file;
-        _receiptUrl = null;
-        _receiptType =
-            isPdf ? 'pdf' : 'image';
-        _receiptName = file.name;
-      });
-
-      await _uploadReceipt(
-        file,
-        bytes,
-      );
-    } catch (e) {
-      debugPrint(
-        'RECEIPT PICK ERROR: $e',
-      );
-
-      if (!mounted) {
-        return;
-      }
-
-      _showError(
-        _cleanError(e),
-      );
-    }
-  }
-
-  // ==========================================================
-  // UPLOAD RECEIPT TO CLOUDINARY
-  // ==========================================================
-
-  Future<void> _uploadReceipt(
-    PlatformFile file,
-    List<int> bytes,
-  ) async {
-    if (bytes.isEmpty) {
-      _showError(
-        'The selected receipt could not be read.',
-      );
-      return;
-    }
-
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      _uploadingReceipt = true;
-      _receiptUploadProgress = 0;
-    });
-
-    try {
-      final extension =
-          _fileExtension(file.name);
-
-      final isPdf =
-          extension == 'pdf';
-
-      // --------------------------------------------------------
-      // Cloudinary AUTO resource type supports images/PDF.
-      // --------------------------------------------------------
-
-      final uri = Uri.parse(
-        'https://api.cloudinary.com/v1_1/'
-        '$_cloudinaryCloudName/auto/upload',
-      );
-
-      final request =
-          http.MultipartRequest(
-        'POST',
-        uri,
-      );
-
-      request.fields[
-          'upload_preset'] =
-          _cloudinaryUploadPreset;
-
-      request.fields[
-          'folder'] =
-          _cloudinaryReceiptFolder;
-
-      request.files.add(
-        http.MultipartFile.fromBytes(
-          'file',
-          bytes,
-          filename: file.name,
-        ),
-      );
-
-      if (mounted) {
-        setState(() {
-          _receiptUploadProgress = 0.15;
-        });
-      }
-
-      final response =
-          await request.send();
-
-      if (mounted) {
-        setState(() {
-          _receiptUploadProgress = 0.80;
-        });
-      }
-
-      final responseText =
-          await response.stream
-              .bytesToString();
-
-      dynamic decoded;
-
-      try {
-        decoded =
-            jsonDecode(responseText);
-      } catch (_) {
-        throw Exception(
-          'Cloudinary returned an invalid response.',
-        );
-      }
-
-      // --------------------------------------------------------
-      // CLOUDINARY ERROR
-      // --------------------------------------------------------
-
-      if (response.statusCode < 200 ||
-          response.statusCode >= 300) {
-        String? message;
-
-        if (decoded is Map) {
-          final error =
-              decoded['error'];
-
-          if (error is Map) {
-            message =
-                error['message']
-                    ?.toString();
-          } else if (error != null) {
-            message =
-                error.toString();
-          }
-        }
-
-        throw Exception(
-          message != null &&
-                  message.isNotEmpty
-              ? message
-              : 'Receipt upload failed.',
-        );
-      }
-
-      // --------------------------------------------------------
-      // CLOUDINARY SECURE URL
-      // --------------------------------------------------------
-
-      final secureUrl =
-          decoded is Map
-              ? '${decoded['secure_url'] ?? ''}'
-                  .trim()
-              : '';
-
-      if (secureUrl.isEmpty) {
-        throw Exception(
-          'Cloudinary did not return a receipt URL.',
-        );
-      }
-
-      final returnedResourceType =
-          decoded is Map
-              ? decoded['resource_type']
-                  ?.toString()
-                  .toLowerCase()
-              : null;
-
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        _receiptUrl = secureUrl;
-
-        _receiptType =
-            isPdf ||
-                    returnedResourceType ==
-                        'raw'
-                ? 'pdf'
-                : 'image';
-
-        _receiptName = file.name;
-
-        _receiptUploadProgress = 1;
-      });
-
-      debugPrint(
-        'RECEIPT CLOUDINARY URL: $secureUrl',
-      );
-    } catch (e) {
-      debugPrint(
-        'RECEIPT UPLOAD ERROR: $e',
-      );
-
-      if (mounted) {
-        setState(() {
-          _receiptUrl = null;
-          _receiptUploadProgress = 0;
-        });
-      }
-
-      _showError(
-        'Receipt upload failed: ${_cleanError(e)}',
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _uploadingReceipt = false;
-        });
-      }
-    }
-  }
-
-  // ==========================================================
-  // FILE EXTENSION
-  // ==========================================================
-
-  String _fileExtension(
-    String filename,
-  ) {
-    final dot =
-        filename.lastIndexOf('.');
-
-    if (dot == -1 ||
-        dot == filename.length - 1) {
-      return '';
-    }
-
-    return filename
-        .substring(dot + 1)
-        .toLowerCase();
-  }
-
-  // ==========================================================
-  // UPLOADED RECEIPT
-  // ==========================================================
-
-  Widget _buildUploadedReceipt() {
-    final fileName =
-        _receiptName ??
-            'Payment receipt';
-
-    final isPdf =
-        _receiptType == 'pdf';
-
-    return Container(
-      width: double.infinity,
-      padding:
-          const EdgeInsets.all(15),
-      decoration:
-          BoxDecoration(
-        color:
-            const Color(0xFF10100C),
-        border:
-            Border.all(
-          color:
-              const Color(0xFF51421D),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration:
-                BoxDecoration(
-              color:
-                  const Color(0xFF19160C),
-              border:
-                  Border.all(
-                color: gold,
-              ),
-            ),
-            child: Icon(
-              isPdf
-                  ? Icons.picture_as_pdf_outlined
-                  : Icons.image_outlined,
-              color: gold,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'RECEIPT READY',
-                  style: TextStyle(
-                    color: gold,
-                    fontSize: 9,
-                    fontWeight:
-                        FontWeight.w600,
-                    letterSpacing: 1.1,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  fileName,
-                  maxLines: 1,
-                  overflow:
-                      TextOverflow.ellipsis,
-                  style:
-                      const TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            tooltip:
-                'Remove receipt',
-            onPressed:
-                _placingOrder ||
-                        _uploadingReceipt
-                    ? null
-                    : () {
-                        setState(() {
-                          _selectedReceipt =
-                              null;
-                          _receiptUrl =
-                              null;
-                          _receiptType =
-                              null;
-                          _receiptName =
-                              null;
-                          _receiptUploadProgress =
-                              0;
-                        });
-                      },
+          _buildField(
+            controller:
+                _transactionController,
+            label:
+                'TRANSACTION / REFERENCE NUMBER',
+            hint:
+                'Enter payment reference',
             icon:
-                const Icon(
-              Icons.close,
-              color:
-                  Color(0xFF888888),
-              size: 18,
-            ),
+                Icons.receipt_long_outlined,
+            validator:
+                _paymentMethod ==
+                        'online'
+                    ? _required(
+                        'Please enter your payment reference',
+                      )
+                    : null,
           ),
         ],
       ),
@@ -2274,7 +1599,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
               letterSpacing: 2.5,
             ),
           ),
+
           const SizedBox(height: 25),
+
           for (
             int i = 0;
             i < cart.items.length;
@@ -2289,17 +1616,23 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 height: 18,
               ),
           ],
+
           const SizedBox(height: 25),
+
           Container(
             height: 1,
             color: border,
           ),
+
           const SizedBox(height: 25),
+
           _buildSummaryRow(
             'ITEMS',
             '${cart.itemCount}',
           ),
+
           const SizedBox(height: 15),
+
           _buildSummaryRow(
             'SUBTOTAL',
             _formatPrice(
@@ -2307,7 +1640,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
               cart.currency,
             ),
           ),
+
           const SizedBox(height: 15),
+
           _buildSummaryRow(
             'DELIVERY',
             _deliveryFee == 0
@@ -2317,12 +1652,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     cart.currency,
                   ),
           ),
+
           const SizedBox(height: 25),
+
           Container(
             height: 1,
             color: border,
           ),
+
           const SizedBox(height: 25),
+
           _buildSummaryRow(
             'TOTAL',
             _formatPrice(
@@ -2331,6 +1670,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ),
             highlight: true,
           ),
+
           if (_loadingDeliveryFee)
             const Padding(
               padding:
@@ -2403,7 +1743,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
               letterSpacing: 2.5,
             ),
           ),
+
           const SizedBox(height: 25),
+
           Row(
             children: [
               Container(
@@ -2417,7 +1759,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   name,
                 ),
               ),
+
               const SizedBox(width: 14),
+
               Expanded(
                 child: Column(
                   crossAxisAlignment:
@@ -2446,6 +1790,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ],
                 ),
               ),
+
               Text(
                 _formatPrice(
                   subtotal,
@@ -2459,17 +1804,23 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
             ],
           ),
+
           const SizedBox(height: 25),
+
           Container(
             height: 1,
             color: border,
           ),
+
           const SizedBox(height: 25),
+
           _buildSummaryRow(
             'ITEMS',
             '$_buyNowQuantity',
           ),
+
           const SizedBox(height: 15),
+
           _buildSummaryRow(
             'SUBTOTAL',
             _formatPrice(
@@ -2477,7 +1828,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
               currency,
             ),
           ),
+
           const SizedBox(height: 15),
+
           _buildSummaryRow(
             'DELIVERY',
             _deliveryFee == 0
@@ -2487,12 +1840,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     currency,
                   ),
           ),
+
           const SizedBox(height: 25),
+
           Container(
             height: 1,
             color: border,
           ),
+
           const SizedBox(height: 25),
+
           _buildSummaryRow(
             'TOTAL',
             _formatPrice(
@@ -2501,6 +1858,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ),
             highlight: true,
           ),
+
           if (_loadingDeliveryFee)
             const Padding(
               padding:
@@ -2538,7 +1896,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
           child:
               _buildItemImage(item),
         ),
+
         const SizedBox(width: 14),
+
         Expanded(
           child: Column(
             crossAxisAlignment:
@@ -2566,6 +1926,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ],
           ),
         ),
+
         Text(
           _formatPrice(
             item.totalPrice,
@@ -2615,8 +1976,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
         errorBuilder:
             (
           _,
-          _,
-          _,
+          __,
+          ___,
         ) =>
                 const Icon(
           Icons
@@ -2633,8 +1994,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
       errorBuilder:
           (
         _,
-        _,
-        _,
+        __,
+        ___,
       ) =>
               const Icon(
         Icons
@@ -2678,8 +2039,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
         errorBuilder:
             (
           _,
-          _,
-          _,
+          __,
+          ___,
         ) =>
                 const Icon(
           Icons
@@ -2696,8 +2057,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
       errorBuilder:
           (
         _,
-        _,
-        _,
+        __,
+        ___,
       ) =>
               const Icon(
         Icons
@@ -2825,27 +2186,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
       return;
     }
 
-    // ========================================================
-    // ONLINE PAYMENT RECEIPT VALIDATION
-    // ========================================================
-
-    if (_paymentMethod == 'online') {
-      if (_uploadingReceipt) {
-        _showError(
-          'Please wait for the receipt to finish uploading.',
-        );
-        return;
-      }
-
-      if (_receiptUrl == null ||
-          _receiptUrl!.trim().isEmpty) {
-        _showError(
-          'Please upload your Easypaisa payment receipt before placing the order.',
-        );
-        return;
-      }
-    }
-
     String? cartId;
 
     // ========================================================
@@ -2902,10 +2242,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
           cart.cartId;
     }
 
-    if (!mounted) {
-      return;
-    }
-
     setState(() {
       _placingOrder = true;
     });
@@ -2936,56 +2272,27 @@ class _CheckoutPageState extends State<CheckoutPage> {
         body: jsonEncode({
           'customer_name':
               _nameController.text.trim(),
-
           'email':
               _emailController.text.trim(),
-
           'phone':
               phone,
-
           'address':
               _addressController.text.trim(),
-
           'city':
               _cityController.text.trim(),
-
           'province':
               _provinceController.text.trim(),
-
           'postal_code':
               _postalCodeController.text.trim(),
-
           'payment_method':
               _paymentMethod,
-
-          // --------------------------------------------------
-          // Receipt information.
-          //
-          // COD:
-          // Empty values are sent.
-          //
-          // ONLINE:
-          // Cloudinary URL + receipt metadata are sent.
-          // --------------------------------------------------
-
-          'payment_receipt_url':
-              _paymentMethod == 'online'
-                  ? (_receiptUrl ?? '').trim()
-                  : '',
-
-          'payment_receipt_type':
-              _paymentMethod == 'online'
-                  ? (_receiptType ?? '').trim()
-                  : '',
-
-          'payment_receipt_name':
-              _paymentMethod == 'online'
-                  ? (_receiptName ?? '').trim()
-                  : '',
-
-          // Receipt is the proof of payment.
           'transaction_reference':
-              '',
+              _paymentMethod ==
+                      'online'
+                  ? _transactionController
+                      .text
+                      .trim()
+                  : '',
         }),
       );
 
@@ -3057,6 +2364,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
       // ======================================================
       // SERVER-CALCULATED BILL
       // ======================================================
+      //
+      // The Worker is authoritative here.
+      // We do not send delivery_fee from Flutter.
+      //
 
       final serverDeliveryFee =
           _toInt(
@@ -3241,9 +2552,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   Color(0xFF555555),
               size: 65,
             ),
+
             const SizedBox(
               height: 25,
             ),
+
             const Text(
               'YOUR BAG IS EMPTY',
               style:
@@ -3254,9 +2567,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 letterSpacing: 3,
               ),
             ),
+
             const SizedBox(
               height: 25,
             ),
+
             ElevatedButton(
               onPressed: () =>
                   context.go(

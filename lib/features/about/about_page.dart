@@ -1,229 +1,28 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:http/http.dart' as http;
 
-class AboutPage extends StatefulWidget {
+class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
 
-  @override
-  State<AboutPage> createState() => _AboutPageState();
-}
-
-class _AboutPageState extends State<AboutPage> {
   static const Color gold = Color(0xFFD4AF37);
   static const Color softGold = Color(0xFFE8D49A);
   static const Color background = Color(0xFF050505);
-  static const Color panel = Color(0xFF0B0B0B);
-  static const Color line = Color(0xFF252525);
-
-  static const String apiBaseUrl =
-      'https://shano-shan-api.hareem-pay-ahmed.workers.dev';
-
-  bool _loading = true;
-
-  String _aboutTitle = '';
-  String _aboutStory = '';
-  String _aboutPhilosophy = '';
-  String _aboutFragrances = '';
-  String _aboutQuote = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _loadAboutSettings();
-  }
-
-  // ============================================================
-  // LOAD ABOUT SETTINGS FROM WORKER
-  // ============================================================
-
-  Future<void> _loadAboutSettings() async {
-    try {
-      final response = await http.get(
-        Uri.parse('$apiBaseUrl/api/settings/site'),
-        headers: const {
-          'Accept': 'application/json',
-        },
-      );
-
-      if (response.statusCode >= 200 &&
-          response.statusCode < 300) {
-        final decoded = jsonDecode(response.body);
-
-        if (decoded is Map && decoded['success'] == true) {
-          final rawSettings = decoded['settings'];
-
-          if (rawSettings is Map) {
-            final settings =
-                Map<String, dynamic>.from(rawSettings);
-
-            if (!mounted) return;
-
-            setState(() {
-              _aboutTitle =
-                  _value(settings['about_title']);
-
-              _aboutStory =
-                  _value(settings['about_story']);
-
-              _aboutPhilosophy =
-                  _value(settings['about_philosophy']);
-
-              _aboutFragrances =
-                  _value(settings['about_fragrances']);
-
-              _aboutQuote =
-                  _value(settings['about_quote']);
-
-              _loading = false;
-            });
-
-            return;
-          }
-        }
-      }
-    } catch (_) {
-      // Keep the page usable with fallback content.
-    }
-
-    if (!mounted) return;
-
-    setState(() {
-      _loading = false;
-    });
-  }
-
-  String _value(dynamic value) {
-    if (value == null) return '';
-    return value.toString().trim();
-  }
-
-  // ============================================================
-  // FALLBACK CONTENT
-  // ============================================================
-
-  String get heroTitle {
-    if (_aboutTitle.isNotEmpty) {
-      return _aboutTitle;
-    }
-
-    return 'MORE THAN\nA FRAGRANCE.';
-  }
-
-  String get heroDescription {
-    return _firstParagraph(
-      _aboutStory,
-      'A fragrance can become part of a moment, a memory, '
-          'and the way you express yourself.',
-    );
-  }
-
-  String get storyTitle {
-    return 'CRAFTED FOR\nMEMORABLE MOMENTS.';
-  }
-
-  String get storyText {
-    if (_aboutStory.isNotEmpty) {
-      return _aboutStory;
-    }
-
-    return 'SHANO SHAN is built around the idea that fragrance '
-        'should feel personal, expressive, and memorable.\n\n'
-        'From the scent itself to the experience surrounding it, '
-        'every detail is designed to create a sense of elegance '
-        'and individuality.';
-  }
-
-  String get philosophyText {
-    if (_aboutPhilosophy.isNotEmpty) {
-      return _aboutPhilosophy;
-    }
-
-    return 'A fragrance should feel distinctive and personal.\n\n'
-        'Every detail matters, from presentation to experience.\n\n'
-        'The best fragrance is the one that stays with you.';
-  }
-
-  String get fragranceText {
-    if (_aboutFragrances.isNotEmpty) {
-      return _aboutFragrances;
-    }
-
-    return 'Our fragrances are created to become part of your '
-        'personal story, bringing character, elegance, and '
-        'memorable moments to everyday life.';
-  }
-
-  String get quoteText {
-    if (_aboutQuote.isNotEmpty) {
-      return _aboutQuote;
-    }
-
-    return 'EVERY FRAGRANCE HAS A STORY.';
-  }
-
-  String _firstParagraph(
-    String text,
-    String fallback,
-  ) {
-    if (text.trim().isEmpty) {
-      return fallback;
-    }
-
-    final paragraphs = text
-        .split(RegExp(r'\n\s*\n'))
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
-
-    if (paragraphs.isEmpty) {
-      return fallback;
-    }
-
-    return paragraphs.first;
-  }
-
-  List<String> _paragraphs(String text) {
-    return text
-        .split(RegExp(r'\n\s*\n'))
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
-  }
-
-  // ============================================================
-  // BUILD
-  // ============================================================
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final isMobile = width < 700;
 
-    if (_loading) {
-      return const Scaffold(
-        backgroundColor: background,
-        body: Center(
-          child: CircularProgressIndicator(
-            color: gold,
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
       backgroundColor: background,
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _buildHero(isMobile),
-            _buildStory(isMobile),
-            _buildPhilosophy(isMobile),
-            _buildFragrances(isMobile),
-            _buildFounder(context, isMobile),
-            _buildClosing(context, isMobile),
+            _buildHero(context, isMobile),
+            _buildBrandStory(context, isMobile),
+            _buildPhilosophy(context, isMobile),
+            _buildFounderSection(context, isMobile),
+            _buildClosingSection(context, isMobile),
           ],
         ),
       ),
@@ -234,63 +33,72 @@ class _AboutPageState extends State<AboutPage> {
   // HERO
   // ============================================================
 
-  Widget _buildHero(bool isMobile) {
+  Widget _buildHero(BuildContext context, bool isMobile) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 24 : 80,
-        vertical: isMobile ? 95 : 145,
+        horizontal: isMobile ? 24 : 70,
+        vertical: isMobile ? 80 : 120,
       ),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Color(0xFF151515),
+            Color(0xFF111111),
             background,
           ],
         ),
       ),
       child: Column(
         children: [
-          _eyebrow('THE WORLD OF SHANO SHAN'),
+          const Text(
+            'ABOUT',
+            style: TextStyle(
+              color: gold,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 5,
+            ),
+          ),
 
-          const SizedBox(height: 28),
+          const SizedBox(height: 22),
 
           Text(
-            heroTitle,
+            'THE WORLD OF\nSHANO SHAN',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white,
-              fontSize: isMobile ? 42 : 72,
-              height: 1.02,
+              fontSize: isMobile ? 38 : 64,
+              height: 1.05,
               fontWeight: FontWeight.w300,
               letterSpacing: 3,
             ),
           ),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: 28),
 
           Container(
-            width: 60,
+            width: 55,
             height: 1,
             color: gold,
           ),
 
-          const SizedBox(height: 30),
+          const SizedBox(height: 28),
 
           ConstrainedBox(
             constraints: const BoxConstraints(
-              maxWidth: 680,
+              maxWidth: 650,
             ),
             child: Text(
-              heroDescription,
+              'A fragrance is more than a scent. '
+              'It is an atmosphere, a memory, and a way of expressing who you are.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.62),
+                color: Colors.white.withOpacity(0.65),
                 fontSize: isMobile ? 15 : 18,
-                height: 1.9,
-                letterSpacing: 0.4,
+                height: 1.8,
+                letterSpacing: 0.5,
               ),
             ),
           ),
@@ -300,23 +108,22 @@ class _AboutPageState extends State<AboutPage> {
   }
 
   // ============================================================
-  // STORY
+  // BRAND STORY
   // ============================================================
 
-  Widget _buildStory(bool isMobile) {
+  Widget _buildBrandStory(BuildContext context, bool isMobile) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 25 : 90,
-        vertical: isMobile ? 80 : 125,
+        horizontal: isMobile ? 24 : 80,
+        vertical: isMobile ? 70 : 110,
       ),
       child: isMobile
           ? Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _eyebrow('OUR STORY'),
-                const SizedBox(height: 30),
-                _storyContent(isMobile),
+                _storyLabel(),
+                const SizedBox(height: 25),
+                _storyText(),
               ],
             )
           : Row(
@@ -324,42 +131,72 @@ class _AboutPageState extends State<AboutPage> {
               children: [
                 Expanded(
                   flex: 2,
-                  child: _eyebrow('OUR STORY'),
+                  child: _storyLabel(),
                 ),
-                const SizedBox(width: 90),
+                const SizedBox(width: 70),
                 Expanded(
                   flex: 5,
-                  child: _storyContent(isMobile),
+                  child: _storyText(),
                 ),
               ],
             ),
     );
   }
 
-  Widget _storyContent(bool isMobile) {
-    final paragraphs = _paragraphs(storyText);
+  Widget _storyLabel() {
+    return const Align(
+      alignment: Alignment.topLeft,
+      child: Text(
+        'THE BRAND',
+        style: TextStyle(
+          color: gold,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 4,
+        ),
+      ),
+    );
+  }
 
+  Widget _storyText() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          storyTitle,
+        const Text(
+          'CRAFTED FOR\nMEMORABLE MOMENTS.',
           style: TextStyle(
             color: Colors.white,
-            fontSize: isMobile ? 30 : 42,
-            height: 1.18,
+            fontSize: 30,
+            height: 1.25,
             fontWeight: FontWeight.w300,
             letterSpacing: 1.5,
           ),
         ),
 
-        const SizedBox(height: 38),
+        const SizedBox(height: 30),
 
-        for (int i = 0; i < paragraphs.length; i++) ...[
-          _bodyText(paragraphs[i]),
-          if (i != paragraphs.length - 1)
-            const SizedBox(height: 22),
-        ],
+        Text(
+          'SHANO SHAN is built around the idea that fragrance '
+          'should feel personal. Every scent should have its own '
+          'character and leave a lasting impression.',
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.62),
+            fontSize: 16,
+            height: 1.9,
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        Text(
+          'Our customer experience, presentation, and fragrances '
+          'are designed around simplicity, elegance, and individuality.',
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.62),
+            fontSize: 16,
+            height: 1.9,
+          ),
+        ),
       ],
     );
   }
@@ -368,48 +205,66 @@ class _AboutPageState extends State<AboutPage> {
   // PHILOSOPHY
   // ============================================================
 
-  Widget _buildPhilosophy(bool isMobile) {
-    final items = _philosophyItems();
+  Widget _buildPhilosophy(BuildContext context, bool isMobile) {
+    final items = [
+      (
+        '01',
+        'CHARACTER',
+        'A fragrance should feel distinctive and personal.'
+      ),
+      (
+        '02',
+        'CRAFT',
+        'Every detail matters, from presentation to experience.'
+      ),
+      (
+        '03',
+        'MEMORY',
+        'The best fragrance is the one people remember.'
+      ),
+    ];
 
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 25 : 80,
-        vertical: isMobile ? 75 : 110,
+        horizontal: isMobile ? 24 : 70,
+        vertical: isMobile ? 65 : 100,
       ),
       decoration: const BoxDecoration(
-        color: panel,
+        color: Color(0xFF0B0B0B),
         border: Border(
-          top: BorderSide(color: line),
-          bottom: BorderSide(color: line),
+          top: BorderSide(
+            color: Color(0xFF202020),
+          ),
+          bottom: BorderSide(
+            color: Color(0xFF202020),
+          ),
         ),
       ),
       child: Column(
         children: [
-          _eyebrow('OUR PHILOSOPHY'),
-
-          const SizedBox(height: 22),
-
-          Text(
-            'WHAT WE BELIEVE.',
-            textAlign: TextAlign.center,
+          const Text(
+            'OUR PHILOSOPHY',
             style: TextStyle(
-              color: Colors.white,
-              fontSize: isMobile ? 28 : 40,
-              fontWeight: FontWeight.w300,
-              letterSpacing: 2,
+              color: gold,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 4,
             ),
           ),
 
-          const SizedBox(height: 60),
+          const SizedBox(height: 55),
 
           if (isMobile)
             Column(
               children: [
-                for (int i = 0; i < items.length; i++) ...[
-                  _philosophyCard(items[i]),
-                  if (i != items.length - 1)
-                    const SizedBox(height: 45),
+                for (final item in items) ...[
+                  _philosophyCard(
+                    number: item.$1,
+                    title: item.$2,
+                    description: item.$3,
+                  ),
+                  const SizedBox(height: 35),
                 ],
               ],
             )
@@ -419,16 +274,18 @@ class _AboutPageState extends State<AboutPage> {
               children: [
                 for (int i = 0; i < items.length; i++) ...[
                   Expanded(
-                    child: _philosophyCard(items[i]),
+                    child: _philosophyCard(
+                      number: items[i].$1,
+                      title: items[i].$2,
+                      description: items[i].$3,
+                    ),
                   ),
                   if (i != items.length - 1)
                     Container(
                       width: 1,
-                      height: 170,
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 45,
-                      ),
-                      color: line,
+                      height: 150,
+                      margin: const EdgeInsets.symmetric(horizontal: 35),
+                      color: const Color(0xFF252525),
                     ),
                 ],
               ],
@@ -438,69 +295,27 @@ class _AboutPageState extends State<AboutPage> {
     );
   }
 
-  List<Map<String, String>> _philosophyItems() {
-    final paragraphs = _paragraphs(philosophyText);
-
-    final defaults = [
-      {
-        'number': '01',
-        'title': 'CHARACTER',
-        'description':
-            'A fragrance should feel distinctive and personal.',
-      },
-      {
-        'number': '02',
-        'title': 'CRAFT',
-        'description':
-            'Every detail matters, from presentation to experience.',
-      },
-      {
-        'number': '03',
-        'title': 'MEMORY',
-        'description':
-            'The best fragrance is the one that stays with you.',
-      },
-    ];
-
-    if (paragraphs.isEmpty) {
-      return defaults;
-    }
-
-    final titles = [
-      'CHARACTER',
-      'CRAFT',
-      'MEMORY',
-    ];
-
-    return List.generate(
-      paragraphs.length > 3 ? 3 : paragraphs.length,
-      (index) => {
-        'number': '0${index + 1}',
-        'title': titles[index],
-        'description': paragraphs[index],
-      },
-    );
-  }
-
-  Widget _philosophyCard(
-    Map<String, String> item,
-  ) {
+  Widget _philosophyCard({
+    required String number,
+    required String title,
+    required String description,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          item['number'] ?? '',
+          number,
           style: const TextStyle(
             color: gold,
             fontSize: 12,
-            letterSpacing: 3,
+            letterSpacing: 2,
           ),
         ),
 
-        const SizedBox(height: 20),
+        const SizedBox(height: 18),
 
         Text(
-          item['title'] ?? '',
+          title,
           style: const TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -509,78 +324,14 @@ class _AboutPageState extends State<AboutPage> {
           ),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 15),
 
         Text(
-          item['description'] ?? '',
+          description,
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.52),
+            color: Colors.white.withOpacity(0.55),
             fontSize: 14,
-            height: 1.8,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ============================================================
-  // FRAGRANCES
-  // ============================================================
-
-  Widget _buildFragrances(bool isMobile) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 25 : 90,
-        vertical: isMobile ? 80 : 115,
-      ),
-      child: isMobile
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _eyebrow('OUR FRAGRANCES'),
-                const SizedBox(height: 28),
-                _fragranceContent(isMobile),
-              ],
-            )
-          : Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: _eyebrow('OUR FRAGRANCES'),
-                ),
-                const SizedBox(width: 90),
-                Expanded(
-                  flex: 5,
-                  child: _fragranceContent(isMobile),
-                ),
-              ],
-            ),
-    );
-  }
-
-  Widget _fragranceContent(bool isMobile) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'SCENTS WITH\nA STORY.',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: isMobile ? 31 : 43,
-            height: 1.15,
-            fontWeight: FontWeight.w300,
-            letterSpacing: 1.5,
-          ),
-        ),
-
-        const SizedBox(height: 32),
-
-        ..._paragraphs(fragranceText).map(
-          (paragraph) => Padding(
-            padding: const EdgeInsets.only(bottom: 20),
-            child: _bodyText(paragraph),
+            height: 1.7,
           ),
         ),
       ],
@@ -591,64 +342,74 @@ class _AboutPageState extends State<AboutPage> {
   // FOUNDER
   // ============================================================
 
-  Widget _buildFounder(
-    BuildContext context,
-    bool isMobile,
-  ) {
+  Widget _buildFounderSection(BuildContext context, bool isMobile) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 25 : 90,
-        vertical: isMobile ? 85 : 125,
+        horizontal: isMobile ? 24 : 80,
+        vertical: isMobile ? 75 : 120,
       ),
       child: isMobile
           ? Column(
               children: [
-                _founderPlaceholder(isMobile),
-                const SizedBox(height: 55),
-                _founderContent(context, isMobile),
+                _founderPlaceholder(),
+                const SizedBox(height: 45),
+                _founderContent(context),
               ],
             )
           : Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
                   flex: 5,
-                  child: _founderPlaceholder(isMobile),
+                  child: _founderPlaceholder(),
                 ),
-                const SizedBox(width: 90),
+                const SizedBox(width: 80),
                 Expanded(
                   flex: 5,
-                  child: _founderContent(context, isMobile),
+                  child: _founderContent(context),
                 ),
               ],
             ),
     );
   }
 
-  Widget _founderPlaceholder(bool isMobile) {
+  Widget _founderPlaceholder() {
     return AspectRatio(
-      aspectRatio: isMobile ? 0.85 : 0.82,
+      aspectRatio: 0.82,
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF0D0D0D),
-          border: Border.all(color: line),
+          color: const Color(0xFF101010),
+          border: Border.all(
+            color: const Color(0xFF292929),
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.person_outline_rounded,
-              size: 64,
-              color: gold.withValues(alpha: 0.55),
+              size: 58,
+              color: gold.withOpacity(0.65),
             ),
-            const SizedBox(height: 22),
+
+            const SizedBox(height: 20),
+
             Text(
-              'FOUNDER PORTRAIT',
+              'FOUNDER IMAGE',
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.3),
+                color: Colors.white.withOpacity(0.35),
                 fontSize: 11,
                 letterSpacing: 3,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            Text(
+              'Managed from Admin',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.25),
+                fontSize: 12,
               ),
             ),
           ],
@@ -657,44 +418,55 @@ class _AboutPageState extends State<AboutPage> {
     );
   }
 
-  Widget _founderContent(
-    BuildContext context,
-    bool isMobile,
-  ) {
+  Widget _founderContent(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _eyebrow('THE MAN BEHIND SHANO SHAN'),
-
-        const SizedBox(height: 28),
-
-        Text(
-          'THE PERSON\nBEHIND THE BRAND',
+        const Text(
+          'THE MAN BEHIND\nSHANO SHAN',
           style: TextStyle(
             color: Colors.white,
-            fontSize: isMobile ? 31 : 43,
-            height: 1.15,
+            fontSize: 32,
+            height: 1.2,
             fontWeight: FontWeight.w300,
             letterSpacing: 1.5,
           ),
         ),
 
-        const SizedBox(height: 28),
+        const SizedBox(height: 25),
 
         Container(
-          width: 48,
+          width: 45,
           height: 1,
           color: gold,
         ),
 
-        const SizedBox(height: 30),
+        const SizedBox(height: 28),
 
-        _bodyText(
-          'Discover the story, vision, and inspiration '
-          'behind SHANO SHAN.',
+        Text(
+          'Founder story and personal details will be managed '
+          'through the SHANO SHAN Admin Panel.',
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.58),
+            fontSize: 15,
+            height: 1.8,
+          ),
         ),
 
-        const SizedBox(height: 38),
+        const SizedBox(height: 18),
+
+        Text(
+          'This section is intentionally prepared for dynamic '
+          'brand content so it can be updated without changing '
+          'the customer website.',
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.45),
+            fontSize: 14,
+            height: 1.8,
+          ),
+        ),
+
+        const SizedBox(height: 35),
 
         OutlinedButton(
           onPressed: () {
@@ -702,7 +474,9 @@ class _AboutPageState extends State<AboutPage> {
           },
           style: OutlinedButton.styleFrom(
             foregroundColor: gold,
-            side: const BorderSide(color: gold),
+            side: const BorderSide(
+              color: gold,
+            ),
             padding: const EdgeInsets.symmetric(
               horizontal: 28,
               vertical: 18,
@@ -711,8 +485,8 @@ class _AboutPageState extends State<AboutPage> {
           child: const Text(
             'CONNECT WITH US',
             style: TextStyle(
-              fontSize: 11,
               letterSpacing: 2,
+              fontSize: 11,
             ),
           ),
         ),
@@ -724,57 +498,42 @@ class _AboutPageState extends State<AboutPage> {
   // CLOSING
   // ============================================================
 
-  Widget _buildClosing(
+  Widget _buildClosingSection(
     BuildContext context,
     bool isMobile,
   ) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        horizontal: 25,
-        vertical: isMobile ? 95 : 135,
-      ),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            background,
-            Color(0xFF101010),
-          ],
-        ),
+        horizontal: 24,
+        vertical: isMobile ? 80 : 110,
       ),
       child: Column(
         children: [
-          _eyebrow('THE SHANO SHAN EXPERIENCE'),
-
-          const SizedBox(height: 30),
-
           Text(
-            quoteText,
+            'EVERY FRAGRANCE\nHAS A STORY.',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white,
-              fontSize: isMobile ? 32 : 50,
-              height: 1.15,
+              fontSize: isMobile ? 30 : 44,
+              height: 1.2,
               fontWeight: FontWeight.w300,
               letterSpacing: 2,
             ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 25),
 
           Text(
-            'Discover a fragrance that feels like your own.',
-            textAlign: TextAlign.center,
+            'Discover yours.',
             style: TextStyle(
-              color: gold.withValues(alpha: 0.9),
-              fontSize: 16,
-              letterSpacing: 1.5,
+              color: gold.withOpacity(0.9),
+              fontSize: 17,
+              letterSpacing: 2,
             ),
           ),
 
-          const SizedBox(height: 40),
+          const SizedBox(height: 35),
 
           ElevatedButton(
             onPressed: () {
@@ -783,10 +542,9 @@ class _AboutPageState extends State<AboutPage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: gold,
               foregroundColor: Colors.black,
-              elevation: 0,
               padding: const EdgeInsets.symmetric(
-                horizontal: 36,
-                vertical: 21,
+                horizontal: 35,
+                vertical: 20,
               ),
             ),
             child: const Text(
@@ -799,34 +557,6 @@ class _AboutPageState extends State<AboutPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  // ============================================================
-  // SMALL UI HELPERS
-  // ============================================================
-
-  Widget _eyebrow(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        color: gold,
-        fontSize: 11,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 4,
-      ),
-    );
-  }
-
-  Widget _bodyText(String text) {
-    return Text(
-      text,
-      style: TextStyle(
-        color: Colors.white.withValues(alpha: 0.6),
-        fontSize: 15,
-        height: 1.9,
-        letterSpacing: 0.15,
       ),
     );
   }

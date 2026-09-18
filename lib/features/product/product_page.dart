@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -26,14 +25,10 @@ class _ProductPageState extends State<ProductPage> {
   // ==========================================================
 
   static const Color gold = Color(0xFFD4AF37);
-  static const Color softGold = Color(0xFFE8D49A);
   static const Color background = Color(0xFF050505);
-  static const Color panel = Color(0xFF0B0B0B);
-
+  static const Color panel = Color(0xFF0D0D0D);
   static const Color border = Color(0xFF252525);
-  static const Color borderLight = Color(0xFF333333);
   static const Color muted = Color(0xFF777777);
-  static const Color lightText = Color(0xFFAAAAAA);
 
   // ==========================================================
   // API
@@ -228,17 +223,16 @@ class _ProductPageState extends State<ProductPage> {
     int price,
     String currency,
   ) {
-    final formatted =
-        price.toString().replaceAllMapped(
-              RegExp(r'\B(?=(\d{3})+(?!\d))'),
-              (_) => ',',
-            );
+    final formatted = price.toString().replaceAllMapped(
+          RegExp(r'\B(?=(\d{3})+(?!\d))'),
+          (_) => ',',
+        );
 
     return '$currency $formatted';
   }
 
   // ==========================================================
-  // ADD TO NORMAL CART
+  // ADD PRODUCT TO NORMAL CART
   // ==========================================================
 
   Future<bool> _addProductToCart() async {
@@ -248,23 +242,13 @@ class _ProductPageState extends State<ProductPage> {
 
     final product = _product!;
 
-    final id =
-        product['id']?.toString() ?? '';
+    final id = product['id']?.toString() ?? '';
+    final slug = product['slug']?.toString() ?? '';
+    final name = product['name']?.toString() ?? 'Fragrance';
+    final category = product['category']?.toString() ?? '';
+    final description = product['description']?.toString() ?? '';
 
-    final slug =
-        product['slug']?.toString() ?? '';
-
-    final name =
-        product['name']?.toString() ?? 'Fragrance';
-
-    final category =
-        product['category']?.toString() ?? '';
-
-    final description =
-        product['description']?.toString() ?? '';
-
-    final price =
-        _parseInt(product['price']);
+    final price = _parseInt(product['price']);
 
     final currency =
         product['currency']?.toString() ?? 'PKR';
@@ -272,8 +256,7 @@ class _ProductPageState extends State<ProductPage> {
     final imageUrl =
         product['image_url']?.toString() ?? '';
 
-    final stock =
-        _parseInt(product['stock']);
+    final stock = _parseInt(product['stock']);
 
     if (id.isEmpty) {
       _showMessage(
@@ -331,8 +314,7 @@ class _ProductPageState extends State<ProductPage> {
       return;
     }
 
-    final success =
-        await _addProductToCart();
+    final success = await _addProductToCart();
 
     if (!mounted) {
       return;
@@ -353,32 +335,32 @@ class _ProductPageState extends State<ProductPage> {
   // ==========================================================
   // BUY NOW
   // ==========================================================
+  //
+  // IMPORTANT:
+  // This does NOT add anything to the normal CartService.
+  //
+  // The selected product is sent to CheckoutPage through
+  // GoRouter's `extra`.
+  //
+  // CheckoutPage then creates a separate temporary cart
+  // containing ONLY this product.
+  // ==========================================================
 
   Future<void> _buyNow() async {
-    if (_addingToCart ||
-        _product == null) {
+    if (_addingToCart || _product == null) {
       return;
     }
 
     final product = _product!;
 
-    final id =
-        product['id']?.toString() ?? '';
-
-    final slug =
-        product['slug']?.toString() ?? '';
-
-    final name =
-        product['name']?.toString() ?? 'Fragrance';
-
-    final category =
-        product['category']?.toString() ?? '';
-
+    final id = product['id']?.toString() ?? '';
+    final slug = product['slug']?.toString() ?? '';
+    final name = product['name']?.toString() ?? 'Fragrance';
+    final category = product['category']?.toString() ?? '';
     final description =
         product['description']?.toString() ?? '';
 
-    final price =
-        _parseInt(product['price']);
+    final price = _parseInt(product['price']);
 
     final currency =
         product['currency']?.toString() ?? 'PKR';
@@ -386,8 +368,7 @@ class _ProductPageState extends State<ProductPage> {
     final imageUrl =
         product['image_url']?.toString() ?? '';
 
-    final stock =
-        _parseInt(product['stock']);
+    final stock = _parseInt(product['stock']);
 
     if (id.isEmpty) {
       _showMessage(
@@ -410,8 +391,10 @@ class _ProductPageState extends State<ProductPage> {
       return;
     }
 
-    // IMPORTANT:
-    // Buy Now does not modify the normal bag.
+    // ----------------------------------------------------------
+    // Go to checkout WITHOUT touching the normal bag.
+    // ----------------------------------------------------------
+
     context.push(
       '/checkout',
       extra: {
@@ -441,8 +424,9 @@ class _ProductPageState extends State<ProductPage> {
       return;
     }
 
-    final stock =
-        _parseInt(_product!['stock']);
+    final stock = _parseInt(
+      _product!['stock'],
+    );
 
     if (_quantity >= stock) {
       _showMessage(
@@ -484,9 +468,7 @@ class _ProductPageState extends State<ProductPage> {
   // BODY
   // ==========================================================
 
-  Widget _buildBody(
-    BuildContext context,
-  ) {
+  Widget _buildBody(BuildContext context) {
     if (_loading) {
       return const Center(
         child: CircularProgressIndicator(
@@ -510,34 +492,25 @@ class _ProductPageState extends State<ProductPage> {
         constraints,
       ) {
         final desktop =
-            constraints.maxWidth >= 950;
+            constraints.maxWidth >= 900;
 
         return SingleChildScrollView(
           physics:
               const BouncingScrollPhysics(),
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal:
-                  desktop ? 70 : 20,
-              vertical:
-                  desktop ? 32 : 18,
+              horizontal: desktop ? 70 : 22,
+              vertical: desktop ? 40 : 22,
             ),
             child: Column(
               children: [
                 _buildHeader(context),
-
                 SizedBox(
-                  height:
-                      desktop ? 45 : 28,
+                  height: desktop ? 55 : 30,
                 ),
-
                 desktop
-                    ? _buildDesktopProduct(
-                        context,
-                      )
-                    : _buildMobileProduct(
-                        context,
-                      ),
+                    ? _buildDesktopProduct(context)
+                    : _buildMobileProduct(context),
               ],
             ),
           ),
@@ -555,71 +528,41 @@ class _ProductPageState extends State<ProductPage> {
   ) {
     return Row(
       children: [
-        _headerButton(
-          icon: Icons.arrow_back_ios_new,
-          onTap: () {
+        IconButton(
+          onPressed: () {
             if (context.canPop()) {
               context.pop();
             } else {
               context.go('/shop');
             }
           },
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 18,
+          ),
         ),
-
-        const SizedBox(width: 12),
-
+        const SizedBox(width: 8),
         Image.asset(
           AppAssets.logo,
           height: 42,
           fit: BoxFit.contain,
         ),
-
         const Spacer(),
-
-        _headerButton(
-          icon: Icons.shopping_bag_outlined,
+        InkWell(
           onTap: () {
             context.push('/cart');
           },
-          showBadge: true,
-        ),
-      ],
-    );
-  }
-
-  Widget _headerButton({
-    required IconData icon,
-    required VoidCallback onTap,
-    bool showBadge = false,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius:
-          BorderRadius.circular(50),
-      child: Container(
-        width: 44,
-        height: 44,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: panel,
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: border,
-          ),
-        ),
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Icon(
-              icon,
-              color: Colors.white,
-              size: 18,
-            ),
-
-            if (showBadge)
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              const Icon(
+                Icons.shopping_bag_outlined,
+                color: Colors.white,
+                size: 25,
+              ),
               AnimatedBuilder(
-                animation:
-                    CartService.instance,
+                animation: CartService.instance,
                 builder: (
                   context,
                   _,
@@ -632,20 +575,12 @@ class _ProductPageState extends State<ProductPage> {
                   }
 
                   return Positioned(
-                    right: -11,
-                    top: -11,
+                    right: -7,
+                    top: -7,
                     child: Container(
-                      constraints:
-                          const BoxConstraints(
-                        minWidth: 18,
-                        minHeight: 18,
-                      ),
-                      padding:
-                          const EdgeInsets.symmetric(
-                        horizontal: 4,
-                      ),
-                      alignment:
-                          Alignment.center,
+                      width: 18,
+                      height: 18,
+                      alignment: Alignment.center,
                       decoration:
                           const BoxDecoration(
                         color: gold,
@@ -658,18 +593,19 @@ class _ProductPageState extends State<ProductPage> {
                         style:
                             const TextStyle(
                           color: Colors.black,
-                          fontSize: 7,
+                          fontSize: 8,
                           fontWeight:
-                              FontWeight.w800,
+                              FontWeight.w700,
                         ),
                       ),
                     ),
                   );
                 },
               ),
-          ],
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -680,33 +616,24 @@ class _ProductPageState extends State<ProductPage> {
   Widget _buildDesktopProduct(
     BuildContext context,
   ) {
-    return ConstrainedBox(
-      constraints:
-          const BoxConstraints(
-        maxWidth: 1450,
-      ),
-      child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 6,
-            child: _buildProductImage(
-              desktop: true,
-            ),
+    return Row(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 6,
+          child: _buildProductImage(
+            desktop: true,
           ),
-
-          const SizedBox(width: 80),
-
-          Expanded(
-            flex: 5,
-            child:
-                _buildProductInformation(
-              context,
-            ),
+        ),
+        const SizedBox(width: 70),
+        Expanded(
+          flex: 5,
+          child: _buildProductInformation(
+            context,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -724,18 +651,14 @@ class _ProductPageState extends State<ProductPage> {
         _buildProductImage(
           desktop: false,
         ),
-
-        const SizedBox(height: 38),
-
-        _buildProductInformation(
-          context,
-        ),
+        const SizedBox(height: 35),
+        _buildProductInformation(context),
       ],
     );
   }
 
   // ==========================================================
-  // PRODUCT IMAGE
+  // IMAGE
   // ==========================================================
 
   Widget _buildProductImage({
@@ -744,153 +667,58 @@ class _ProductPageState extends State<ProductPage> {
     final product = _product!;
 
     var imageUrl =
-        product['image_url']
-                ?.toString() ??
-            '';
+        product['image_url']?.toString() ?? '';
 
     final name =
         product['name']?.toString() ?? '';
 
     if (imageUrl.isEmpty &&
-        name.toLowerCase() ==
-            'champions') {
+        name.toLowerCase() == 'champions') {
       imageUrl =
           AppAssets.championsReference;
     }
 
-    final featured =
-        _toBoolean(
-      product['is_featured'],
-    );
-
     return Container(
       width: double.infinity,
-      height: desktop ? 680 : 460,
+      height: desktop ? 620 : 430,
       decoration: BoxDecoration(
-        color: const Color(0xFF090909),
+        color: const Color(0xFF0A0A0A),
         border: Border.all(
           color: border,
         ),
       ),
       child: Stack(
         children: [
-          // Soft center glow
           Positioned.fill(
-            child: IgnorePointer(
-              child: DecoratedBox(
-                decoration:
-                    BoxDecoration(
-                  gradient:
-                      RadialGradient(
-                    center:
-                        Alignment.center,
-                    radius: 0.75,
-                    colors: [
-                      const Color(
-                        0xFF171717,
-                      ),
-                      const Color(
-                        0xFF090909,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          Positioned.fill(
-            child:
-                _buildProductImageWidget(
+            child: _buildProductImageWidget(
               imageUrl,
             ),
           ),
-
-          // Top category
-          Positioned(
-            top: 22,
-            left: 22,
-            child: Container(
-              padding:
-                  const EdgeInsets.symmetric(
-                horizontal: 13,
-                vertical: 8,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.black
-                    .withValues(alpha: 0.65),
-                border: Border.all(
-                  color: borderLight,
-                ),
-              ),
-              child: Text(
-                product['category']
-                        ?.toString()
-                        .toUpperCase() ??
-                    'FRAGRANCE',
-                style:
-                    const TextStyle(
-                  color: softGold,
-                  fontSize: 8,
-                  fontWeight:
-                      FontWeight.w600,
-                  letterSpacing: 1.7,
-                ),
-              ),
-            ),
-          ),
-
-          if (featured)
+          if (_toBoolean(
+            product['is_featured'],
+          ))
             Positioned(
-              top: 22,
-              right: 22,
+              top: 20,
+              left: 20,
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(
-                  horizontal: 13,
+                  horizontal: 14,
                   vertical: 8,
                 ),
                 color: gold,
                 child: const Text(
                   'FEATURED',
-                  style:
-                      TextStyle(
+                  style: TextStyle(
                     color: Colors.black,
-                    fontSize: 8,
+                    fontSize: 9,
                     fontWeight:
-                        FontWeight.w800,
+                        FontWeight.w700,
                     letterSpacing: 1.5,
                   ),
                 ),
               ),
             ),
-
-          // Bottom editorial label
-          Positioned(
-            bottom: 22,
-            left: 22,
-            right: 22,
-            child: Row(
-              children: [
-                Container(
-                  width: 28,
-                  height: 1,
-                  color: gold,
-                ),
-                const SizedBox(width: 10),
-                Text(
-                  'SHANO SHAN FRAGRANCE',
-                  style:
-                      TextStyle(
-                    color: Colors.white
-                        .withValues(alpha: 0.4),
-                    fontSize: 8,
-                    letterSpacing: 2,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
@@ -966,20 +794,16 @@ class _ProductPageState extends State<ProductPage> {
             'Fragrance';
 
     final category =
-        product['category']?.toString() ??
-            '';
+        product['category']?.toString() ?? '';
 
     final description =
-        product['description']
-                ?.toString() ??
-            '';
+        product['description']?.toString() ?? '';
 
     final price =
         _parseInt(product['price']);
 
     final currency =
-        product['currency']?.toString() ??
-            'PKR';
+        product['currency']?.toString() ?? 'PKR';
 
     final stock =
         _parseInt(product['stock']);
@@ -991,48 +815,27 @@ class _ProductPageState extends State<ProductPage> {
       crossAxisAlignment:
           CrossAxisAlignment.start,
       children: [
-        // Eyebrow
-        Row(
-          children: [
-            Container(
-              width: 32,
-              height: 1,
+        if (category.isNotEmpty)
+          Text(
+            category.toUpperCase(),
+            style: const TextStyle(
               color: gold,
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 2.5,
             ),
-            const SizedBox(width: 12),
-            Text(
-              category.isEmpty
-                  ? 'SHANO SHAN'
-                  : category.toUpperCase(),
-              style:
-                  const TextStyle(
-                color: gold,
-                fontSize: 9,
-                fontWeight:
-                    FontWeight.w600,
-                letterSpacing: 2.5,
-              ),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 20),
-
-        // Product name
+          ),
+        const SizedBox(height: 14),
         Text(
           name,
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 40,
-            height: 1.05,
-            fontWeight: FontWeight.w300,
-            letterSpacing: 1.5,
+            fontSize: 32,
+            fontWeight: FontWeight.w400,
+            letterSpacing: 1,
           ),
         ),
-
         const SizedBox(height: 18),
-
-        // Price
         Text(
           _formatPrice(
             price,
@@ -1045,286 +848,194 @@ class _ProductPageState extends State<ProductPage> {
             letterSpacing: 1,
           ),
         ),
-
         const SizedBox(height: 28),
-
         Container(
           height: 1,
           color: border,
         ),
-
         const SizedBox(height: 28),
-
-        // Description
         if (description.isNotEmpty)
           Text(
             description,
             style: const TextStyle(
-              color: lightText,
-              fontSize: 14,
-              height: 1.9,
+              color: Color(0xFFAAAAAA),
+              fontSize: 13,
+              height: 1.8,
             ),
           ),
-
-        const SizedBox(height: 30),
-
-        // Stock
-        _buildStockStatus(
-          stock,
-          outOfStock,
+        const SizedBox(height: 35),
+        Row(
+          children: [
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: outOfStock
+                    ? const Color(0xFF8A4444)
+                    : gold,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              outOfStock
+                  ? 'OUT OF STOCK'
+                  : '$stock AVAILABLE',
+              style: TextStyle(
+                color: outOfStock
+                    ? const Color(0xFFAA6666)
+                    : const Color(0xFF999999),
+                fontSize: 9,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1.5,
+              ),
+            ),
+          ],
         ),
-
         const SizedBox(height: 30),
-
-        // Quantity
-        _buildQuantityArea(
-          outOfStock,
+        Row(
+          children: [
+            const Text(
+              'QUANTITY',
+              style: TextStyle(
+                color: Color(0xFF777777),
+                fontSize: 9,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1.5,
+              ),
+            ),
+            const SizedBox(width: 20),
+            _buildQuantitySelector(
+              disabled:
+                  outOfStock || _addingToCart,
+            ),
+          ],
         ),
+        const SizedBox(height: 25),
 
-        const SizedBox(height: 26),
+        // ======================================================
+        // BUY NOW
+        // ======================================================
 
-        // Buy now
-        _buildBuyNowButton(
-          outOfStock,
+        SizedBox(
+          width: double.infinity,
+          height: 58,
+          child: ElevatedButton(
+            onPressed:
+                outOfStock || _addingToCart
+                    ? null
+                    : _buyNow,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: gold,
+              foregroundColor: Colors.black,
+              disabledBackgroundColor:
+                  const Color(0xFF292929),
+              disabledForegroundColor:
+                  const Color(0xFF666666),
+              elevation: 0,
+              shape:
+                  const RoundedRectangleBorder(),
+            ),
+            child: const Row(
+              mainAxisAlignment:
+                  MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.bolt_rounded,
+                  size: 18,
+                ),
+                SizedBox(width: 9),
+                Text(
+                  'BUY NOW',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 2,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
 
         const SizedBox(height: 12),
 
-        // Add to bag
-        _buildAddToBagButton(
-          outOfStock,
+        // ======================================================
+        // ADD TO BAG
+        // ======================================================
+
+        SizedBox(
+          width: double.infinity,
+          height: 58,
+          child: OutlinedButton(
+            onPressed:
+                outOfStock || _addingToCart
+                    ? null
+                    : _addToBag,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.white,
+              disabledForegroundColor:
+                  const Color(0xFF555555),
+              side: const BorderSide(
+                color: Color(0xFF444444),
+              ),
+              shape:
+                  const RoundedRectangleBorder(),
+            ),
+            child: const Row(
+              mainAxisAlignment:
+                  MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.shopping_bag_outlined,
+                  size: 17,
+                ),
+                SizedBox(width: 9),
+                Text(
+                  'ADD TO BAG',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 2,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-
-        const SizedBox(height: 34),
-
-        // Features
-        _buildFeatures(),
 
         const SizedBox(height: 30),
 
-        // Trust line
-        _buildTrustLine(),
-      ],
-    );
-  }
-
-  // ==========================================================
-  // STOCK
-  // ==========================================================
-
-  Widget _buildStockStatus(
-    int stock,
-    bool outOfStock,
-  ) {
-    return Container(
-      padding:
-          const EdgeInsets.symmetric(
-        horizontal: 15,
-        vertical: 13,
-      ),
-      decoration: BoxDecoration(
-        color: outOfStock
-            ? const Color(0xFF160D0D)
-            : const Color(0xFF10100D),
-        border: Border.all(
-          color: outOfStock
-              ? const Color(0xFF382020)
-              : const Color(0xFF292919),
+        _buildFeatureRow(
+          Icons.local_shipping_outlined,
+          'FREE DELIVERY',
+          'Delivery available across Pakistan',
         ),
-      ),
-      child: Row(
-        mainAxisSize:
-            MainAxisSize.min,
-        children: [
-          Container(
-            width: 7,
-            height: 7,
-            decoration:
-                BoxDecoration(
-              color: outOfStock
-                  ? const Color(
-                      0xFF9A5555,
-                    )
-                  : gold,
-              shape: BoxShape.circle,
-            ),
-          ),
-
-          const SizedBox(width: 10),
-
-          Text(
-            outOfStock
-                ? 'CURRENTLY UNAVAILABLE'
-                : '$stock AVAILABLE',
-            style: TextStyle(
-              color: outOfStock
-                  ? const Color(
-                      0xFFAA7777,
-                    )
-                  : const Color(
-                      0xFFAAAAAA,
-                    ),
-              fontSize: 9,
-              fontWeight:
-                  FontWeight.w600,
-              letterSpacing: 1.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ==========================================================
-  // QUANTITY AREA
-  // ==========================================================
-
-  Widget _buildQuantityArea(
-    bool outOfStock,
-  ) {
-    return Row(
-      children: [
-        const Text(
-          'QUANTITY',
-          style: TextStyle(
-            color: muted,
-            fontSize: 9,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 1.5,
-          ),
+        const SizedBox(height: 18),
+        _buildFeatureRow(
+          Icons.verified_outlined,
+          'AUTHENTIC FRAGRANCE',
+          'Original SHANO SHAN fragrance',
         ),
-
-        const SizedBox(width: 18),
-
-        _buildQuantitySelector(
-          disabled:
-              outOfStock ||
-                  _addingToCart,
+        const SizedBox(height: 18),
+        _buildFeatureRow(
+          Icons.replay_outlined,
+          'SECURE ORDERING',
+          'Safe and simple checkout',
         ),
       ],
     );
   }
 
   // ==========================================================
-  // BUY NOW BUTTON
-  // ==========================================================
-
-  Widget _buildBuyNowButton(
-    bool outOfStock,
-  ) {
-    return SizedBox(
-      width: double.infinity,
-      height: 60,
-      child: ElevatedButton(
-        onPressed:
-            outOfStock ||
-                    _addingToCart
-                ? null
-                : _buyNow,
-        style:
-            ElevatedButton.styleFrom(
-          backgroundColor: gold,
-          foregroundColor:
-              Colors.black,
-          disabledBackgroundColor:
-              const Color(0xFF292929),
-          disabledForegroundColor:
-              const Color(0xFF666666),
-          elevation: 0,
-          shape:
-              const RoundedRectangleBorder(),
-        ),
-        child: Row(
-          mainAxisAlignment:
-              MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.bolt_rounded,
-              size: 19,
-            ),
-            const SizedBox(width: 9),
-            Text(
-              _addingToCart
-                  ? 'PLEASE WAIT'
-                  : 'BUY NOW',
-              style:
-                  const TextStyle(
-                fontSize: 11,
-                fontWeight:
-                    FontWeight.w700,
-                letterSpacing: 2,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ==========================================================
-  // ADD TO BAG BUTTON
-  // ==========================================================
-
-  Widget _buildAddToBagButton(
-    bool outOfStock,
-  ) {
-    return SizedBox(
-      width: double.infinity,
-      height: 60,
-      child: OutlinedButton(
-        onPressed:
-            outOfStock ||
-                    _addingToCart
-                ? null
-                : _addToBag,
-        style:
-            OutlinedButton.styleFrom(
-          foregroundColor:
-              Colors.white,
-          disabledForegroundColor:
-              const Color(0xFF555555),
-          side: const BorderSide(
-            color: borderLight,
-          ),
-          shape:
-              const RoundedRectangleBorder(),
-        ),
-        child: Row(
-          mainAxisAlignment:
-              MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.shopping_bag_outlined,
-              size: 17,
-            ),
-            const SizedBox(width: 9),
-            Text(
-              _addingToCart
-                  ? 'ADDING...'
-                  : 'ADD TO BAG',
-              style:
-                  const TextStyle(
-                fontSize: 11,
-                fontWeight:
-                    FontWeight.w600,
-                letterSpacing: 2,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ==========================================================
-  // QUANTITY SELECTOR
+  // QUANTITY
   // ==========================================================
 
   Widget _buildQuantitySelector({
     required bool disabled,
   }) {
     return Container(
-      height: 46,
+      height: 45,
       decoration: BoxDecoration(
         color: panel,
         border: Border.all(
@@ -1332,112 +1043,56 @@ class _ProductPageState extends State<ProductPage> {
         ),
       ),
       child: Row(
-        mainAxisSize:
-            MainAxisSize.min,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          _quantityButton(
-            icon: Icons.remove,
-            onTap: disabled
-                ? null
-                : _decreaseQuantity,
+          IconButton(
+            onPressed:
+                disabled
+                    ? null
+                    : _decreaseQuantity,
+            icon: const Icon(
+              Icons.remove,
+              size: 15,
+            ),
+            color: Colors.white,
+            disabledColor:
+                const Color(0xFF444444),
           ),
-
           Container(
-            width: 48,
-            alignment:
-                Alignment.center,
+            width: 35,
+            alignment: Alignment.center,
             child: Text(
               '$_quantity',
-              style:
-                  const TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 13,
-                fontWeight:
-                    FontWeight.w600,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
-
-          _quantityButton(
-            icon: Icons.add,
-            goldIcon: true,
-            onTap: disabled
-                ? null
-                : _increaseQuantity,
+          IconButton(
+            onPressed:
+                disabled
+                    ? null
+                    : _increaseQuantity,
+            icon: const Icon(
+              Icons.add,
+              size: 15,
+            ),
+            color: gold,
+            disabledColor:
+                const Color(0xFF555555),
           ),
         ],
       ),
     );
   }
 
-  Widget _quantityButton({
-    required IconData icon,
-    required VoidCallback? onTap,
-    bool goldIcon = false,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: SizedBox(
-        width: 42,
-        height: 44,
-        child: Icon(
-          icon,
-          size: 15,
-          color: onTap == null
-              ? const Color(
-                  0xFF444444,
-                )
-              : goldIcon
-                  ? gold
-                  : Colors.white,
-        ),
-      ),
-    );
-  }
-
   // ==========================================================
-  // FEATURES
+  // FEATURE
   // ==========================================================
 
-  Widget _buildFeatures() {
-    return Container(
-      padding:
-          const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: panel,
-        border: Border.all(
-          color: border,
-        ),
-      ),
-      child: Column(
-        children: [
-          _buildFeatureItem(
-            Icons.local_shipping_outlined,
-            'FREE DELIVERY',
-            'Delivery available across Pakistan',
-          ),
-          const SizedBox(height: 18),
-          _buildFeatureDivider(),
-          const SizedBox(height: 18),
-          _buildFeatureItem(
-            Icons.verified_outlined,
-            'AUTHENTIC FRAGRANCE',
-            'Original SHANO SHAN fragrance',
-          ),
-          const SizedBox(height: 18),
-          _buildFeatureDivider(),
-          const SizedBox(height: 18),
-          _buildFeatureItem(
-            Icons.lock_outline_rounded,
-            'SECURE ORDERING',
-            'Safe and simple checkout',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFeatureItem(
+  Widget _buildFeatureRow(
     IconData icon,
     String title,
     String subtitle,
@@ -1446,28 +1101,12 @@ class _ProductPageState extends State<ProductPage> {
       crossAxisAlignment:
           CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 38,
-          height: 38,
-          alignment:
-              Alignment.center,
-          decoration: BoxDecoration(
-            color: const Color(
-              0xFF151515,
-            ),
-            border: Border.all(
-              color: border,
-            ),
-          ),
-          child: Icon(
-            icon,
-            color: gold,
-            size: 18,
-          ),
+        Icon(
+          icon,
+          color: gold,
+          size: 21,
         ),
-
-        const SizedBox(width: 14),
-
+        const SizedBox(width: 15),
         Expanded(
           child: Column(
             crossAxisAlignment:
@@ -1475,65 +1114,22 @@ class _ProductPageState extends State<ProductPage> {
             children: [
               Text(
                 title,
-                style:
-                    const TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 9,
-                  fontWeight:
-                      FontWeight.w600,
-                  letterSpacing: 1.4,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.3,
                 ),
               ),
-
-              const SizedBox(height: 6),
-
+              const SizedBox(height: 5),
               Text(
                 subtitle,
-                style:
-                    const TextStyle(
+                style: const TextStyle(
                   color: muted,
                   fontSize: 10,
-                  height: 1.4,
                 ),
               ),
             ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFeatureDivider() {
-    return Container(
-      height: 1,
-      color: const Color(
-        0xFF1D1D1D,
-      ),
-    );
-  }
-
-  // ==========================================================
-  // TRUST LINE
-  // ==========================================================
-
-  Widget _buildTrustLine() {
-    return Row(
-      mainAxisAlignment:
-          MainAxisAlignment.center,
-      children: [
-        const Icon(
-          Icons.shield_outlined,
-          color: Color(0xFF666666),
-          size: 15,
-        ),
-        const SizedBox(width: 8),
-        Text(
-          'A REFINED SHANO SHAN EXPERIENCE',
-          style: TextStyle(
-            color: Colors.white
-                .withValues(alpha: 0.3),
-            fontSize: 8,
-            letterSpacing: 1.7,
           ),
         ),
       ],
@@ -1549,116 +1145,51 @@ class _ProductPageState extends State<ProductPage> {
   ) {
     return Center(
       child: Padding(
-        padding:
-            const EdgeInsets.all(30),
+        padding: const EdgeInsets.all(30),
         child: Column(
-          mainAxisSize:
-              MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 76,
-              height: 76,
-              alignment:
-                  Alignment.center,
-              decoration:
-                  BoxDecoration(
-                color: panel,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: border,
-                ),
-              ),
-              child: const Icon(
-                Icons
-                    .error_outline_rounded,
-                color:
-                    Color(0xFF555555),
-                size: 34,
-              ),
+            const Icon(
+              Icons.error_outline,
+              color: Color(0xFF555555),
+              size: 60,
             ),
-
             const SizedBox(height: 25),
-
             Text(
-              _error ??
-                  'Product not found.',
-              textAlign:
-                  TextAlign.center,
-              style:
-                  const TextStyle(
+              _error ?? 'Product not found.',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
               ),
             ),
-
-            const SizedBox(height: 28),
-
+            const SizedBox(height: 25),
             Row(
-              mainAxisSize:
-                  MainAxisSize.min,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 OutlinedButton(
-                  onPressed:
-                      _loadProduct,
+                  onPressed: _loadProduct,
                   style:
-                      OutlinedButton
-                          .styleFrom(
-                    foregroundColor:
-                        Colors.white,
-                    side:
-                        const BorderSide(
-                      color:
-                          borderLight,
-                    ),
-                    padding:
-                        const EdgeInsets
-                            .symmetric(
-                      horizontal: 22,
-                      vertical: 16,
+                      OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(
+                      color: Color(0xFF444444),
                     ),
                   ),
                   child:
-                      const Text(
-                    'TRY AGAIN',
-                    style: TextStyle(
-                      fontSize: 10,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
+                      const Text('TRY AGAIN'),
                 ),
-
                 const SizedBox(width: 12),
-
                 ElevatedButton(
                   onPressed: () =>
-                      context.go(
-                    '/shop',
-                  ),
+                      context.go('/shop'),
                   style:
-                      ElevatedButton
-                          .styleFrom(
-                    backgroundColor:
-                        gold,
-                    foregroundColor:
-                        Colors.black,
+                      ElevatedButton.styleFrom(
+                    backgroundColor: gold,
+                    foregroundColor: Colors.black,
                     elevation: 0,
-                    padding:
-                        const EdgeInsets
-                            .symmetric(
-                      horizontal: 22,
-                      vertical: 16,
-                    ),
                   ),
-                  child:
-                      const Text(
-                    'SHOP',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight:
-                          FontWeight.w700,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
+                  child: const Text('SHOP'),
                 ),
               ],
             ),
@@ -1685,8 +1216,7 @@ class _ProductPageState extends State<ProductPage> {
         SnackBar(
           content: Text(
             message,
-            style:
-                const TextStyle(
+            style: const TextStyle(
               color: Colors.white,
             ),
           ),
@@ -1695,9 +1225,7 @@ class _ProductPageState extends State<ProductPage> {
           behavior:
               SnackBarBehavior.floating,
           duration:
-              const Duration(
-            seconds: 2,
-          ),
+              const Duration(seconds: 2),
         ),
       );
   }
@@ -1709,12 +1237,9 @@ class _ProductPageState extends State<ProductPage> {
   String _cleanError(
     Object error,
   ) {
-    final message =
-        error.toString();
+    final message = error.toString();
 
-    if (message.startsWith(
-      'Exception: ',
-    )) {
+    if (message.startsWith('Exception: ')) {
       return message.substring(
         'Exception: '.length,
       );

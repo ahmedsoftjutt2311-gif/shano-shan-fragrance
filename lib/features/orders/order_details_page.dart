@@ -307,7 +307,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
         color: const Color(0xFF111111),
         border: Border(
           bottom: BorderSide(
-            color: Colors.white.withValues(alpha: 0.08),
+            color: Colors.white.withOpacity(0.08),
           ),
         ),
       ),
@@ -396,7 +396,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
         borderRadius: BorderRadius.circular(2),
         border: Border.all(
           color: const Color(0xFFD4AF37)
-              .withValues(alpha: 0.35),
+              .withOpacity(0.35),
         ),
       ),
       child: Column(
@@ -432,7 +432,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
           Text(
             _formatDate(order['created_at']),
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.55),
+              color: Colors.white.withOpacity(0.55),
               fontSize: 12,
               letterSpacing: 0.8,
             ),
@@ -444,7 +444,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
               vertical: 12,
             ),
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.35),
+              color: Colors.black.withOpacity(0.35),
               borderRadius: BorderRadius.circular(2),
             ),
             child: Row(
@@ -454,7 +454,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                 Text(
                   'TOTAL',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.55),
+                    color: Colors.white.withOpacity(0.55),
                     fontSize: 11,
                     letterSpacing: 2,
                   ),
@@ -488,7 +488,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                     ? 'PAYMENT CONFIRMED'
                     : 'PAYMENT ${paymentStatus.isEmpty ? 'PENDING' : paymentStatus.toUpperCase()}',
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.65),
+                  color: Colors.white.withOpacity(0.65),
                   fontSize: 10,
                   letterSpacing: 1.4,
                 ),
@@ -623,12 +623,12 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: reached
-                        ? gold.withValues(alpha: 0.12)
-                        : Colors.white.withValues(alpha: 0.04),
+                        ? gold.withOpacity(0.12)
+                        : Colors.white.withOpacity(0.04),
                     border: Border.all(
                       color: reached
                           ? gold
-                          : Colors.white.withValues(alpha: 0.12),
+                          : Colors.white.withOpacity(0.12),
                     ),
                   ),
                   child: Icon(
@@ -636,7 +636,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                     size: 16,
                     color: reached
                         ? gold
-                        : Colors.white.withValues(alpha: 0.3),
+                        : Colors.white.withOpacity(0.3),
                   ),
                 ),
                 if (!isLast)
@@ -647,8 +647,8 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                         vertical: 4,
                       ),
                       color: reached
-                          ? gold.withValues(alpha: 0.45)
-                          : Colors.white.withValues(alpha: 0.08),
+                          ? gold.withOpacity(0.45)
+                          : Colors.white.withOpacity(0.08),
                     ),
                   ),
               ],
@@ -672,7 +672,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                           style: TextStyle(
                             color: reached
                                 ? Colors.white
-                                : Colors.white.withValues(alpha: 0.35),
+                                : Colors.white.withOpacity(0.35),
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 1.4,
@@ -688,7 +688,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                           ),
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: gold.withValues(alpha: 0.5),
+                              color: gold.withOpacity(0.5),
                             ),
                           ),
                           child: const Text(
@@ -709,8 +709,8 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                     subtitle,
                     style: TextStyle(
                       color: reached
-                          ? Colors.white.withValues(alpha: 0.55)
-                          : Colors.white.withValues(alpha: 0.25),
+                          ? Colors.white.withOpacity(0.55)
+                          : Colors.white.withOpacity(0.25),
                       fontSize: 11,
                       height: 1.5,
                     ),
@@ -763,9 +763,9 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.025),
+        color: Colors.white.withOpacity(0.025),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.07),
+          color: Colors.white.withOpacity(0.07),
         ),
       ),
       child: Row(
@@ -777,7 +777,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
               color: Colors.black,
               border: Border.all(
                 color: const Color(0xFFD4AF37)
-                    .withValues(alpha: 0.18),
+                    .withOpacity(0.18),
               ),
             ),
             child: const Icon(
@@ -807,7 +807,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                 Text(
                   'QTY $quantity',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.45),
+                    color: Colors.white.withOpacity(0.45),
                     fontSize: 10,
                     letterSpacing: 1.2,
                   ),
@@ -878,7 +878,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
               vertical: 16,
             ),
             child: Divider(
-              color: Colors.white.withValues(alpha: 0.08),
+              color: Colors.white.withOpacity(0.08),
             ),
           ),
           _summaryRow(
@@ -906,8 +906,8 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withValues(
-              alpha: large ? 0.75 : 0.45,
+            color: Colors.white.withOpacity(
+              large ? 0.75 : 0.45,
             ),
             fontSize: large ? 12 : 10,
             fontWeight: large
@@ -1028,7 +1028,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                 Text(
                   label,
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.35),
+                    color: Colors.white.withOpacity(0.35),
                     fontSize: 9,
                     letterSpacing: 1.5,
                   ),
@@ -1068,7 +1068,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
       decoration: BoxDecoration(
         color: const Color(0xFF111111),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.07),
+          color: Colors.white.withOpacity(0.07),
         ),
       ),
       child: Column(
@@ -1120,7 +1120,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
               _error ?? 'Something went wrong.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.5),
+                color: Colors.white.withOpacity(0.5),
                 fontSize: 12,
                 height: 1.5,
               ),

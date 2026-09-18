@@ -373,12 +373,12 @@ class _LoginPageState extends State<LoginPage> {
       ),
       decoration: BoxDecoration(
         color: success
-            ? gold.withValues(alpha: 0.07)
-            : Colors.red.withValues(alpha: 0.07),
+            ? gold.withOpacity(0.07)
+            : Colors.red.withOpacity(0.07),
         border: Border.all(
           color: success
-              ? gold.withValues(alpha: 0.25)
-              : Colors.red.withValues(alpha: 0.25),
+              ? gold.withOpacity(0.25)
+              : Colors.red.withOpacity(0.25),
         ),
       ),
       child: Row(
@@ -564,7 +564,7 @@ class _LoginPageState extends State<LoginPage> {
                     decoration: BoxDecoration(
                       border: Border.all(
                         color:
-                            Colors.white.withValues(alpha: 0.10),
+                            Colors.white.withOpacity(0.10),
                       ),
                     ),
                     child: Row(
@@ -687,7 +687,7 @@ class _LoginPageState extends State<LoginPage> {
                         backgroundColor: gold,
                         foregroundColor: Colors.black,
                         disabledBackgroundColor:
-                            gold.withValues(alpha: 0.45),
+                            gold.withOpacity(0.45),
                         elevation: 0,
                         shape:
                             const RoundedRectangleBorder(
@@ -779,7 +779,7 @@ class _LoginPageState extends State<LoginPage> {
                       Expanded(
                         child: Divider(
                           color: Colors.white
-                              .withValues(alpha: 0.08),
+                              .withOpacity(0.08),
                         ),
                       ),
                       Padding(
@@ -791,7 +791,7 @@ class _LoginPageState extends State<LoginPage> {
                           'SHANO SHAN',
                           style: TextStyle(
                             color: Colors.white
-                                .withValues(alpha: 0.18),
+                                .withOpacity(0.18),
                             fontSize: 8,
                             letterSpacing: 2,
                           ),
@@ -800,7 +800,7 @@ class _LoginPageState extends State<LoginPage> {
                       Expanded(
                         child: Divider(
                           color: Colors.white
-                              .withValues(alpha: 0.08),
+                              .withOpacity(0.08),
                         ),
                       ),
                     ],

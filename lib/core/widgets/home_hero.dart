@@ -51,7 +51,7 @@ class HomeHero extends StatelessWidget {
                 'assets/branding/shano_shan_hero_background.png',
                 fit: BoxFit.cover,
                 alignment: Alignment.center,
-                errorBuilder: (_, _, _) {
+                errorBuilder: (_, __, ___) {
                   return const ColoredBox(
                     color: Color(0xFF020202),
                   );
