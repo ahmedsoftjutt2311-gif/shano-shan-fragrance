@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -19,27 +18,19 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentPath =
-        GoRouterState.of(context).uri.path;
-
-    final isAdminPage =
-        currentPath.startsWith('/admin');
+    final currentPath = GoRouterState.of(context).uri.path;
+    final isAdminPage = currentPath.startsWith('/admin');
 
     return Scaffold(
       backgroundColor: AppColors.black,
       drawer: const _MobileDrawer(),
-
       body: Stack(
         children: [
-          // ====================================================
-          // MAIN WEBSITE
-          // ====================================================
-
           Column(
             children: [
               const AnnouncementBar(),
 
-              const _DesktopHeader(),
+              const _ResponsiveHeader(),
 
               Expanded(
                 child: child,
@@ -47,14 +38,7 @@ class AppShell extends StatelessWidget {
             ],
           ),
 
-          // ====================================================
-          // SHANO AI FRAGRANCE ASSISTANT
-          // ====================================================
-          //
-          // AI is available throughout the customer website.
-          // It is hidden from the Admin Panel.
-          //
-
+          // SHANO AI is available only on customer pages.
           if (!isAdminPage)
             const ShanoAiChat(),
         ],
@@ -64,21 +48,25 @@ class AppShell extends StatelessWidget {
 }
 
 // ======================================================
-// DESKTOP / MOBILE HEADER
+// RESPONSIVE HEADER
 // ======================================================
 
-class _DesktopHeader extends StatelessWidget {
-  const _DesktopHeader();
+class _ResponsiveHeader extends StatelessWidget {
+  const _ResponsiveHeader();
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.maxWidth < 700) {
+        final width = constraints.maxWidth;
+
+        // Phones + small tablets.
+        if (width < 850) {
           return const _MobileHeader();
         }
 
-        return const _DesktopNavigation();
+        // Normal laptop / desktop.
+        return _DesktopNavigation();
       },
     );
   }
@@ -93,87 +81,110 @@ class _DesktopNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 104,
-      decoration: const BoxDecoration(
-        color: AppColors.black,
-        border: Border(
-          bottom: BorderSide(
-            color: AppColors.divider,
-            width: 1,
-          ),
-        ),
-      ),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: 1440,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.xl,
-            ),
-            child: Row(
-              children: [
-                // BRAND
-                GestureDetector(
-                  onTap: () => context.go('/'),
-                  child: const _DesktopBrand(),
-                ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
 
-                const Spacer(),
+        // Scale the header slightly on smaller laptops.
+        final bool compact = width < 1150;
 
-                // NAVIGATION
-                _NavItem(
-                  label: 'HOME',
-                  route: '/',
-                ),
-
-                _NavItem(
-                  label: 'SHOP',
-                  route: '/shop',
-                ),
-
-                _NavItem(
-                  label: 'FIND YOUR SCENT',
-                  route: '/find-your-scent',
-                ),
-
-                _NavItem(
-                  label: 'ABOUT',
-                  route: '/about',
-                ),
-
-                _NavItem(
-                  label: 'CONTACT',
-                  route: '/contact',
-                ),
-
-                _NavItem(
-                  label: 'TRACK ORDER',
-                  route: '/track-order',
-                ),
-
-                const SizedBox(width: 12),
-
-                // ACCOUNT
-                _HeaderIconButton(
-                  icon: Icons.person_outline,
-                  tooltip: 'Account',
-                  onPressed: () => context.go('/account'),
-                ),
-
-                // CART
-                _HeaderIconButton(
-                  icon: Icons.shopping_bag_outlined,
-                  tooltip: 'Cart',
-                  onPressed: () => context.go('/cart'),
-                ),
-              ],
+        return Container(
+          height: compact ? 86 : 100,
+          decoration: const BoxDecoration(
+            color: AppColors.black,
+            border: Border(
+              bottom: BorderSide(
+                color: AppColors.divider,
+                width: 1,
+              ),
             ),
           ),
-        ),
-      ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 1500,
+              ),
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: compact ? 18 : 28,
+                ),
+                child: Row(
+                  children: [
+                    // ====================================================
+                    // BRAND
+                    // ====================================================
+
+                    GestureDetector(
+                      onTap: () => context.go('/'),
+                      child: _DesktopBrand(
+                        compact: compact,
+                      ),
+                    ),
+
+                    const Spacer(),
+
+                    // ====================================================
+                    // NAVIGATION
+                    // ====================================================
+
+                    _NavItem(
+                      label: 'HOME',
+                      route: '/',
+                      compact: compact,
+                    ),
+
+                    _NavItem(
+                      label: 'SHOP',
+                      route: '/shop',
+                      compact: compact,
+                    ),
+
+                    _NavItem(
+                      label: 'FIND YOUR SCENT',
+                      route: '/find-your-scent',
+                      compact: compact,
+                    ),
+
+                    _NavItem(
+                      label: 'ABOUT',
+                      route: '/about',
+                      compact: compact,
+                    ),
+
+                    _NavItem(
+                      label: 'CONTACT',
+                      route: '/contact',
+                      compact: compact,
+                    ),
+
+                    _NavItem(
+                      label: 'TRACK ORDER',
+                      route: '/track-order',
+                      compact: compact,
+                    ),
+
+                    SizedBox(
+                      width: compact ? 3 : 10,
+                    ),
+
+                    _HeaderIconButton(
+                      icon: Icons.person_outline,
+                      tooltip: 'Account',
+                      onPressed: () => context.go('/account'),
+                    ),
+
+                    _HeaderIconButton(
+                      icon: Icons.shopping_bag_outlined,
+                      tooltip: 'Cart',
+                      onPressed: () => context.go('/cart'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -183,72 +194,80 @@ class _DesktopNavigation extends StatelessWidget {
 // ======================================================
 
 class _DesktopBrand extends StatelessWidget {
-  const _DesktopBrand();
+  final bool compact;
+
+  const _DesktopBrand({
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Image.asset(
           AppAssets.logo,
-          width: 82,
-          height: 82,
+          width: compact ? 58 : 72,
+          height: compact ? 68 : 82,
           fit: BoxFit.contain,
           filterQuality: FilterQuality.high,
         ),
 
-        const SizedBox(width: 18),
+        SizedBox(
+          width: compact ? 10 : 14,
+        ),
 
         Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'SHANO SHAN',
               style: TextStyle(
-                color: Color(0xFFE6B94F),
+                color: const Color(0xFFE6B94F),
                 fontFamily: 'Georgia',
-                fontSize: 25,
+                fontSize: compact ? 19 : 23,
                 fontWeight: FontWeight.w400,
-                letterSpacing: 2.8,
-                height: 1.0,
+                letterSpacing: compact ? 2.0 : 2.5,
+                height: 1,
               ),
             ),
 
-            const SizedBox(height: 6),
+            const SizedBox(height: 5),
 
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 32,
+                  width: compact ? 22 : 28,
                   height: 1,
-                  color: Color(0xFFD6A33A),
+                  color: const Color(0xFFD6A33A),
                 ),
 
-                const SizedBox(width: 10),
+                SizedBox(
+                  width: compact ? 7 : 9,
+                ),
 
-                const Text(
+                Text(
                   'FRAGRANCE',
                   style: TextStyle(
-                    color: Color(0xFFE6B94F),
+                    color: const Color(0xFFE6B94F),
                     fontFamily: 'Georgia',
-                    fontSize: 11,
+                    fontSize: compact ? 8 : 10,
                     fontWeight: FontWeight.w500,
-                    letterSpacing: 4.5,
-                    height: 1.0,
+                    letterSpacing: compact ? 3 : 3.8,
+                    height: 1,
                   ),
                 ),
 
-                const SizedBox(width: 10),
+                SizedBox(
+                  width: compact ? 7 : 9,
+                ),
 
                 Container(
-                  width: 32,
+                  width: compact ? 22 : 28,
                   height: 1,
-                  color: Color(0xFFD6A33A),
+                  color: const Color(0xFFD6A33A),
                 ),
               ],
             ),
@@ -266,10 +285,12 @@ class _DesktopBrand extends StatelessWidget {
 class _NavItem extends StatefulWidget {
   final String label;
   final String route;
+  final bool compact;
 
   const _NavItem({
     required this.label,
     required this.route,
+    this.compact = false,
   });
 
   @override
@@ -281,15 +302,12 @@ class _NavItemState extends State<_NavItem> {
 
   @override
   Widget build(BuildContext context) {
-    final currentPath =
-        GoRouterState.of(context).uri.path;
+    final currentPath = GoRouterState.of(context).uri.path;
 
     final isActive =
         currentPath == widget.route ||
         (widget.route != '/' &&
-            currentPath.startsWith(
-              '${widget.route}/',
-            ));
+            currentPath.startsWith('${widget.route}/'));
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -304,30 +322,26 @@ class _NavItemState extends State<_NavItem> {
         });
       },
       child: GestureDetector(
-        onTap: () =>
-            context.go(widget.route),
+        onTap: () => context.go(widget.route),
         child: Padding(
-          padding:
-              const EdgeInsets.symmetric(
-            horizontal: 11,
+          padding: EdgeInsets.symmetric(
+            horizontal: widget.compact ? 5 : 8,
             vertical: 10,
           ),
-          child:
-              AnimatedDefaultTextStyle(
-            duration:
-                const Duration(
-              milliseconds: 180,
+          child: AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 180),
+            style: AppTypography.navigation.copyWith(
+              color: isActive || isHovered
+                  ? AppColors.gold
+                  : AppColors.textSecondary,
+              letterSpacing: widget.compact ? 1.0 : 1.35,
+              fontSize: widget.compact ? 9.5 : 10.5,
             ),
-            style:
-                AppTypography.navigation
-                    .copyWith(
-              color:
-                  isActive || isHovered
-                      ? AppColors.gold
-                      : AppColors.textSecondary,
-              letterSpacing: 1.6,
+            child: Text(
+              widget.label,
+              maxLines: 1,
+              softWrap: false,
             ),
-            child: Text(widget.label),
           ),
         ),
       ),
@@ -339,8 +353,7 @@ class _NavItemState extends State<_NavItem> {
 // HEADER ICON
 // ======================================================
 
-class _HeaderIconButton
-    extends StatefulWidget {
+class _HeaderIconButton extends StatefulWidget {
   final IconData icon;
   final String tooltip;
   final VoidCallback onPressed;
@@ -363,8 +376,7 @@ class _HeaderIconButtonState
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      cursor:
-          SystemMouseCursors.click,
+      cursor: SystemMouseCursors.click,
       onEnter: (_) {
         setState(() {
           hovered = true;
@@ -380,12 +392,12 @@ class _HeaderIconButtonState
         onPressed: widget.onPressed,
         icon: Icon(
           widget.icon,
-          size: 21,
+          size: 20,
           color: hovered
               ? AppColors.gold
               : AppColors.textSecondary,
         ),
-        splashRadius: 22,
+        splashRadius: 21,
       ),
     );
   }
@@ -401,7 +413,7 @@ class _MobileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 88,
+      height: 76,
       decoration: const BoxDecoration(
         color: AppColors.black,
         border: Border(
@@ -411,22 +423,22 @@ class _MobileHeader extends StatelessWidget {
           ),
         ),
       ),
-      padding:
-          const EdgeInsets.symmetric(
-        horizontal: 14,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
       ),
       child: Row(
         children: [
           Builder(
             builder: (context) {
               return IconButton(
+                tooltip: 'Menu',
                 onPressed: () {
-                  Scaffold.of(context)
-                      .openDrawer();
+                  Scaffold.of(context).openDrawer();
                 },
                 icon: const Icon(
                   Icons.menu,
                   color: AppColors.ivory,
+                  size: 24,
                 ),
               );
             },
@@ -435,23 +447,19 @@ class _MobileHeader extends StatelessWidget {
           const Spacer(),
 
           GestureDetector(
-            onTap: () =>
-                context.go('/'),
-            child:
-                const _MobileBrand(),
+            onTap: () => context.go('/'),
+            child: const _MobileBrand(),
           ),
 
           const Spacer(),
 
           IconButton(
             tooltip: 'Cart',
-            onPressed: () =>
-                context.go('/cart'),
+            onPressed: () => context.go('/cart'),
             icon: const Icon(
-              Icons
-                  .shopping_bag_outlined,
-              color:
-                  AppColors.ivory,
+              Icons.shopping_bag_outlined,
+              color: AppColors.ivory,
+              size: 22,
             ),
           ),
         ],
@@ -474,71 +482,60 @@ class _MobileBrand extends StatelessWidget {
       children: [
         Image.asset(
           AppAssets.logo,
-          width: 48,
-          height: 64,
+          width: 40,
+          height: 54,
           fit: BoxFit.contain,
-          filterQuality:
-              FilterQuality.high,
+          filterQuality: FilterQuality.high,
         ),
 
-        const SizedBox(width: 8),
+        const SizedBox(width: 6),
 
         Column(
-          mainAxisSize:
-              MainAxisSize.min,
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'SHANO SHAN',
               style: TextStyle(
-                color:
-                    Color(0xFFE6B94F),
+                color: Color(0xFFE6B94F),
                 fontFamily: 'Georgia',
-                fontSize: 13,
-                fontWeight:
-                    FontWeight.w400,
-                letterSpacing: 1.8,
-                height: 1.0,
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 1.5,
+                height: 1,
               ),
             ),
 
-            const SizedBox(height: 5),
+            const SizedBox(height: 4),
 
             Row(
-              mainAxisSize:
-                  MainAxisSize.min,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 15,
+                  width: 12,
                   height: 1,
-                  color:
-                      Color(0xFFD6A33A),
+                  color: Color(0xFFD6A33A),
                 ),
 
-                const SizedBox(width: 5),
+                const SizedBox(width: 4),
 
                 const Text(
                   'FRAGRANCE',
                   style: TextStyle(
-                    color:
-                        Color(0xFFE6B94F),
-                    fontFamily:
-                        'Georgia',
-                    fontSize: 7,
-                    fontWeight:
-                        FontWeight.w500,
-                    letterSpacing: 2.2,
+                    color: Color(0xFFE6B94F),
+                    fontFamily: 'Georgia',
+                    fontSize: 6.5,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 1.9,
                   ),
                 ),
 
-                const SizedBox(width: 5),
+                const SizedBox(width: 4),
 
                 Container(
-                  width: 15,
+                  width: 12,
                   height: 1,
-                  color:
-                      Color(0xFFD6A33A),
+                  color: Color(0xFFD6A33A),
                 ),
               ],
             ),
@@ -559,38 +556,31 @@ class _MobileDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor:
-          AppColors.charcoal,
+      backgroundColor: AppColors.charcoal,
       child: SafeArea(
-        child:
-            SingleChildScrollView(
+        child: SingleChildScrollView(
           child: Column(
             children: [
               const SizedBox(height: 20),
 
               Image.asset(
                 AppAssets.logo,
-                width: 150,
-                height: 150,
+                width: 140,
+                height: 140,
                 fit: BoxFit.contain,
-                filterQuality:
-                    FilterQuality.high,
+                filterQuality: FilterQuality.high,
               ),
 
               const SizedBox(height: 8),
 
               const Text(
                 'SHANO SHAN',
-                textAlign:
-                    TextAlign.center,
+                textAlign: TextAlign.center,
                 style: TextStyle(
-                  color:
-                      Color(0xFFE6B94F),
-                  fontFamily:
-                      'Georgia',
+                  color: Color(0xFFE6B94F),
+                  fontFamily: 'Georgia',
                   fontSize: 20,
-                  fontWeight:
-                      FontWeight.w400,
+                  fontWeight: FontWeight.w400,
                   letterSpacing: 2.5,
                 ),
               ),
@@ -599,16 +589,12 @@ class _MobileDrawer extends StatelessWidget {
 
               const Text(
                 'FRAGRANCE',
-                textAlign:
-                    TextAlign.center,
+                textAlign: TextAlign.center,
                 style: TextStyle(
-                  color:
-                      Color(0xFFE6B94F),
-                  fontFamily:
-                      'Georgia',
+                  color: Color(0xFFE6B94F),
+                  fontFamily: 'Georgia',
                   fontSize: 10,
-                  fontWeight:
-                      FontWeight.w500,
+                  fontWeight: FontWeight.w500,
                   letterSpacing: 4,
                 ),
               ),
@@ -616,8 +602,7 @@ class _MobileDrawer extends StatelessWidget {
               const SizedBox(height: 18),
 
               const Divider(
-                color:
-                    AppColors.divider,
+                color: AppColors.divider,
               ),
 
               _DrawerItem(
@@ -632,8 +617,7 @@ class _MobileDrawer extends StatelessWidget {
 
               _DrawerItem(
                 label: 'FIND YOUR SCENT',
-                route:
-                    '/find-your-scent',
+                route: '/find-your-scent',
               ),
 
               _DrawerItem(
@@ -648,8 +632,7 @@ class _MobileDrawer extends StatelessWidget {
 
               _DrawerItem(
                 label: 'TRACK MY ORDER',
-                route:
-                    '/track-order',
+                route: '/track-order',
               ),
 
               _DrawerItem(
@@ -665,8 +648,7 @@ class _MobileDrawer extends StatelessWidget {
               const SizedBox(height: 18),
 
               const Divider(
-                color:
-                    AppColors.divider,
+                color: AppColors.divider,
               ),
 
               const SizedBox(height: 12),
@@ -674,10 +656,8 @@ class _MobileDrawer extends StatelessWidget {
               const Text(
                 'SHANO SHAN',
                 style: TextStyle(
-                  color:
-                      AppColors.goldDark,
-                  fontFamily:
-                      'Georgia',
+                  color: AppColors.goldDark,
+                  fontFamily: 'Georgia',
                   fontSize: 11,
                   letterSpacing: 3,
                 ),
@@ -709,35 +689,27 @@ class _DrawerItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: () {
-        Navigator.of(context)
-            .pop();
-
+        Navigator.of(context).pop();
         context.go(route);
       },
       title: Text(
         label,
-        style:
-            AppTypography.navigation
-                .copyWith(
-          color:
-              AppColors.textSecondary,
+        style: AppTypography.navigation.copyWith(
+          color: AppColors.textSecondary,
           letterSpacing: 1.8,
         ),
       ),
-      trailing:
-          const Icon(
-        Icons
-            .arrow_forward_ios,
+      trailing: const Icon(
+        Icons.arrow_forward_ios,
         size: 13,
-        color:
-            AppColors.goldDark,
+        color: AppColors.goldDark,
       ),
     );
   }
 }
 
 // ======================================================
-// SITE FOOTER
+// FOOTER
 // ======================================================
 
 class _SiteFooter extends StatelessWidget {
@@ -746,10 +718,8 @@ class _SiteFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-      builder:
-          (context, constraints) {
-        if (constraints.maxWidth <
-            700) {
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 700) {
           return const _MobileFooter();
         }
 
@@ -759,10 +729,6 @@ class _SiteFooter extends StatelessWidget {
   }
 }
 
-// ======================================================
-// DESKTOP FOOTER
-// ======================================================
-
 class _DesktopFooter extends StatelessWidget {
   const _DesktopFooter();
 
@@ -770,28 +736,22 @@ class _DesktopFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration:
-          const BoxDecoration(
-        color:
-            AppColors.charcoal,
-        border:
-            Border(
+      decoration: const BoxDecoration(
+        color: AppColors.charcoal,
+        border: Border(
           top: BorderSide(
-            color:
-                AppColors.divider,
+            color: AppColors.divider,
             width: 1,
           ),
         ),
       ),
       child: Center(
         child: ConstrainedBox(
-          constraints:
-              const BoxConstraints(
+          constraints: const BoxConstraints(
             maxWidth: 1440,
           ),
           child: Padding(
-            padding:
-                const EdgeInsets.fromLTRB(
+            padding: const EdgeInsets.fromLTRB(
               48,
               58,
               48,
@@ -801,142 +761,86 @@ class _DesktopFooter extends StatelessWidget {
               children: [
                 Row(
                   crossAxisAlignment:
-                      CrossAxisAlignment
-                          .start,
+                      CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       flex: 2,
-                      child:
-                          _FooterBrand(
-                        onTap: () =>
-                            context.go(
-                          '/',
-                        ),
+                      child: _FooterBrand(
+                        onTap: () => context.go('/'),
                       ),
                     ),
-
-                    const SizedBox(
-                      width: 60,
-                    ),
-
+                    const SizedBox(width: 60),
                     const Expanded(
-                      child:
-                          _FooterNavigationColumn(
-                        title:
-                            'SHOP',
+                      child: _FooterNavigationColumn(
+                        title: 'SHOP',
                         items: [
                           _FooterLinkData(
-                            label:
-                                'Shop All Fragrances',
-                            route:
-                                '/shop',
+                            label: 'Shop All Fragrances',
+                            route: '/shop',
                           ),
                           _FooterLinkData(
-                            label:
-                                'Find Your Scent',
-                            route:
-                                '/find-your-scent',
+                            label: 'Find Your Scent',
+                            route: '/find-your-scent',
                           ),
                           _FooterLinkData(
-                            label:
-                                'Track My Order',
-                            route:
-                                '/track-order',
+                            label: 'Track My Order',
+                            route: '/track-order',
                           ),
                         ],
                       ),
                     ),
-
-                    const SizedBox(
-                      width: 30,
-                    ),
-
+                    const SizedBox(width: 30),
                     const Expanded(
-                      child:
-                          _FooterNavigationColumn(
-                        title:
-                            'COMPANY',
+                      child: _FooterNavigationColumn(
+                        title: 'COMPANY',
                         items: [
                           _FooterLinkData(
-                            label:
-                                'About Us',
-                            route:
-                                '/about',
+                            label: 'About Us',
+                            route: '/about',
                           ),
                           _FooterLinkData(
-                            label:
-                                'Contact',
-                            route:
-                                '/contact',
+                            label: 'Contact',
+                            route: '/contact',
                           ),
                           _FooterLinkData(
-                            label:
-                                'My Account',
-                            route:
-                                '/account',
+                            label: 'My Account',
+                            route: '/account',
                           ),
                         ],
                       ),
                     ),
-
-                    const SizedBox(
-                      width: 30,
-                    ),
-
+                    const SizedBox(width: 30),
                     Expanded(
-                      child:
-                          _FooterConnect(
+                      child: _FooterConnect(
                         onContact: () =>
-                            context.go(
-                          '/contact',
-                        ),
+                            context.go('/contact'),
                       ),
                     ),
                   ],
                 ),
-
-                const SizedBox(
-                  height: 50,
-                ),
-
+                const SizedBox(height: 50),
                 const Divider(
-                  color:
-                      AppColors.divider,
+                  color: AppColors.divider,
                 ),
-
-                const SizedBox(
-                  height: 22,
-                ),
-
+                const SizedBox(height: 22),
                 Row(
                   children: [
                     const Text(
                       '© SHANO SHAN FRAGRANCE',
-                      style:
-                          TextStyle(
-                        color:
-                            AppColors
-                                .textMuted,
+                      style: TextStyle(
+                        color: AppColors.textMuted,
                         fontSize: 10,
-                        letterSpacing:
-                            1.5,
+                        letterSpacing: 1.5,
                       ),
                     ),
-
                     const Spacer(),
-
                     const Text(
                       'CRAFTED FOR MEMORABLE MOMENTS.',
-                      style:
-                          TextStyle(
-                        color:
-                            AppColors
-                                .textMuted,
-                        fontFamily:
-                            'Georgia',
+                      style: TextStyle(
+                        color: AppColors.textMuted,
+                        fontFamily: 'Georgia',
                         fontSize: 10,
-                        letterSpacing:
-                            1.8,
+                        letterSpacing: 1.8,
                       ),
                     ),
                   ],
@@ -949,10 +853,6 @@ class _DesktopFooter extends StatelessWidget {
     );
   }
 }
-
-// ======================================================
-// FOOTER BRAND
-// ======================================================
 
 class _FooterBrand extends StatelessWidget {
   final VoidCallback onTap;
@@ -970,96 +870,61 @@ class _FooterBrand extends StatelessWidget {
             CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisSize:
-                MainAxisSize.min,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Image.asset(
                 AppAssets.logo,
                 width: 74,
                 height: 74,
                 fit: BoxFit.contain,
-                filterQuality:
-                    FilterQuality.high,
+                filterQuality: FilterQuality.high,
               ),
-
-              const SizedBox(
-                width: 15,
-              ),
-
+              const SizedBox(width: 15),
               Column(
                 crossAxisAlignment:
-                    CrossAxisAlignment
-                        .start,
+                    CrossAxisAlignment.start,
                 children: [
                   const Text(
                     'SHANO SHAN',
-                    style:
-                        TextStyle(
-                      color: Color(
-                        0xFFE6B94F,
-                      ),
-                      fontFamily:
-                          'Georgia',
+                    style: TextStyle(
+                      color: Color(0xFFE6B94F),
+                      fontFamily: 'Georgia',
                       fontSize: 21,
-                      letterSpacing:
-                          2.5,
+                      letterSpacing: 2.5,
                     ),
                   ),
-
-                  const SizedBox(
-                    height: 7,
-                  ),
-
+                  const SizedBox(height: 7),
                   const Text(
                     'FRAGRANCE',
-                    style:
-                        TextStyle(
-                      color:
-                          AppColors
-                              .goldDark,
+                    style: TextStyle(
+                      color: AppColors.goldDark,
                       fontSize: 9,
-                      letterSpacing:
-                          3.5,
+                      letterSpacing: 3.5,
                     ),
                   ),
                 ],
               ),
             ],
           ),
-
-          const SizedBox(
-            height: 24,
-          ),
-
+          const SizedBox(height: 24),
           const Text(
             'Every fragrance has a story.\n'
             'Make yours memorable.',
-            style:
-                TextStyle(
-              color:
-                  AppColors
-                      .textSecondary,
-              fontFamily:
-                  'Georgia',
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontFamily: 'Georgia',
               fontSize: 16,
               height: 1.7,
             ),
           ),
-
-          const SizedBox(
-            height: 22,
-          ),
-
+          const SizedBox(height: 22),
           const Text(
             'DISCOVER YOUR SIGNATURE.',
-            style:
-                TextStyle(
-              color:
-                  AppColors.gold,
+            style: TextStyle(
+              color: AppColors.gold,
               fontSize: 10,
               letterSpacing: 2.2,
-              fontWeight:
-                  FontWeight.w500,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -1068,15 +933,10 @@ class _FooterBrand extends StatelessWidget {
   }
 }
 
-// ======================================================
-// FOOTER NAVIGATION COLUMN
-// ======================================================
-
 class _FooterNavigationColumn
     extends StatelessWidget {
   final String title;
-  final List<_FooterLinkData>
-      items;
+  final List<_FooterLinkData> items;
 
   const _FooterNavigationColumn({
     required this.title,
@@ -1084,32 +944,23 @@ class _FooterNavigationColumn
   });
 
   @override
-  Widget build(
-      BuildContext context) {
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment:
           CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style:
-              const TextStyle(
-            color:
-                AppColors.gold,
+          style: const TextStyle(
+            color: AppColors.gold,
             fontSize: 10,
             letterSpacing: 2.5,
-            fontWeight:
-                FontWeight.w600,
+            fontWeight: FontWeight.w600,
           ),
         ),
-
-        const SizedBox(
-          height: 22,
-        ),
-
+        const SizedBox(height: 22),
         ...items.map(
-          (item) =>
-              _FooterLink(
+          (item) => _FooterLink(
             label: item.label,
             route: item.route,
           ),
@@ -1118,10 +969,6 @@ class _FooterNavigationColumn
     );
   }
 }
-
-// ======================================================
-// FOOTER LINK
-// ======================================================
 
 class _FooterLinkData {
   final String label;
@@ -1133,8 +980,7 @@ class _FooterLinkData {
   });
 }
 
-class _FooterLink
-    extends StatefulWidget {
+class _FooterLink extends StatefulWidget {
   final String label;
   final String route;
 
@@ -1144,58 +990,37 @@ class _FooterLink
   });
 
   @override
-  State<_FooterLink> createState() =>
-      _FooterLinkState();
+  State<_FooterLink> createState() => _FooterLinkState();
 }
 
-class _FooterLinkState
-    extends State<_FooterLink> {
+class _FooterLinkState extends State<_FooterLink> {
   bool hovered = false;
 
   @override
-  Widget build(
-      BuildContext context) {
+  Widget build(BuildContext context) {
     return MouseRegion(
-      cursor:
-          SystemMouseCursors.click,
+      cursor: SystemMouseCursors.click,
       onEnter: (_) {
-        setState(() {
-          hovered = true;
-        });
+        setState(() => hovered = true);
       },
       onExit: (_) {
-        setState(() {
-          hovered = false;
-        });
+        setState(() => hovered = false);
       },
       child: GestureDetector(
-        onTap: () =>
-            context.go(
-          widget.route,
-        ),
+        onTap: () => context.go(widget.route),
         child: Padding(
-          padding:
-              const EdgeInsets.only(
-            bottom: 15,
-          ),
-          child:
-              AnimatedDefaultTextStyle(
-            duration:
-                const Duration(
-              milliseconds: 160,
-            ),
+          padding: const EdgeInsets.only(bottom: 15),
+          child: AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 160),
             style: TextStyle(
               color: hovered
                   ? AppColors.gold
-                  : AppColors
-                      .textSecondary,
+                  : AppColors.textSecondary,
               fontSize: 12,
               letterSpacing: 0.8,
               height: 1.4,
             ),
-            child: Text(
-              widget.label,
-            ),
+            child: Text(widget.label),
           ),
         ),
       ),
@@ -1203,12 +1028,7 @@ class _FooterLinkState
   }
 }
 
-// ======================================================
-// FOOTER CONNECT
-// ======================================================
-
-class _FooterConnect
-    extends StatelessWidget {
+class _FooterConnect extends StatelessWidget {
   final VoidCallback onContact;
 
   const _FooterConnect({
@@ -1216,116 +1036,68 @@ class _FooterConnect
   });
 
   @override
-  Widget build(
-      BuildContext context) {
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment:
           CrossAxisAlignment.start,
       children: [
         const Text(
           'CONNECT',
-          style:
-              TextStyle(
-            color:
-                AppColors.gold,
+          style: TextStyle(
+            color: AppColors.gold,
             fontSize: 10,
             letterSpacing: 2.5,
-            fontWeight:
-                FontWeight.w600,
+            fontWeight: FontWeight.w600,
           ),
         ),
-
-        const SizedBox(
-          height: 22,
-        ),
-
+        const SizedBox(height: 22),
         const Text(
-          'Follow the world of\n'
-          'SHANO SHAN.',
-          style:
-              TextStyle(
-            color:
-                AppColors
-                    .textSecondary,
-            fontFamily:
-                'Georgia',
+          'Follow the world of\nSHANO SHAN.',
+          style: TextStyle(
+            color: AppColors.textSecondary,
+            fontFamily: 'Georgia',
             fontSize: 15,
             height: 1.6,
           ),
         ),
-
-        const SizedBox(
-          height: 22,
-        ),
-
+        const SizedBox(height: 22),
         Row(
           children: [
             _SocialButton(
-              icon: Icons
-                  .camera_alt_outlined,
-              tooltip:
-                  'Instagram',
-              onPressed:
-                  onContact,
+              icon: Icons.camera_alt_outlined,
+              tooltip: 'Instagram',
+              onPressed: onContact,
             ),
-
-            const SizedBox(
-              width: 10,
-            ),
-
+            const SizedBox(width: 10),
             _SocialButton(
-              icon:
-                  Icons.music_note,
-              tooltip:
-                  'TikTok',
-              onPressed:
-                  onContact,
+              icon: Icons.music_note,
+              tooltip: 'TikTok',
+              onPressed: onContact,
             ),
-
-            const SizedBox(
-              width: 10,
-            ),
-
+            const SizedBox(width: 10),
             _SocialButton(
-              icon:
-                  Icons.facebook,
-              tooltip:
-                  'Facebook',
-              onPressed:
-                  onContact,
+              icon: Icons.facebook,
+              tooltip: 'Facebook',
+              onPressed: onContact,
             ),
-
-            const SizedBox(
-              width: 10,
-            ),
-
+            const SizedBox(width: 10),
             _SocialButton(
-              icon:
-                  Icons.mail_outline,
-              tooltip:
-                  'Email',
-              onPressed:
-                  onContact,
+              icon: Icons.mail_outline,
+              tooltip: 'Email',
+              onPressed: onContact,
             ),
           ],
         ),
-
-        const SizedBox(
-          height: 20,
-        ),
-
+        const SizedBox(height: 20),
         GestureDetector(
           onTap: onContact,
           child: const Text(
             'GET IN TOUCH →',
-            style:
-                TextStyle(
-              color:
-                  AppColors.gold,
+            style: TextStyle(
+              color: AppColors.gold,
               fontSize: 10,
               letterSpacing: 2,
-              fontWeight:
-                  FontWeight.w600,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -1334,12 +1106,7 @@ class _FooterConnect
   }
 }
 
-// ======================================================
-// SOCIAL BUTTON
-// ======================================================
-
-class _SocialButton
-    extends StatefulWidget {
+class _SocialButton extends StatefulWidget {
   final IconData icon;
   final String tooltip;
   final VoidCallback onPressed;
@@ -1355,50 +1122,33 @@ class _SocialButton
       _SocialButtonState();
 }
 
-class _SocialButtonState
-    extends State<_SocialButton> {
+class _SocialButtonState extends State<_SocialButton> {
   bool hovered = false;
 
   @override
-  Widget build(
-      BuildContext context) {
+  Widget build(BuildContext context) {
     return MouseRegion(
-      cursor:
-          SystemMouseCursors.click,
+      cursor: SystemMouseCursors.click,
       onEnter: (_) {
-        setState(() {
-          hovered = true;
-        });
+        setState(() => hovered = true);
       },
       onExit: (_) {
-        setState(() {
-          hovered = false;
-        });
+        setState(() => hovered = false);
       },
       child: Tooltip(
-        message:
-            widget.tooltip,
+        message: widget.tooltip,
         child: GestureDetector(
-          onTap:
-              widget.onPressed,
-          child:
-              AnimatedContainer(
-            duration:
-                const Duration(
-              milliseconds: 160,
-            ),
+          onTap: widget.onPressed,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 160),
             width: 40,
             height: 40,
-            decoration:
-                BoxDecoration(
-              shape:
-                  BoxShape.circle,
-              border:
-                  Border.all(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
                 color: hovered
                     ? AppColors.gold
-                    : AppColors
-                        .divider,
+                    : AppColors.divider,
               ),
             ),
             child: Icon(
@@ -1406,8 +1156,7 @@ class _SocialButtonState
               size: 18,
               color: hovered
                   ? AppColors.gold
-                  : AppColors
-                      .textSecondary,
+                  : AppColors.textSecondary,
             ),
           ),
         ),
@@ -1416,34 +1165,23 @@ class _SocialButtonState
   }
 }
 
-// ======================================================
-// MOBILE FOOTER
-// ======================================================
-
-class _MobileFooter
-    extends StatelessWidget {
+class _MobileFooter extends StatelessWidget {
   const _MobileFooter();
 
   @override
-  Widget build(
-      BuildContext context) {
+  Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration:
-          const BoxDecoration(
-        color:
-            AppColors.charcoal,
-        border:
-            Border(
+      decoration: const BoxDecoration(
+        color: AppColors.charcoal,
+        border: Border(
           top: BorderSide(
-            color:
-                AppColors.divider,
+            color: AppColors.divider,
             width: 1,
           ),
         ),
       ),
-      padding:
-          const EdgeInsets.fromLTRB(
+      padding: const EdgeInsets.fromLTRB(
         24,
         46,
         24,
@@ -1454,8 +1192,7 @@ class _MobileFooter
             CrossAxisAlignment.center,
         children: [
           GestureDetector(
-            onTap: () =>
-                context.go('/'),
+            onTap: () => context.go('/'),
             child: Column(
               children: [
                 Image.asset(
@@ -1463,266 +1200,149 @@ class _MobileFooter
                   width: 90,
                   height: 90,
                   fit: BoxFit.contain,
-                  filterQuality:
-                      FilterQuality.high,
+                  filterQuality: FilterQuality.high,
                 ),
-
-                const SizedBox(
-                  height: 12,
-                ),
-
+                const SizedBox(height: 12),
                 const Text(
                   'SHANO SHAN',
-                  style:
-                      TextStyle(
-                    color: Color(
-                      0xFFE6B94F,
-                    ),
-                    fontFamily:
-                        'Georgia',
+                  style: TextStyle(
+                    color: Color(0xFFE6B94F),
+                    fontFamily: 'Georgia',
                     fontSize: 21,
-                    letterSpacing:
-                        2.5,
+                    letterSpacing: 2.5,
                   ),
                 ),
-
-                const SizedBox(
-                  height: 6,
-                ),
-
+                const SizedBox(height: 6),
                 const Text(
                   'FRAGRANCE',
-                  style:
-                      TextStyle(
-                    color:
-                        AppColors
-                            .goldDark,
+                  style: TextStyle(
+                    color: AppColors.goldDark,
                     fontSize: 9,
-                    letterSpacing:
-                        3.5,
+                    letterSpacing: 3.5,
                   ),
                 ),
               ],
             ),
           ),
-
-          const SizedBox(
-            height: 22,
-          ),
-
+          const SizedBox(height: 22),
           const Text(
             'Every fragrance has a story.\n'
             'Make yours memorable.',
-            textAlign:
-                TextAlign.center,
-            style:
-                TextStyle(
-              color:
-                  AppColors
-                      .textSecondary,
-              fontFamily:
-                  'Georgia',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontFamily: 'Georgia',
               fontSize: 15,
               height: 1.7,
             ),
           ),
-
-          const SizedBox(
-            height: 34,
-          ),
-
+          const SizedBox(height: 34),
           const Text(
             'EXPLORE',
-            style:
-                TextStyle(
-              color:
-                  AppColors.gold,
+            style: TextStyle(
+              color: AppColors.gold,
               fontSize: 10,
               letterSpacing: 2.5,
-              fontWeight:
-                  FontWeight.w600,
+              fontWeight: FontWeight.w600,
             ),
           ),
-
-          const SizedBox(
-            height: 18,
-          ),
-
+          const SizedBox(height: 18),
           _MobileFooterLink(
             label: 'SHOP',
             route: '/shop',
           ),
-
           _MobileFooterLink(
             label: 'FIND YOUR SCENT',
-            route:
-                '/find-your-scent',
+            route: '/find-your-scent',
           ),
-
           _MobileFooterLink(
             label: 'ABOUT',
             route: '/about',
           ),
-
           _MobileFooterLink(
             label: 'CONTACT',
             route: '/contact',
           ),
-
           _MobileFooterLink(
             label: 'TRACK MY ORDER',
-            route:
-                '/track-order',
+            route: '/track-order',
           ),
-
           _MobileFooterLink(
             label: 'MY ACCOUNT',
-            route:
-                '/account',
+            route: '/account',
           ),
-
           _MobileFooterLink(
             label: 'CART',
             route: '/cart',
           ),
-
-          const SizedBox(
-            height: 20,
-          ),
-
+          const SizedBox(height: 20),
           const Divider(
-            color:
-                AppColors.divider,
+            color: AppColors.divider,
           ),
-
-          const SizedBox(
-            height: 22,
-          ),
-
+          const SizedBox(height: 22),
           const Text(
             'FOLLOW SHANO SHAN',
-            style:
-                TextStyle(
-              color:
-                  AppColors.gold,
+            style: TextStyle(
+              color: AppColors.gold,
               fontSize: 10,
               letterSpacing: 2.3,
-              fontWeight:
-                  FontWeight.w600,
+              fontWeight: FontWeight.w600,
             ),
           ),
-
-          const SizedBox(
-            height: 18,
+          const SizedBox(height: 18),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _SocialButton(
+                icon: Icons.camera_alt_outlined,
+                tooltip: 'Instagram',
+                onPressed: () =>
+                    context.go('/contact'),
+              ),
+              const SizedBox(width: 10),
+              _SocialButton(
+                icon: Icons.music_note,
+                tooltip: 'TikTok',
+                onPressed: () =>
+                    context.go('/contact'),
+              ),
+              const SizedBox(width: 10),
+              _SocialButton(
+                icon: Icons.facebook,
+                tooltip: 'Facebook',
+                onPressed: () =>
+                    context.go('/contact'),
+              ),
+              const SizedBox(width: 10),
+              _SocialButton(
+                icon: Icons.mail_outline,
+                tooltip: 'Email',
+                onPressed: () =>
+                    context.go('/contact'),
+              ),
+            ],
           ),
-
-          Builder(
-            builder: (context) {
-              return Row(
-                mainAxisAlignment:
-                    MainAxisAlignment
-                        .center,
-                children: [
-                  _SocialButton(
-                    icon: Icons
-                        .camera_alt_outlined,
-                    tooltip:
-                        'Instagram',
-                    onPressed: () =>
-                        context.go(
-                      '/contact',
-                    ),
-                  ),
-
-                  const SizedBox(
-                    width: 10,
-                  ),
-
-                  _SocialButton(
-                    icon:
-                        Icons.music_note,
-                    tooltip:
-                        'TikTok',
-                    onPressed: () =>
-                        context.go(
-                      '/contact',
-                    ),
-                  ),
-
-                  const SizedBox(
-                    width: 10,
-                  ),
-
-                  _SocialButton(
-                    icon:
-                        Icons.facebook,
-                    tooltip:
-                        'Facebook',
-                    onPressed: () =>
-                        context.go(
-                      '/contact',
-                    ),
-                  ),
-
-                  const SizedBox(
-                    width: 10,
-                  ),
-
-                  _SocialButton(
-                    icon:
-                        Icons.mail_outline,
-                    tooltip:
-                        'Email',
-                    onPressed: () =>
-                        context.go(
-                      '/contact',
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-
-          const SizedBox(
-            height: 28,
-          ),
-
+          const SizedBox(height: 28),
           const Divider(
-            color:
-                AppColors.divider,
+            color: AppColors.divider,
           ),
-
-          const SizedBox(
-            height: 20,
-          ),
-
+          const SizedBox(height: 20),
           const Text(
             '© SHANO SHAN FRAGRANCE',
-            textAlign:
-                TextAlign.center,
-            style:
-                TextStyle(
-              color:
-                  AppColors.textMuted,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppColors.textMuted,
               fontSize: 9,
               letterSpacing: 1.5,
             ),
           ),
-
-          const SizedBox(
-            height: 9,
-          ),
-
+          const SizedBox(height: 9),
           const Text(
             'CRAFTED FOR MEMORABLE MOMENTS.',
-            textAlign:
-                TextAlign.center,
-            style:
-                TextStyle(
-              color:
-                  AppColors.textMuted,
-              fontFamily:
-                  'Georgia',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppColors.textMuted,
+              fontFamily: 'Georgia',
               fontSize: 9,
               letterSpacing: 1.5,
             ),
@@ -1733,12 +1353,7 @@ class _MobileFooter
   }
 }
 
-// ======================================================
-// MOBILE FOOTER LINK
-// ======================================================
-
-class _MobileFooterLink
-    extends StatelessWidget {
+class _MobileFooterLink extends StatelessWidget {
   final String label;
   final String route;
 
@@ -1748,26 +1363,18 @@ class _MobileFooterLink
   });
 
   @override
-  Widget build(
-      BuildContext context) {
+  Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () =>
-          context.go(route),
+      onTap: () => context.go(route),
       child: Padding(
-        padding:
-            const EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           vertical: 9,
         ),
         child: Text(
           label,
-          textAlign:
-              TextAlign.center,
-          style:
-              AppTypography.navigation
-                  .copyWith(
-            color:
-                AppColors
-                    .textSecondary,
+          textAlign: TextAlign.center,
+          style: AppTypography.navigation.copyWith(
+            color: AppColors.textSecondary,
             letterSpacing: 1.6,
             fontSize: 11,
           ),
@@ -1782,6 +1389,5 @@ class _MobileFooterLink
 // ======================================================
 
 abstract final class AppConstantsForShell {
-  static const double
-      mobileBreakpoint = 700;
+  static const double mobileBreakpoint = 850;
 }

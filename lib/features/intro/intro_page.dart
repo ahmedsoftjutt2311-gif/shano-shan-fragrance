@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
@@ -16,18 +15,12 @@ class _IntroPageState extends State<IntroPage>
     with TickerProviderStateMixin {
   late final VideoPlayerController _videoController;
 
-  // Logo animation
-  late final AnimationController _logoController;
-  late final Animation<double> _logoOpacity;
-  late final Animation<double> _logoScale;
-
   // Final transition
   late final AnimationController _fadeController;
   late final Animation<double> _fadeAnimation;
 
   bool _isInitialized = false;
   bool _hasError = false;
-  bool _showLogo = false;
   bool _isNavigating = false;
 
   String _errorMessage = '';
@@ -37,36 +30,12 @@ class _IntroPageState extends State<IntroPage>
     super.initState();
 
     // ============================================================
-    // LOGO ANIMATION
-    // ============================================================
-
-    _logoController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    );
-
-    _logoOpacity = CurvedAnimation(
-      parent: _logoController,
-      curve: Curves.easeIn,
-    );
-
-    _logoScale = Tween<double>(
-      begin: 0.94,
-      end: 1.0,
-    ).animate(
-      CurvedAnimation(
-        parent: _logoController,
-        curve: Curves.easeOutCubic,
-      ),
-    );
-
-    // ============================================================
     // FINAL FADE
     // ============================================================
 
     _fadeController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 700),
     );
 
     _fadeAnimation = CurvedAnimation(
@@ -102,11 +71,13 @@ class _IntroPageState extends State<IntroPage>
       if (!mounted) return;
 
       debugPrint('Video initialized successfully.');
+
       debugPrint(
         'Video size: '
         '${_videoController.value.size.width} x '
         '${_videoController.value.size.height}',
       );
+
       debugPrint(
         'Video duration: '
         '${_videoController.value.duration}',
@@ -176,34 +147,22 @@ class _IntroPageState extends State<IntroPage>
   // ==============================================================
 
   Future<void> _videoFinished() async {
-    if (_isNavigating || _showLogo) return;
+    if (_isNavigating) return;
 
     debugPrint('SHANO SHAN: Intro video finished.');
-    debugPrint('SHANO SHAN: Showing logo...');
+    debugPrint('SHANO SHAN: Going to Home...');
 
-    _showLogo = true;
+    await _goToHome();
+  }
 
-    if (mounted) {
-      setState(() {});
-    }
+  // ==============================================================
+  // SKIP INTRO
+  // ==============================================================
 
-    // ------------------------------------------------------------
-    // Logo fades/scales into view
-    // ------------------------------------------------------------
+  Future<void> _skipIntro() async {
+    if (_isNavigating) return;
 
-    await _logoController.forward();
-
-    if (!mounted || _isNavigating) return;
-
-    // ------------------------------------------------------------
-    // Keep logo visible for a beautiful cinematic pause.
-    // ------------------------------------------------------------
-
-    await Future.delayed(
-      const Duration(milliseconds: 1800),
-    );
-
-    if (!mounted || _isNavigating) return;
+    debugPrint('SHANO SHAN: Intro skipped.');
 
     await _goToHome();
   }
@@ -227,7 +186,10 @@ class _IntroPageState extends State<IntroPage>
 
     if (!mounted) return;
 
-    // Fade logo to black.
+    // ------------------------------------------------------------
+    // Fade smoothly to black.
+    // ------------------------------------------------------------
+
     await _fadeController.forward();
 
     if (!mounted) return;
@@ -245,7 +207,6 @@ class _IntroPageState extends State<IntroPage>
     setState(() {
       _hasError = false;
       _isInitialized = false;
-      _showLogo = false;
       _errorMessage = '';
     });
 
@@ -291,7 +252,7 @@ class _IntroPageState extends State<IntroPage>
           // VIDEO
           // ------------------------------------------------------
 
-          if (_isInitialized && !_hasError && !_showLogo)
+          if (_isInitialized && !_hasError)
             _buildVideo(),
 
           // ------------------------------------------------------
@@ -302,11 +263,11 @@ class _IntroPageState extends State<IntroPage>
             _buildLoading(),
 
           // ------------------------------------------------------
-          // LOGO
+          // SKIP INTRO
           // ------------------------------------------------------
 
-          if (_showLogo)
-            _buildLogo(),
+          if (_isInitialized && !_hasError)
+            _buildSkipButton(),
 
           // ------------------------------------------------------
           // ERROR
@@ -332,6 +293,40 @@ class _IntroPageState extends State<IntroPage>
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // ==============================================================
+  // SKIP BUTTON
+  // ==============================================================
+
+  Widget _buildSkipButton() {
+    return Positioned(
+      top: 24,
+      right: 24,
+      child: SafeArea(
+        child: TextButton(
+          onPressed: _skipIntro,
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 10,
+            ),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          child: const Text(
+            'SKIP INTRO',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.w400,
+              letterSpacing: 2.2,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -367,33 +362,6 @@ class _IntroPageState extends State<IntroPage>
   }
 
   // ==============================================================
-  // LOGO
-  // ==============================================================
-
-  Widget _buildLogo() {
-    return Center(
-      child: AnimatedBuilder(
-        animation: _logoController,
-        builder: (context, child) {
-          return Opacity(
-            opacity: _logoOpacity.value,
-            child: Transform.scale(
-              scale: _logoScale.value,
-              child: child,
-            ),
-          );
-        },
-        child: Image.asset(
-          AppAssets.logo,
-          width: 280,
-          fit: BoxFit.contain,
-          filterQuality: FilterQuality.high,
-        ),
-      ),
-    );
-  }
-
-  // ==============================================================
   // LOADING
   // ==============================================================
 
@@ -410,9 +378,7 @@ class _IntroPageState extends State<IntroPage>
               color: Colors.white,
             ),
           ),
-
           SizedBox(height: 24),
-
           Text(
             'SHANO SHAN',
             style: TextStyle(
@@ -520,7 +486,7 @@ class _IntroPageState extends State<IntroPage>
               const SizedBox(height: 12),
 
               TextButton(
-                onPressed: _goToHome,
+                onPressed: _skipIntro,
                 child: const Text(
                   'SKIP INTRO',
                   style: TextStyle(
@@ -546,7 +512,6 @@ class _IntroPageState extends State<IntroPage>
     _videoController.removeListener(_videoListener);
     _videoController.dispose();
 
-    _logoController.dispose();
     _fadeController.dispose();
 
     super.dispose();

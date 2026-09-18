@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -26,16 +25,33 @@ class HomeHero extends StatelessWidget {
         final bool mobile = width < 650;
         final bool tablet = width >= 650 && width < 1050;
 
-        final double heroHeight = mobile
-            ? 760
-            : tablet
-                ? 720
-                : 780;
+        // ------------------------------------------------------------
+        // RESPONSIVE HERO HEIGHT
+        // ------------------------------------------------------------
+
+        final screenHeight =
+            MediaQuery.sizeOf(context).height;
+
+        final double heroHeight;
+
+        if (mobile) {
+          heroHeight = screenHeight < 700
+              ? 650
+              : screenHeight * 0.88;
+        } else if (tablet) {
+          heroHeight = screenHeight < 750
+              ? 650
+              : screenHeight * 0.90;
+        } else {
+          heroHeight = screenHeight < 750
+              ? 650
+              : screenHeight * 0.88;
+        }
 
         final double horizontalPadding = mobile
-            ? 24
+            ? 22
             : tablet
-                ? 52
+                ? 48
                 : 72;
 
         return SizedBox(
@@ -44,13 +60,17 @@ class HomeHero extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // ============================================================
-              // BACKGROUND
-              // ============================================================
+              // ========================================================
+              // RESPONSIVE BACKGROUND
+              // ========================================================
+
               Image.asset(
                 'assets/branding/shano_shan_hero_background.png',
+                width: double.infinity,
+                height: double.infinity,
                 fit: BoxFit.cover,
                 alignment: Alignment.center,
+                filterQuality: FilterQuality.high,
                 errorBuilder: (_, __, ___) {
                   return const ColoredBox(
                     color: Color(0xFF020202),
@@ -58,9 +78,10 @@ class HomeHero extends StatelessWidget {
                 },
               ),
 
-              // ============================================================
-              // DARK LEFT OVERLAY
-              // ============================================================
+              // ========================================================
+              // LEFT DARK GRADIENT
+              // ========================================================
+
               Positioned.fill(
                 child: IgnorePointer(
                   child: DecoratedBox(
@@ -69,8 +90,8 @@ class HomeHero extends StatelessWidget {
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                         stops: mobile
-                            ? const [0.0, 0.70, 1.0]
-                            : const [0.0, 0.42, 0.62, 0.82],
+                            ? const [0.0, 0.72, 1.0]
+                            : const [0.0, 0.40, 0.62, 0.84],
                         colors: mobile
                             ? const [
                                 Color(0xFF020202),
@@ -89,9 +110,10 @@ class HomeHero extends StatelessWidget {
                 ),
               ),
 
-              // ============================================================
-              // TOP / BOTTOM CINEMATIC VIGNETTE
-              // ============================================================
+              // ========================================================
+              // CINEMATIC VIGNETTE
+              // ========================================================
+
               Positioned.fill(
                 child: IgnorePointer(
                   child: DecoratedBox(
@@ -110,17 +132,18 @@ class HomeHero extends StatelessWidget {
                 ),
               ),
 
-              // ============================================================
+              // ========================================================
               // HERO CONTENT
-              // ============================================================
+              // ========================================================
+
               SafeArea(
                 bottom: false,
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(
                     horizontalPadding,
-                    mobile ? 70 : 88,
+                    mobile ? 40 : 55,
                     horizontalPadding,
-                    40,
+                    35,
                   ),
                   child: Align(
                     alignment: Alignment.centerLeft,
@@ -167,10 +190,10 @@ class _HeroContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double titleSize = mobile
-        ? 43
+        ? 39
         : tablet
-            ? 57
-            : 70;
+            ? 53
+            : 68;
 
     final TextStyle mainTitleStyle = TextStyle(
       color: HomeHero.cream,
@@ -178,7 +201,7 @@ class _HeroContent extends StatelessWidget {
       fontSize: titleSize,
       fontWeight: FontWeight.w400,
       height: 0.94,
-      letterSpacing: mobile ? -1.5 : -2.4,
+      letterSpacing: mobile ? -1.3 : -2.3,
     );
 
     final TextStyle impressionStyle = TextStyle(
@@ -188,7 +211,7 @@ class _HeroContent extends StatelessWidget {
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.italic,
       height: 0.96,
-      letterSpacing: mobile ? -2 : -3,
+      letterSpacing: mobile ? -1.7 : -2.8,
       shadows: const [
         Shadow(
           color: Color(0x66D99A2B),
@@ -202,118 +225,129 @@ class _HeroContent extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ================================================================
+        // ============================================================
         // BRAND LABEL
-        // ================================================================
+        // ============================================================
+
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: mobile ? 38 : 54,
+              width: mobile ? 34 : 52,
               height: 1.2,
               color: HomeHero.gold,
             ),
-            const SizedBox(width: 15),
-            Text(
-              'SHANO SHAN FRAGRANCE',
-              style: TextStyle(
-                color: HomeHero.gold,
-                fontSize: mobile ? 10 : 13,
-                fontWeight: FontWeight.w600,
-                letterSpacing: mobile ? 2.5 : 4.2,
+
+            const SizedBox(width: 13),
+
+            Flexible(
+              child: Text(
+                'SHANO SHAN FRAGRANCE',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: HomeHero.gold,
+                  fontSize: mobile ? 9 : 12,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: mobile ? 2.0 : 3.8,
+                ),
               ),
             ),
           ],
         ),
 
-        SizedBox(height: mobile ? 28 : 34),
+        SizedBox(
+          height: mobile ? 23 : 30,
+        ),
 
-        // ================================================================
-        // MAIN HEADLINE
-        // LETTER-BY-LETTER ANIMATION
-        // ================================================================
         _LetterRevealText(
           text: 'A FRAGRANCE',
           style: mainTitleStyle,
-          characterDelay: const Duration(milliseconds: 55),
+          characterDelay:
+              const Duration(milliseconds: 55),
         ),
 
         _LetterRevealText(
           text: 'THAT LEAVES',
           style: mainTitleStyle,
-          characterDelay: const Duration(milliseconds: 55),
-          startDelay: const Duration(milliseconds: 650),
+          characterDelay:
+              const Duration(milliseconds: 55),
+          startDelay:
+              const Duration(milliseconds: 650),
         ),
 
-        // ================================================================
-        // AN IMPRESSION
-        // ================================================================
         Row(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
+          crossAxisAlignment:
+              CrossAxisAlignment.baseline,
+          textBaseline:
+              TextBaseline.alphabetic,
           children: [
             _LetterRevealText(
               text: 'AN ',
               style: mainTitleStyle,
-              characterDelay: const Duration(milliseconds: 55),
-              startDelay: const Duration(milliseconds: 1250),
+              characterDelay:
+                  const Duration(milliseconds: 55),
+              startDelay:
+                  const Duration(milliseconds: 1250),
             ),
+
             Flexible(
               child: _LetterRevealText(
                 text: 'IMPRESSION.',
                 style: impressionStyle,
-                characterDelay: const Duration(milliseconds: 70),
-                startDelay: const Duration(milliseconds: 1400),
+                characterDelay:
+                    const Duration(milliseconds: 70),
+                startDelay:
+                    const Duration(milliseconds: 1400),
               ),
             ),
           ],
         ),
 
-        SizedBox(height: mobile ? 30 : 34),
+        SizedBox(
+          height: mobile ? 25 : 32,
+        ),
 
-        // ================================================================
-        // GOLD DIVIDER
-        // ================================================================
         Container(
-          width: mobile ? 42 : 56,
+          width: mobile ? 40 : 55,
           height: 1.2,
           color: HomeHero.gold,
         ),
 
-        const SizedBox(height: 20),
+        const SizedBox(height: 17),
 
-        // ================================================================
-        // TAGLINE
-        // ================================================================
         Text(
           'MORE THAN A SCENT — IT’S A SIGNATURE.',
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             color: const Color(0xFFD8BF8B),
-            fontSize: mobile ? 9 : 12,
+            fontSize: mobile ? 8 : 11,
             fontWeight: FontWeight.w500,
-            letterSpacing: mobile ? 1.8 : 3.4,
+            letterSpacing: mobile ? 1.3 : 3.0,
           ),
         ),
 
-        SizedBox(height: mobile ? 32 : 38),
+        SizedBox(
+          height: mobile ? 27 : 35,
+        ),
 
-        // ================================================================
-        // WORKING BUTTONS
-        // ================================================================
         Wrap(
-          spacing: 20,
-          runSpacing: 14,
+          spacing: 14,
+          runSpacing: 12,
           children: [
             _HeroButton(
               label: 'SHOP FRAGRANCES',
               filled: true,
               onPressed: onShop,
+              mobile: mobile,
             ),
             _HeroButton(
               label: 'FIND YOUR SCENT',
               filled: false,
               onPressed: onFindScent,
+              mobile: mobile,
             ),
           ],
         ),
@@ -322,15 +356,16 @@ class _HeroContent extends StatelessWidget {
   }
 }
 
-// ==========================================================================
-// LETTER-BY-LETTER REVEAL
-// ==========================================================================
+// ======================================================
+// LETTER REVEAL
+// ======================================================
 
 class _LetterRevealText extends StatefulWidget {
   const _LetterRevealText({
     required this.text,
     required this.style,
-    this.characterDelay = const Duration(milliseconds: 60),
+    this.characterDelay =
+        const Duration(milliseconds: 60),
     this.startDelay = Duration.zero,
   });
 
@@ -340,10 +375,12 @@ class _LetterRevealText extends StatefulWidget {
   final Duration startDelay;
 
   @override
-  State<_LetterRevealText> createState() => _LetterRevealTextState();
+  State<_LetterRevealText> createState() =>
+      _LetterRevealTextState();
 }
 
-class _LetterRevealTextState extends State<_LetterRevealText> {
+class _LetterRevealTextState
+    extends State<_LetterRevealText> {
   int visibleCharacters = 0;
   Timer? _timer;
 
@@ -355,7 +392,6 @@ class _LetterRevealTextState extends State<_LetterRevealText> {
 
   void _startAnimation() {
     _timer?.cancel();
-
     visibleCharacters = 0;
 
     Future.delayed(widget.startDelay, () {
@@ -373,7 +409,8 @@ class _LetterRevealTextState extends State<_LetterRevealText> {
             visibleCharacters++;
           });
 
-          if (visibleCharacters >= widget.text.length) {
+          if (visibleCharacters >=
+              widget.text.length) {
             timer.cancel();
           }
         },
@@ -389,12 +426,13 @@ class _LetterRevealTextState extends State<_LetterRevealText> {
 
   @override
   Widget build(BuildContext context) {
-    final int count = visibleCharacters.clamp(0, widget.text.length);
-
-    final String visibleText = widget.text.substring(0, count);
+    final count = visibleCharacters.clamp(
+      0,
+      widget.text.length,
+    );
 
     return Text(
-      visibleText,
+      widget.text.substring(0, count),
       maxLines: 1,
       softWrap: false,
       overflow: TextOverflow.visible,
@@ -403,26 +441,30 @@ class _LetterRevealTextState extends State<_LetterRevealText> {
   }
 }
 
-// ==========================================================================
+// ======================================================
 // HERO BUTTON
-// ==========================================================================
+// ======================================================
 
 class _HeroButton extends StatefulWidget {
   const _HeroButton({
     required this.label,
     required this.filled,
     required this.onPressed,
+    required this.mobile,
   });
 
   final String label;
   final bool filled;
   final VoidCallback? onPressed;
+  final bool mobile;
 
   @override
-  State<_HeroButton> createState() => _HeroButtonState();
+  State<_HeroButton> createState() =>
+      _HeroButtonState();
 }
 
-class _HeroButtonState extends State<_HeroButton> {
+class _HeroButtonState
+    extends State<_HeroButton> {
   bool hovered = false;
 
   @override
@@ -430,18 +472,15 @@ class _HeroButtonState extends State<_HeroButton> {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) {
-        setState(() {
-          hovered = true;
-        });
+        setState(() => hovered = true);
       },
       onExit: (_) {
-        setState(() {
-          hovered = false;
-        });
+        setState(() => hovered = false);
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        height: 56,
+        duration:
+            const Duration(milliseconds: 180),
+        height: widget.mobile ? 51 : 56,
         decoration: BoxDecoration(
           color: widget.filled
               ? hovered
@@ -460,10 +499,13 @@ class _HeroButtonState extends State<_HeroButton> {
           child: InkWell(
             onTap: widget.onPressed,
             hoverColor: Colors.transparent,
-            splashColor: const Color(0x22D6A33A),
+            splashColor:
+                const Color(0x22D6A33A),
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 30,
+              padding: EdgeInsets.symmetric(
+                horizontal: widget.mobile
+                    ? 18
+                    : 27,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -474,15 +516,20 @@ class _HeroButtonState extends State<_HeroButton> {
                       color: widget.filled
                           ? const Color(0xFF090705)
                           : HomeHero.cream,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 2.1,
+                      fontSize:
+                          widget.mobile ? 10 : 12,
+                      fontWeight:
+                          FontWeight.w600,
+                      letterSpacing:
+                          widget.mobile ? 1.3 : 2.0,
                     ),
                   ),
-                  const SizedBox(width: 18),
+                  SizedBox(
+                    width: widget.mobile ? 12 : 17,
+                  ),
                   Icon(
                     Icons.arrow_forward,
-                    size: 17,
+                    size: widget.mobile ? 15 : 17,
                     color: widget.filled
                         ? const Color(0xFF090705)
                         : HomeHero.gold,
