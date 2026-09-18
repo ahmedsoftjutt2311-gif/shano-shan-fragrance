@@ -1,85 +1,217 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
 
-class AboutPage extends StatelessWidget {
+class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
 
+  @override
+  State<AboutPage> createState() => _AboutPageState();
+}
+
+class _AboutPageState extends State<AboutPage> {
   static const Color gold = Color(0xFFD4AF37);
   static const Color softGold = Color(0xFFE8D49A);
   static const Color background = Color(0xFF050505);
   static const Color panel = Color(0xFF0B0B0B);
   static const Color line = Color(0xFF252525);
 
+  static const String apiBaseUrl =
+      'https://shano-shan-api.hareem-pay-ahmed.workers.dev';
+
+  bool _loading = true;
+
+  String _aboutTitle = '';
+  String _aboutStory = '';
+  String _aboutPhilosophy = '';
+  String _aboutFragrances = '';
+  String _aboutQuote = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAboutSettings();
+  }
+
   // ============================================================
-  // ADMIN-READY CONTENT
-  //
-  // Later these values will come from:
-  //
-  // Admin Panel → Worker API → D1 → AboutPage
-  //
-  // For now they act as safe editable defaults.
+  // LOAD ABOUT SETTINGS FROM WORKER
   // ============================================================
 
-  static const String heroEyebrow = 'THE WORLD OF SHANO SHAN';
-  static const String heroTitle = 'MORE THAN\nA FRAGRANCE.';
-  static const String heroDescription =
+  Future<void> _loadAboutSettings() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$apiBaseUrl/api/settings/site'),
+        headers: const {
+          'Accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode >= 200 &&
+          response.statusCode < 300) {
+        final decoded = jsonDecode(response.body);
+
+        if (decoded is Map && decoded['success'] == true) {
+          final rawSettings = decoded['settings'];
+
+          if (rawSettings is Map) {
+            final settings =
+                Map<String, dynamic>.from(rawSettings);
+
+            if (!mounted) return;
+
+            setState(() {
+              _aboutTitle =
+                  _value(settings['about_title']);
+
+              _aboutStory =
+                  _value(settings['about_story']);
+
+              _aboutPhilosophy =
+                  _value(settings['about_philosophy']);
+
+              _aboutFragrances =
+                  _value(settings['about_fragrances']);
+
+              _aboutQuote =
+                  _value(settings['about_quote']);
+
+              _loading = false;
+            });
+
+            return;
+          }
+        }
+      }
+    } catch (_) {
+      // Keep the page usable with fallback content.
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _loading = false;
+    });
+  }
+
+  String _value(dynamic value) {
+    if (value == null) return '';
+    return value.toString().trim();
+  }
+
+  // ============================================================
+  // FALLBACK CONTENT
+  // ============================================================
+
+  String get heroTitle {
+    if (_aboutTitle.isNotEmpty) {
+      return _aboutTitle;
+    }
+
+    return 'MORE THAN\nA FRAGRANCE.';
+  }
+
+  String get heroDescription {
+    return _firstParagraph(
+      _aboutStory,
       'A fragrance can become part of a moment, a memory, '
-      'and the way you express yourself.';
+          'and the way you express yourself.',
+    );
+  }
 
-  static const String storyEyebrow = 'OUR STORY';
-  static const String storyTitle = 'CRAFTED FOR\nMEMORABLE MOMENTS.';
-  static const String storyParagraphOne =
-      'SHANO SHAN is built around the idea that fragrance '
-      'should feel personal, expressive, and memorable.';
-  static const String storyParagraphTwo =
-      'From the scent itself to the experience surrounding it, '
-      'every detail is designed to create a sense of elegance '
-      'and individuality.';
+  String get storyTitle {
+    return 'CRAFTED FOR\nMEMORABLE MOMENTS.';
+  }
 
-  static const String philosophyEyebrow = 'OUR PHILOSOPHY';
-  static const String philosophyTitle = 'WHAT WE BELIEVE.';
+  String get storyText {
+    if (_aboutStory.isNotEmpty) {
+      return _aboutStory;
+    }
 
-  static const List<Map<String, String>> philosophyItems = [
-    {
-      'number': '01',
-      'title': 'CHARACTER',
-      'description':
-          'A fragrance should feel distinctive and personal.',
-    },
-    {
-      'number': '02',
-      'title': 'CRAFT',
-      'description':
-          'Every detail matters, from presentation to experience.',
-    },
-    {
-      'number': '03',
-      'title': 'MEMORY',
-      'description':
-          'The best fragrance is the one that stays with you.',
-    },
-  ];
+    return 'SHANO SHAN is built around the idea that fragrance '
+        'should feel personal, expressive, and memorable.\n\n'
+        'From the scent itself to the experience surrounding it, '
+        'every detail is designed to create a sense of elegance '
+        'and individuality.';
+  }
 
-  static const String founderEyebrow = 'THE MAN BEHIND SHANO SHAN';
+  String get philosophyText {
+    if (_aboutPhilosophy.isNotEmpty) {
+      return _aboutPhilosophy;
+    }
 
-  // Leave these empty until the real founder information is
-  // entered through the Admin Panel.
-  static const String founderName = '';
-  static const String founderTitle = '';
-  static const String founderImageUrl = '';
-  static const String founderStory = '';
-  static const String founderStoryTwo = '';
+    return 'A fragrance should feel distinctive and personal.\n\n'
+        'Every detail matters, from presentation to experience.\n\n'
+        'The best fragrance is the one that stays with you.';
+  }
 
-  static const String closingEyebrow = 'THE SHANO SHAN EXPERIENCE';
-  static const String closingTitle = 'EVERY FRAGRANCE\nHAS A STORY.';
-  static const String closingDescription =
-      'Discover a fragrance that feels like your own.';
-  static const String closingButton = 'EXPLORE FRAGRANCES';
+  String get fragranceText {
+    if (_aboutFragrances.isNotEmpty) {
+      return _aboutFragrances;
+    }
+
+    return 'Our fragrances are created to become part of your '
+        'personal story, bringing character, elegance, and '
+        'memorable moments to everyday life.';
+  }
+
+  String get quoteText {
+    if (_aboutQuote.isNotEmpty) {
+      return _aboutQuote;
+    }
+
+    return 'EVERY FRAGRANCE HAS A STORY.';
+  }
+
+  String _firstParagraph(
+    String text,
+    String fallback,
+  ) {
+    if (text.trim().isEmpty) {
+      return fallback;
+    }
+
+    final paragraphs = text
+        .split(RegExp(r'\n\s*\n'))
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+
+    if (paragraphs.isEmpty) {
+      return fallback;
+    }
+
+    return paragraphs.first;
+  }
+
+  List<String> _paragraphs(String text) {
+    return text
+        .split(RegExp(r'\n\s*\n'))
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+  }
+
+  // ============================================================
+  // BUILD
+  // ============================================================
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final isMobile = width < 700;
+
+    if (_loading) {
+      return const Scaffold(
+        backgroundColor: background,
+        body: Center(
+          child: CircularProgressIndicator(
+            color: gold,
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: background,
@@ -89,6 +221,7 @@ class AboutPage extends StatelessWidget {
             _buildHero(isMobile),
             _buildStory(isMobile),
             _buildPhilosophy(isMobile),
+            _buildFragrances(isMobile),
             _buildFounder(context, isMobile),
             _buildClosing(context, isMobile),
           ],
@@ -120,7 +253,7 @@ class AboutPage extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _eyebrow(heroEyebrow),
+          _eyebrow('THE WORLD OF SHANO SHAN'),
 
           const SizedBox(height: 28),
 
@@ -181,7 +314,7 @@ class AboutPage extends StatelessWidget {
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _eyebrow(storyEyebrow),
+                _eyebrow('OUR STORY'),
                 const SizedBox(height: 30),
                 _storyContent(isMobile),
               ],
@@ -191,7 +324,7 @@ class AboutPage extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 2,
-                  child: _eyebrow(storyEyebrow),
+                  child: _eyebrow('OUR STORY'),
                 ),
                 const SizedBox(width: 90),
                 Expanded(
@@ -204,6 +337,8 @@ class AboutPage extends StatelessWidget {
   }
 
   Widget _storyContent(bool isMobile) {
+    final paragraphs = _paragraphs(storyText);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -220,11 +355,11 @@ class AboutPage extends StatelessWidget {
 
         const SizedBox(height: 38),
 
-        _bodyText(storyParagraphOne),
-
-        const SizedBox(height: 22),
-
-        _bodyText(storyParagraphTwo),
+        for (int i = 0; i < paragraphs.length; i++) ...[
+          _bodyText(paragraphs[i]),
+          if (i != paragraphs.length - 1)
+            const SizedBox(height: 22),
+        ],
       ],
     );
   }
@@ -234,6 +369,8 @@ class AboutPage extends StatelessWidget {
   // ============================================================
 
   Widget _buildPhilosophy(bool isMobile) {
+    final items = _philosophyItems();
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
@@ -249,12 +386,12 @@ class AboutPage extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _eyebrow(philosophyEyebrow),
+          _eyebrow('OUR PHILOSOPHY'),
 
           const SizedBox(height: 22),
 
           Text(
-            philosophyTitle,
+            'WHAT WE BELIEVE.',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white,
@@ -269,11 +406,9 @@ class AboutPage extends StatelessWidget {
           if (isMobile)
             Column(
               children: [
-                for (int i = 0; i < philosophyItems.length; i++) ...[
-                  _philosophyCard(
-                    philosophyItems[i],
-                  ),
-                  if (i != philosophyItems.length - 1)
+                for (int i = 0; i < items.length; i++) ...[
+                  _philosophyCard(items[i]),
+                  if (i != items.length - 1)
                     const SizedBox(height: 45),
                 ],
               ],
@@ -282,13 +417,11 @@ class AboutPage extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (int i = 0; i < philosophyItems.length; i++) ...[
+                for (int i = 0; i < items.length; i++) ...[
                   Expanded(
-                    child: _philosophyCard(
-                      philosophyItems[i],
-                    ),
+                    child: _philosophyCard(items[i]),
                   ),
-                  if (i != philosophyItems.length - 1)
+                  if (i != items.length - 1)
                     Container(
                       width: 1,
                       height: 170,
@@ -305,7 +438,53 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Widget _philosophyCard(Map<String, String> item) {
+  List<Map<String, String>> _philosophyItems() {
+    final paragraphs = _paragraphs(philosophyText);
+
+    final defaults = [
+      {
+        'number': '01',
+        'title': 'CHARACTER',
+        'description':
+            'A fragrance should feel distinctive and personal.',
+      },
+      {
+        'number': '02',
+        'title': 'CRAFT',
+        'description':
+            'Every detail matters, from presentation to experience.',
+      },
+      {
+        'number': '03',
+        'title': 'MEMORY',
+        'description':
+            'The best fragrance is the one that stays with you.',
+      },
+    ];
+
+    if (paragraphs.isEmpty) {
+      return defaults;
+    }
+
+    final titles = [
+      'CHARACTER',
+      'CRAFT',
+      'MEMORY',
+    ];
+
+    return List.generate(
+      paragraphs.length > 3 ? 3 : paragraphs.length,
+      (index) => {
+        'number': '0${index + 1}',
+        'title': titles[index],
+        'description': paragraphs[index],
+      },
+    );
+  }
+
+  Widget _philosophyCard(
+    Map<String, String> item,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -345,6 +524,70 @@ class AboutPage extends StatelessWidget {
   }
 
   // ============================================================
+  // FRAGRANCES
+  // ============================================================
+
+  Widget _buildFragrances(bool isMobile) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 25 : 90,
+        vertical: isMobile ? 80 : 115,
+      ),
+      child: isMobile
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _eyebrow('OUR FRAGRANCES'),
+                const SizedBox(height: 28),
+                _fragranceContent(isMobile),
+              ],
+            )
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: _eyebrow('OUR FRAGRANCES'),
+                ),
+                const SizedBox(width: 90),
+                Expanded(
+                  flex: 5,
+                  child: _fragranceContent(isMobile),
+                ),
+              ],
+            ),
+    );
+  }
+
+  Widget _fragranceContent(bool isMobile) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'SCENTS WITH\nA STORY.',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: isMobile ? 31 : 43,
+            height: 1.15,
+            fontWeight: FontWeight.w300,
+            letterSpacing: 1.5,
+          ),
+        ),
+
+        const SizedBox(height: 32),
+
+        ..._paragraphs(fragranceText).map(
+          (paragraph) => Padding(
+            padding: const EdgeInsets.only(bottom: 20),
+            child: _bodyText(paragraph),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
   // FOUNDER
   // ============================================================
 
@@ -352,8 +595,6 @@ class AboutPage extends StatelessWidget {
     BuildContext context,
     bool isMobile,
   ) {
-    final hasImage = founderImageUrl.trim().isNotEmpty;
-
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
@@ -363,7 +604,7 @@ class AboutPage extends StatelessWidget {
       child: isMobile
           ? Column(
               children: [
-                _founderImage(hasImage, isMobile),
+                _founderPlaceholder(isMobile),
                 const SizedBox(height: 55),
                 _founderContent(context, isMobile),
               ],
@@ -373,7 +614,7 @@ class AboutPage extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 5,
-                  child: _founderImage(hasImage, isMobile),
+                  child: _founderPlaceholder(isMobile),
                 ),
                 const SizedBox(width: 90),
                 Expanded(
@@ -385,53 +626,34 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Widget _founderImage(
-    bool hasImage,
-    bool isMobile,
-  ) {
+  Widget _founderPlaceholder(bool isMobile) {
     return AspectRatio(
       aspectRatio: isMobile ? 0.85 : 0.82,
       child: Container(
         decoration: BoxDecoration(
           color: const Color(0xFF0D0D0D),
-          border: Border.all(
-            color: line,
-          ),
+          border: Border.all(color: line),
         ),
-        child: hasImage
-            ? Image.network(
-                founderImageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) {
-                  return _founderPlaceholder();
-                },
-              )
-            : _founderPlaceholder(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.person_outline_rounded,
+              size: 64,
+              color: gold.withValues(alpha: 0.55),
+            ),
+            const SizedBox(height: 22),
+            Text(
+              'FOUNDER PORTRAIT',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.3),
+                fontSize: 11,
+                letterSpacing: 3,
+              ),
+            ),
+          ],
+        ),
       ),
-    );
-  }
-
-  Widget _founderPlaceholder() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          Icons.person_outline_rounded,
-          size: 64,
-          color: gold.withValues(alpha: 0.55),
-        ),
-
-        const SizedBox(height: 22),
-
-        Text(
-          'FOUNDER PORTRAIT',
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.3),
-            fontSize: 11,
-            letterSpacing: 3,
-          ),
-        ),
-      ],
     );
   }
 
@@ -439,21 +661,15 @@ class AboutPage extends StatelessWidget {
     BuildContext context,
     bool isMobile,
   ) {
-    final hasFounderName = founderName.trim().isNotEmpty;
-    final hasFounderTitle = founderTitle.trim().isNotEmpty;
-    final hasFounderStory = founderStory.trim().isNotEmpty;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _eyebrow(founderEyebrow),
+        _eyebrow('THE MAN BEHIND SHANO SHAN'),
 
         const SizedBox(height: 28),
 
         Text(
-          hasFounderName
-              ? founderName
-              : 'THE PERSON\nBEHIND THE BRAND',
+          'THE PERSON\nBEHIND THE BRAND',
           style: TextStyle(
             color: Colors.white,
             fontSize: isMobile ? 31 : 43,
@@ -462,18 +678,6 @@ class AboutPage extends StatelessWidget {
             letterSpacing: 1.5,
           ),
         ),
-
-        if (hasFounderTitle) ...[
-          const SizedBox(height: 14),
-          Text(
-            founderTitle,
-            style: const TextStyle(
-              color: softGold,
-              fontSize: 13,
-              letterSpacing: 2,
-            ),
-          ),
-        ],
 
         const SizedBox(height: 28),
 
@@ -485,23 +689,10 @@ class AboutPage extends StatelessWidget {
 
         const SizedBox(height: 30),
 
-        if (hasFounderStory)
-          _bodyText(founderStory)
-        else
-          Text(
-            'A dedicated space for the founder’s story, '
-            'vision, and connection to SHANO SHAN.',
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.5),
-              fontSize: 15,
-              height: 1.9,
-            ),
-          ),
-
-        if (founderStoryTwo.trim().isNotEmpty) ...[
-          const SizedBox(height: 20),
-          _bodyText(founderStoryTwo),
-        ],
+        _bodyText(
+          'Discover the story, vision, and inspiration '
+          'behind SHANO SHAN.',
+        ),
 
         const SizedBox(height: 38),
 
@@ -511,9 +702,7 @@ class AboutPage extends StatelessWidget {
           },
           style: OutlinedButton.styleFrom(
             foregroundColor: gold,
-            side: const BorderSide(
-              color: gold,
-            ),
+            side: const BorderSide(color: gold),
             padding: const EdgeInsets.symmetric(
               horizontal: 28,
               vertical: 18,
@@ -557,12 +746,12 @@ class AboutPage extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _eyebrow(closingEyebrow),
+          _eyebrow('THE SHANO SHAN EXPERIENCE'),
 
           const SizedBox(height: 30),
 
           Text(
-            closingTitle,
+            quoteText,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white,
@@ -576,7 +765,7 @@ class AboutPage extends StatelessWidget {
           const SizedBox(height: 24),
 
           Text(
-            closingDescription,
+            'Discover a fragrance that feels like your own.',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: gold.withValues(alpha: 0.9),
@@ -600,9 +789,9 @@ class AboutPage extends StatelessWidget {
                 vertical: 21,
               ),
             ),
-            child: Text(
-              closingButton,
-              style: const TextStyle(
+            child: const Text(
+              'EXPLORE FRAGRANCES',
+              style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 2,
@@ -615,7 +804,7 @@ class AboutPage extends StatelessWidget {
   }
 
   // ============================================================
-  // SHARED UI
+  // SMALL UI HELPERS
   // ============================================================
 
   Widget _eyebrow(String text) {
