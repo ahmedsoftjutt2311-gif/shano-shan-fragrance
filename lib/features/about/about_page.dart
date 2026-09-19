@@ -95,7 +95,7 @@ class AboutPage extends StatelessWidget {
               'It is an atmosphere, a memory, and a way of expressing who you are.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.65),
+                color: Colors.white.withValues(alpha: 0.65),
                 fontSize: isMobile ? 15 : 18,
                 height: 1.8,
                 letterSpacing: 0.5,
@@ -180,7 +180,7 @@ class AboutPage extends StatelessWidget {
           'should feel personal. Every scent should have its own '
           'character and leave a lasting impression.',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.62),
+            color: Colors.white.withValues(alpha: 0.62),
             fontSize: 16,
             height: 1.9,
           ),
@@ -192,7 +192,7 @@ class AboutPage extends StatelessWidget {
           'Our customer experience, presentation, and fragrances '
           'are designed around simplicity, elegance, and individuality.',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.62),
+            color: Colors.white.withValues(alpha: 0.62),
             fontSize: 16,
             height: 1.9,
           ),
@@ -329,7 +329,7 @@ class AboutPage extends StatelessWidget {
         Text(
           description,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.55),
+            color: Colors.white.withValues(alpha: 0.55),
             fontSize: 14,
             height: 1.7,
           ),
@@ -389,7 +389,7 @@ class AboutPage extends StatelessWidget {
             Icon(
               Icons.person_outline_rounded,
               size: 58,
-              color: gold.withOpacity(0.65),
+              color: gold.withValues(alpha: 0.65),
             ),
 
             const SizedBox(height: 20),
@@ -397,7 +397,7 @@ class AboutPage extends StatelessWidget {
             Text(
               'FOUNDER IMAGE',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.35),
+                color: Colors.white.withValues(alpha: 0.35),
                 fontSize: 11,
                 letterSpacing: 3,
               ),
@@ -408,7 +408,7 @@ class AboutPage extends StatelessWidget {
             Text(
               'Managed from Admin',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.25),
+                color: Colors.white.withValues(alpha: 0.25),
                 fontSize: 12,
               ),
             ),
@@ -447,7 +447,7 @@ class AboutPage extends StatelessWidget {
           'Founder story and personal details will be managed '
           'through the SHANO SHAN Admin Panel.',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.58),
+            color: Colors.white.withValues(alpha: 0.58),
             fontSize: 15,
             height: 1.8,
           ),
@@ -460,7 +460,7 @@ class AboutPage extends StatelessWidget {
           'brand content so it can be updated without changing '
           'the customer website.',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.45),
+            color: Colors.white.withValues(alpha: 0.45),
             fontSize: 14,
             height: 1.8,
           ),
@@ -527,7 +527,7 @@ class AboutPage extends StatelessWidget {
           Text(
             'Discover yours.',
             style: TextStyle(
-              color: gold.withOpacity(0.9),
+              color: gold.withValues(alpha: 0.9),
               fontSize: 17,
               letterSpacing: 2,
             ),

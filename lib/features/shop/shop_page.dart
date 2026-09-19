@@ -621,7 +621,7 @@ class _ShopPageState extends State<ShopPage> {
         width: double.infinity,
         height: double.infinity,
         fit: BoxFit.contain,
-        errorBuilder: (_, __, ___) {
+        errorBuilder: (_, _, _) {
           return const Center(
             child: Icon(
               Icons.broken_image_outlined,
@@ -637,7 +637,7 @@ class _ShopPageState extends State<ShopPage> {
         width: double.infinity,
         height: double.infinity,
         fit: BoxFit.contain,
-        errorBuilder: (_, __, ___) {
+        errorBuilder: (_, _, _) {
           return const Center(
             child: Icon(
               Icons.broken_image_outlined,

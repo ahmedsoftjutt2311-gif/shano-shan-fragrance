@@ -12,6 +12,10 @@ class ShanoAiChat extends StatefulWidget {
 }
 
 class _ShanoAiChatState extends State<ShanoAiChat> {
+  // ==========================================================================
+  // COLORS
+  // ==========================================================================
+
   static const Color gold = Color(0xFFD6B36A);
   static const Color lightGold = Color(0xFFE8CC91);
   static const Color background = Color(0xFF080808);
@@ -19,22 +23,36 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
   static const Color inputBackground = Color(0xFF181818);
   static const Color border = Color(0xFF292929);
 
+  // ==========================================================================
+  // CONTROLLERS
+  // ==========================================================================
+
   final TextEditingController _controller =
       TextEditingController();
 
   final ScrollController _scrollController =
       ScrollController();
 
+  // ==========================================================================
+  // STATE
+  // ==========================================================================
+
   final List<_ChatMessage> _messages = [];
 
   bool _isOpen = false;
   bool _isLoading = false;
 
-  // Position inside the Stack.
-  double _left = 20;
-  double _top = 0;
+  double _left = 20.0;
+  double _top = 0.0;
 
   bool _positionInitialized = false;
+
+  Size? _lastViewportSize;
+  bool _viewportClampScheduled = false;
+
+  // ==========================================================================
+  // INIT
+  // ==========================================================================
 
   @override
   void initState() {
@@ -49,6 +67,10 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
     );
   }
 
+  // ==========================================================================
+  // DISPOSE
+  // ==========================================================================
+
   @override
   void dispose() {
     _controller.dispose();
@@ -56,45 +78,94 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
     super.dispose();
   }
 
-  // ============================================================
-  // POSITION
-  // ============================================================
+  // ==========================================================================
+  // SAFE DOUBLE CLAMP
+  // ==========================================================================
+
+  double _safeClamp(
+    double value,
+    double minimum,
+    double maximum,
+  ) {
+    // If the widget is larger than the available viewport,
+    // keep it at the minimum safe position instead of creating
+    // an invalid clamp range.
+    if (maximum < minimum) {
+      return minimum;
+    }
+
+    if (value < minimum) {
+      return minimum;
+    }
+
+    if (value > maximum) {
+      return maximum;
+    }
+
+    return value;
+  }
+
+  // ==========================================================================
+  // RESPONSIVE POSITION
+  // ==========================================================================
 
   void _initializePosition(Size size) {
-    if (_positionInitialized) return;
+    if (_positionInitialized) {
+      return;
+    }
 
-    const buttonHeight = 50.0;
+    const double buttonHeight = 50.0;
 
-    _left = 20;
-    _top = size.height - buttonHeight - 24;
+    _left = 20.0;
+    _top = size.height - buttonHeight - 24.0;
 
     _positionInitialized = true;
+
+    _keepInsideViewport(
+      size,
+      widgetWidth: 210.0,
+      widgetHeight: buttonHeight,
+    );
   }
 
   void _keepInsideViewport(
     Size size, {
-    double? widgetWidth,
-    double? widgetHeight,
+    required double widgetWidth,
+    required double widgetHeight,
   }) {
-    final width = widgetWidth ?? 210;
-    final height = widgetHeight ?? 52;
+    final double maximumLeft =
+        size.width - widgetWidth - 12.0;
 
-    final maxLeft =
-        (size.width - width - 12).clamp(12.0, double.infinity);
+    final double maximumTop =
+        size.height - widgetHeight - 12.0;
 
-    final maxTop =
-        (size.height - height - 12).clamp(12.0, double.infinity);
+    _left = _safeClamp(
+      _left,
+      12.0,
+      maximumLeft,
+    );
 
-    _left = _left.clamp(12.0, maxLeft);
-    _top = _top.clamp(12.0, maxTop);
+    _top = _safeClamp(
+      _top,
+      12.0,
+      maximumTop,
+    );
   }
+
+  // ==========================================================================
+  // MOVE WIDGET
+  // ==========================================================================
 
   void _moveBy(
     Offset delta,
     Size size, {
-    double width = 210,
-    double height = 52,
+    required double width,
+    required double height,
   }) {
+    if (!mounted) {
+      return;
+    }
+
     setState(() {
       _left += delta.dx;
       _top += delta.dy;
@@ -107,40 +178,100 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
     });
   }
 
-  // ============================================================
-  // OPEN / CLOSE
-  // ============================================================
+  // ==========================================================================
+  // VIEWPORT RESIZE HANDLING
+  // ==========================================================================
+
+  void _scheduleViewportClamp(Size screenSize) {
+    if (_viewportClampScheduled) {
+      return;
+    }
+
+    final Size? previous = _lastViewportSize;
+
+    if (previous != null &&
+        previous.width == screenSize.width &&
+        previous.height == screenSize.height) {
+      return;
+    }
+
+    _lastViewportSize = screenSize;
+    _viewportClampScheduled = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _viewportClampScheduled = false;
+
+      if (!mounted) {
+        return;
+      }
+
+      final bool mobile = screenSize.width < 600.0;
+
+      final double widgetWidth;
+
+      final double widgetHeight;
+
+      if (_isOpen) {
+        widgetWidth = mobile
+            ? (screenSize.width - 24.0)
+            : 420.0;
+
+        widgetHeight = mobile
+            ? (screenSize.height - 110.0)
+            : 650.0;
+      } else {
+        widgetWidth = mobile ? 184.0 : 210.0;
+        widgetHeight = mobile ? 46.0 : 52.0;
+      }
+
+      final double oldLeft = _left;
+      final double oldTop = _top;
+
+      _keepInsideViewport(
+        screenSize,
+        widgetWidth: widgetWidth,
+        widgetHeight: widgetHeight,
+      );
+
+      if (oldLeft != _left || oldTop != _top) {
+        setState(() {});
+      }
+    });
+  }
+
+  // ==========================================================================
+  // OPEN CHAT
+  // ==========================================================================
 
   void _openChat() {
-    final size = MediaQuery.sizeOf(context);
+    final Size size = MediaQuery.sizeOf(context);
 
-    final bool mobile = size.width < 600;
+    final bool mobile = size.width < 600.0;
 
-    final panelWidth =
-        mobile ? size.width - 24 : 420;
+    final double panelWidth = mobile
+        ? (size.width - 24.0)
+        : 420.0;
 
-    final panelHeight =
-        mobile ? size.height - 110 : 650;
+    final double panelHeight = mobile
+        ? (size.height - 110.0)
+        : 650.0;
 
     setState(() {
       _isOpen = true;
 
-      // Keep panel visible when opening.
-      _left = _left.clamp(
-        12.0,
-        (size.width - panelWidth - 12)
-            .clamp(12.0, double.infinity),
-      );
-
-      _top = _top.clamp(
-        12.0,
-        (size.height - panelHeight - 12)
-            .clamp(12.0, double.infinity),
+      _keepInsideViewport(
+        size,
+        widgetWidth: panelWidth,
+        widgetHeight: panelHeight,
       );
     });
 
     _scrollToBottom();
   }
+
+  // ==========================================================================
+  // CLOSE CHAT
+  // ==========================================================================
 
   void _closeChat() {
     FocusScope.of(context).unfocus();
@@ -150,12 +281,12 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
     });
   }
 
-  // ============================================================
-  // CHAT
-  // ============================================================
+  // ==========================================================================
+  // SEND MESSAGE
+  // ==========================================================================
 
   Future<void> _sendMessage(String value) async {
-    final message = value.trim();
+    final String message = value.trim();
 
     if (message.isEmpty || _isLoading) {
       return;
@@ -163,15 +294,17 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
 
     _controller.clear();
 
-    final history = _messages
-        .map(
-          (item) => <String, String>{
-            'role':
-                item.isUser ? 'user' : 'assistant',
-            'content': item.text,
-          },
-        )
-        .toList();
+    final List<Map<String, String>> history =
+        _messages
+            .map(
+              (item) => <String, String>{
+                'role': item.isUser
+                    ? 'user'
+                    : 'assistant',
+                'content': item.text,
+              },
+            )
+            .toList();
 
     setState(() {
       _messages.add(
@@ -193,15 +326,16 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
         history: history,
       );
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       setState(() {
         _messages.add(
           _ChatMessage(
             text: result.reply,
             isUser: false,
-            recommendations:
-                result.recommendations,
+            recommendations: result.recommendations,
           ),
         );
 
@@ -210,7 +344,9 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
 
       _scrollToBottom();
     } catch (_) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       setState(() {
         _messages.add(
@@ -228,30 +364,36 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
     }
   }
 
+  // ==========================================================================
+  // SCROLL
+  // ==========================================================================
+
   void _scrollToBottom() {
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+
       if (!_scrollController.hasClients) {
         return;
       }
 
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
-        duration:
-            const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
     });
   }
 
-  // ============================================================
-  // PRODUCT
-  // ============================================================
+  // ==========================================================================
+  // PRICE
+  // ==========================================================================
 
   String _formatPrice(
     ShanoAiProduct product,
   ) {
-    final price = product.price;
+    final num price = product.price;
 
     if (price == price.roundToDouble()) {
       return '${product.currency} ${price.toStringAsFixed(0)}';
@@ -259,6 +401,10 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
 
     return '${product.currency} ${price.toStringAsFixed(2)}';
   }
+
+  // ==========================================================================
+  // ADD TO BAG
+  // ==========================================================================
 
   Future<void> _addToBag(
     ShanoAiProduct product,
@@ -281,35 +427,38 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
         quantity: 1,
       );
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             '${product.name} added to your bag.',
           ),
-          backgroundColor:
-              const Color(0xFF1A1A1A),
-          behavior:
-              SnackBarBehavior.floating,
+          backgroundColor: const Color(0xFF1A1A1A),
+          behavior: SnackBarBehavior.floating,
         ),
       );
     } catch (_) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
             'Unable to add this fragrance to your bag.',
           ),
-          behavior:
-              SnackBarBehavior.floating,
+          behavior: SnackBarBehavior.floating,
         ),
       );
     }
   }
+
+  // ==========================================================================
+  // VIEW PRODUCT
+  // ==========================================================================
 
   void _viewProduct(
     ShanoAiProduct product,
@@ -321,15 +470,17 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
     );
   }
 
-  // ============================================================
-  // DRAGGABLE FLOATING BUTTON
-  // ============================================================
+  // ==========================================================================
+  // FLOATING BUTTON
+  // ==========================================================================
 
   Widget _buildFloatingButton(
     Size screenSize,
   ) {
-    const width = 210.0;
-    const height = 52.0;
+    final bool mobile = screenSize.width < 600.0;
+
+    final double width = mobile ? 184.0 : 210.0;
+    final double height = mobile ? 46.0 : 52.0;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -350,45 +501,51 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
         child: Container(
           width: width,
           height: height,
-          padding:
-              const EdgeInsets.symmetric(
-            horizontal: 16,
+          padding: EdgeInsets.symmetric(
+            horizontal: mobile ? 12.0 : 16.0,
           ),
           decoration: BoxDecoration(
             color: background,
-            borderRadius:
-                BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(
+              mobile ? 25.0 : 30.0,
+            ),
             border: Border.all(
-              color: gold.withOpacity(0.75),
+              color: gold.withValues(alpha: 0.75),
             ),
             boxShadow: [
               BoxShadow(
-                color:
-                    Colors.black.withOpacity(0.45),
-                blurRadius: 20,
-                offset:
-                    const Offset(0, 8),
+                color: Colors.black.withValues(
+                  alpha: 0.45,
+                ),
+                blurRadius: mobile ? 15.0 : 20.0,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
-          child: const Row(
+          child: Row(
             mainAxisAlignment:
                 MainAxisAlignment.center,
             children: [
               Icon(
                 Icons.auto_awesome,
                 color: gold,
-                size: 19,
+                size: mobile ? 16.0 : 19.0,
               ),
-              SizedBox(width: 9),
-              Text(
-                'ASK SHANO AI',
-                style: TextStyle(
-                  color: lightGold,
-                  fontSize: 12,
-                  fontWeight:
-                      FontWeight.w700,
-                  letterSpacing: 1.4,
+              SizedBox(
+                width: mobile ? 7.0 : 9.0,
+              ),
+              Flexible(
+                child: Text(
+                  'ASK SHANO AI',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: lightGold,
+                    fontSize: mobile ? 10.0 : 12.0,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing:
+                        mobile ? 1.1 : 1.4,
+                  ),
                 ),
               ),
             ],
@@ -398,26 +555,24 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
     );
   }
 
-  // ============================================================
+  // ==========================================================================
   // CHAT PANEL
-  // ============================================================
+  // ==========================================================================
 
   Widget _buildChatPanel(
     BuildContext context,
   ) {
-    final screenSize =
-        MediaQuery.sizeOf(context);
+    final Size screenSize = MediaQuery.sizeOf(context);
 
-    final bool isMobile =
-        screenSize.width < 600;
+    final bool isMobile = screenSize.width < 600.0;
 
     final double width = isMobile
-        ? screenSize.width - 24
-        : 420;
+        ? (screenSize.width - 24.0)
+        : 420.0;
 
     final double height = isMobile
-        ? screenSize.height - 110
-        : 650;
+        ? (screenSize.height - 110.0)
+        : 650.0;
 
     return GestureDetector(
       onPanUpdate: (details) {
@@ -435,18 +590,17 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
           height: height,
           decoration: BoxDecoration(
             color: panel,
-            borderRadius:
-                BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(20.0),
             border: Border.all(
-              color: gold.withOpacity(0.30),
+              color: gold.withValues(alpha: 0.30),
             ),
             boxShadow: [
               BoxShadow(
-                color:
-                    Colors.black.withOpacity(0.60),
-                blurRadius: 35,
-                offset:
-                    const Offset(0, 18),
+                color: Colors.black.withValues(
+                  alpha: 0.60,
+                ),
+                blurRadius: 35.0,
+                offset: const Offset(0, 18),
               ),
             ],
           ),
@@ -456,23 +610,22 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
 
               Expanded(
                 child: ListView.builder(
-                  controller:
-                      _scrollController,
-                  padding:
-                      const EdgeInsets.fromLTRB(
-                    15,
-                    17,
-                    15,
-                    10,
+                  controller: _scrollController,
+                  padding: const EdgeInsets.fromLTRB(
+                    15.0,
+                    17.0,
+                    15.0,
+                    10.0,
                   ),
                   itemCount:
                       _messages.length +
-                          (_isLoading ? 1 : 0),
-                  itemBuilder:
-                      (context, index) {
+                      (_isLoading ? 1 : 0),
+                  itemBuilder: (
+                    BuildContext context,
+                    int index,
+                  ) {
                     if (_isLoading &&
-                        index ==
-                            _messages.length) {
+                        index == _messages.length) {
                       return _buildTypingIndicator();
                     }
 
@@ -492,17 +645,19 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
     );
   }
 
+  // ==========================================================================
+  // HEADER
+  // ==========================================================================
+
   Widget _buildHeader() {
     return Container(
-      padding:
-          const EdgeInsets.fromLTRB(
-        17,
-        16,
-        9,
-        15,
+      padding: const EdgeInsets.fromLTRB(
+        17.0,
+        16.0,
+        9.0,
+        15.0,
       ),
-      decoration:
-          const BoxDecoration(
+      decoration: const BoxDecoration(
         border: Border(
           bottom: BorderSide(
             color: border,
@@ -512,23 +667,22 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
       child: Row(
         children: [
           Container(
-            width: 42,
-            height: 42,
+            width: 42.0,
+            height: 42.0,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color:
-                    gold.withOpacity(0.45),
+                color: gold.withValues(alpha: 0.45),
               ),
             ),
             child: const Icon(
               Icons.auto_awesome,
               color: gold,
-              size: 20,
+              size: 20.0,
             ),
           ),
 
-          const SizedBox(width: 11),
+          const SizedBox(width: 11.0),
 
           const Expanded(
             child: Column(
@@ -539,18 +693,17 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
                   'SHANO AI',
                   style: TextStyle(
                     color: lightGold,
-                    fontSize: 15,
-                    fontWeight:
-                        FontWeight.w700,
+                    fontSize: 15.0,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: 1.7,
                   ),
                 ),
-                SizedBox(height: 3),
+                SizedBox(height: 3.0),
                 Text(
                   'YOUR FRAGRANCE ASSISTANT',
                   style: TextStyle(
                     color: Colors.white54,
-                    fontSize: 9,
+                    fontSize: 9.0,
                     letterSpacing: 1.2,
                   ),
                 ),
@@ -564,7 +717,7 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
             icon: const Icon(
               Icons.close,
               color: Colors.white70,
-              size: 20,
+              size: 20.0,
             ),
           ),
         ],
@@ -572,44 +725,42 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
     );
   }
 
+  // ==========================================================================
+  // MESSAGE
+  // ==========================================================================
+
   Widget _buildMessage(
     _ChatMessage message,
   ) {
-    final bool isUser =
-        message.isUser;
+    final bool isUser = message.isUser;
 
     return Align(
       alignment: isUser
           ? Alignment.centerRight
           : Alignment.centerLeft,
       child: Container(
-        constraints:
-            const BoxConstraints(
-          maxWidth: 335,
+        constraints: const BoxConstraints(
+          maxWidth: 335.0,
         ),
-        margin:
-            const EdgeInsets.only(
-          bottom: 13,
+        margin: const EdgeInsets.only(
+          bottom: 13.0,
         ),
         child: Column(
-          crossAxisAlignment:
-              isUser
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
+          crossAxisAlignment: isUser
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
           children: [
             Container(
-              padding:
-                  const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 11,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 14.0,
+                vertical: 11.0,
               ),
-              decoration:
-                  BoxDecoration(
+              decoration: BoxDecoration(
                 color: isUser
                     ? gold
                     : const Color(0xFF181818),
                 borderRadius:
-                    BorderRadius.circular(15),
+                    BorderRadius.circular(15.0),
                 border: isUser
                     ? null
                     : Border.all(
@@ -621,19 +772,18 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
                 style: TextStyle(
                   color: isUser
                       ? Colors.black
-                      : Colors.white
-                          .withOpacity(0.90),
-                  fontSize: 13,
+                      : Colors.white.withValues(
+                          alpha: 0.90,
+                        ),
+                  fontSize: 13.0,
                   height: 1.5,
                 ),
               ),
             ),
 
             if (!isUser &&
-                message.recommendations
-                    .isNotEmpty)
-              ...message.recommendations
-                  .map(
+                message.recommendations.isNotEmpty)
+              ...message.recommendations.map(
                 _buildRecommendation,
               ),
           ],
@@ -642,168 +792,180 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
     );
   }
 
+  // ==========================================================================
+  // PRODUCT RECOMMENDATION
+  // ==========================================================================
+
   Widget _buildRecommendation(
     ShanoAiProduct product,
   ) {
-    return Container(
-      width: 320,
-      margin:
-          const EdgeInsets.only(top: 9),
-      decoration: BoxDecoration(
-        color: const Color(0xFF121212),
-        borderRadius:
-            BorderRadius.circular(14),
-        border: Border.all(
-          color: gold.withOpacity(0.25),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
-        children: [
-          _buildProductImage(product),
+    return LayoutBuilder(
+      builder: (
+        BuildContext context,
+        BoxConstraints constraints,
+      ) {
+        final double availableWidth =
+            constraints.maxWidth;
 
-          Padding(
-            padding:
-                const EdgeInsets.fromLTRB(
-              13,
-              12,
-              13,
-              13,
+        final double cardWidth =
+            availableWidth < 320.0
+                ? availableWidth
+                : 320.0;
+
+        return Container(
+          width: cardWidth,
+          margin: const EdgeInsets.only(
+            top: 9.0,
+          ),
+          decoration: BoxDecoration(
+            color: const Color(0xFF121212),
+            borderRadius:
+                BorderRadius.circular(14.0),
+            border: Border.all(
+              color: gold.withValues(alpha: 0.25),
             ),
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.name,
-                  style: const TextStyle(
-                    color: lightGold,
-                    fontSize: 15,
-                    fontWeight:
-                        FontWeight.w700,
-                    letterSpacing: 0.7,
-                  ),
+          ),
+          child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+            children: [
+              _buildProductImage(product),
+
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  13.0,
+                  12.0,
+                  13.0,
+                  13.0,
                 ),
-
-                const SizedBox(height: 5),
-
-                Text(
-                  product.category,
-                  style: const TextStyle(
-                    color: Colors.white54,
-                    fontSize: 9,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-
-                const SizedBox(height: 9),
-
-                Text(
-                  _formatPrice(product),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight:
-                        FontWeight.w600,
-                  ),
-                ),
-
-                const SizedBox(height: 13),
-
-                Row(
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child:
-                          OutlinedButton(
-                        onPressed: () =>
-                            _viewProduct(
-                          product,
-                        ),
-                        style:
-                            OutlinedButton
-                                .styleFrom(
-                          foregroundColor:
-                              lightGold,
-                          side:
-                              const BorderSide(
-                            color: gold,
-                          ),
-                          padding:
-                              const EdgeInsets
-                                  .symmetric(
-                            vertical: 11,
-                          ),
-                        ),
-                        child:
-                            const Text(
-                          'VIEW',
-                          style:
-                              TextStyle(
-                            fontSize: 10,
-                            fontWeight:
-                                FontWeight
-                                    .w700,
-                            letterSpacing:
-                                1.1,
-                          ),
-                        ),
+                    Text(
+                      product.name,
+                      maxLines: 2,
+                      overflow:
+                          TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: lightGold,
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.7,
                       ),
                     ),
 
-                    const SizedBox(width: 8),
+                    const SizedBox(height: 5.0),
 
-                    Expanded(
-                      child:
-                          ElevatedButton(
-                        onPressed:
-                            product.stock >
-                                    0
-                                ? () =>
-                                    _addToBag(
-                                      product,
-                                    )
-                                : null,
-                        style:
-                            ElevatedButton
-                                .styleFrom(
-                          backgroundColor:
-                              gold,
-                          foregroundColor:
-                              Colors.black,
-                          disabledBackgroundColor:
-                              Colors.white12,
-                          padding:
-                              const EdgeInsets
-                                  .symmetric(
-                            vertical: 11,
-                          ),
-                        ),
-                        child: Text(
-                          product.stock > 0
-                              ? 'ADD TO BAG'
-                              : 'SOLD OUT',
-                          style:
-                              const TextStyle(
-                            fontSize: 9,
-                            fontWeight:
-                                FontWeight
-                                    .w800,
-                            letterSpacing:
-                                0.8,
-                          ),
-                        ),
+                    Text(
+                      product.category,
+                      maxLines: 1,
+                      overflow:
+                          TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white54,
+                        fontSize: 9.0,
+                        letterSpacing: 1.2,
                       ),
+                    ),
+
+                    const SizedBox(height: 9.0),
+
+                    Text(
+                      _formatPrice(product),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+
+                    const SizedBox(height: 13.0),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () =>
+                                _viewProduct(product),
+                            style:
+                                OutlinedButton.styleFrom(
+                              foregroundColor:
+                                  lightGold,
+                              side:
+                                  const BorderSide(
+                                color: gold,
+                              ),
+                              padding:
+                                  const EdgeInsets
+                                      .symmetric(
+                                vertical: 11.0,
+                              ),
+                            ),
+                            child: const Text(
+                              'VIEW',
+                              style: TextStyle(
+                                fontSize: 10.0,
+                                fontWeight:
+                                    FontWeight.w700,
+                                letterSpacing: 1.1,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 8.0),
+
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed:
+                                product.stock > 0
+                                    ? () => _addToBag(
+                                          product,
+                                        )
+                                    : null,
+                            style:
+                                ElevatedButton.styleFrom(
+                              backgroundColor: gold,
+                              foregroundColor:
+                                  Colors.black,
+                              disabledBackgroundColor:
+                                  Colors.white12,
+                              padding:
+                                  const EdgeInsets
+                                      .symmetric(
+                                vertical: 11.0,
+                              ),
+                            ),
+                            child: Text(
+                              product.stock > 0
+                                  ? 'ADD TO BAG'
+                                  : 'SOLD OUT',
+                              style:
+                                  const TextStyle(
+                                fontSize: 9.0,
+                                fontWeight:
+                                    FontWeight.w800,
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
+
+  // ==========================================================================
+  // PRODUCT IMAGE
+  // ==========================================================================
 
   Widget _buildProductImage(
     ShanoAiProduct product,
@@ -815,15 +977,18 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
     return ClipRRect(
       borderRadius:
           const BorderRadius.vertical(
-        top: Radius.circular(13),
+        top: Radius.circular(13.0),
       ),
       child: Image.network(
         product.imageUrl,
         width: double.infinity,
-        height: 150,
+        height: 150.0,
         fit: BoxFit.cover,
-        errorBuilder:
-            (context, error, stackTrace) {
+        errorBuilder: (
+          BuildContext context,
+          Object error,
+          StackTrace? stackTrace,
+        ) {
           return _buildImageFallback();
         },
       ),
@@ -833,7 +998,7 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
   Widget _buildImageFallback() {
     return Container(
       width: double.infinity,
-      height: 150,
+      height: 150.0,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -848,29 +1013,31 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
         child: Icon(
           Icons.local_florist_outlined,
           color: gold,
-          size: 38,
+          size: 38.0,
         ),
       ),
     );
   }
 
+  // ==========================================================================
+  // TYPING INDICATOR
+  // ==========================================================================
+
   Widget _buildTypingIndicator() {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        margin:
-            const EdgeInsets.only(
-          bottom: 13,
+        margin: const EdgeInsets.only(
+          bottom: 13.0,
         ),
-        padding:
-            const EdgeInsets.symmetric(
-          horizontal: 15,
-          vertical: 13,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 15.0,
+          vertical: 13.0,
         ),
         decoration: BoxDecoration(
           color: const Color(0xFF181818),
           borderRadius:
-              BorderRadius.circular(15),
+              BorderRadius.circular(15.0),
           border: Border.all(
             color: border,
           ),
@@ -879,9 +1046,9 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
           mainAxisSize: MainAxisSize.min,
           children: [
             _TypingDot(),
-            SizedBox(width: 4),
+            SizedBox(width: 4.0),
             _TypingDot(),
-            SizedBox(width: 4),
+            SizedBox(width: 4.0),
             _TypingDot(),
           ],
         ),
@@ -889,8 +1056,12 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
     );
   }
 
+  // ==========================================================================
+  // SUGGESTIONS
+  // ==========================================================================
+
   Widget _buildSuggestions() {
-    const suggestions = [
+    const List<String> suggestions = [
       'Best for daily wear',
       'Something for a wedding',
       'Fresh fragrance',
@@ -899,20 +1070,23 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
     ];
 
     return SizedBox(
-      height: 47,
+      height: 47.0,
       child: ListView.separated(
-        padding:
-            const EdgeInsets.symmetric(
-          horizontal: 13,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 13.0,
         ),
-        scrollDirection:
-            Axis.horizontal,
-        itemCount:
-            suggestions.length,
-        separatorBuilder: (_, __) =>
-            const SizedBox(width: 7),
-        itemBuilder:
-            (context, index) {
+        scrollDirection: Axis.horizontal,
+        itemCount: suggestions.length,
+        separatorBuilder: (
+          BuildContext context,
+          int index,
+        ) {
+          return const SizedBox(width: 7.0);
+        },
+        itemBuilder: (
+          BuildContext context,
+          int index,
+        ) {
           return Center(
             child: InkWell(
               onTap: () {
@@ -921,32 +1095,29 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
                 );
               },
               borderRadius:
-                  BorderRadius.circular(20),
+                  BorderRadius.circular(20.0),
               child: Container(
                 padding:
-                    const EdgeInsets
-                        .symmetric(
-                  horizontal: 12,
-                  vertical: 8,
+                    const EdgeInsets.symmetric(
+                  horizontal: 12.0,
+                  vertical: 8.0,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white
-                      .withOpacity(0.035),
+                  color: Colors.white.withValues(
+                    alpha: 0.035,
+                  ),
                   borderRadius:
-                      BorderRadius.circular(20),
+                      BorderRadius.circular(20.0),
                   border: Border.all(
                     color: border,
                   ),
                 ),
                 child: Text(
                   suggestions[index],
-                  style:
-                      const TextStyle(
-                    color:
-                        Colors.white60,
-                    fontSize: 9,
-                    letterSpacing:
-                        0.25,
+                  style: const TextStyle(
+                    color: Colors.white60,
+                    fontSize: 9.0,
+                    letterSpacing: 0.25,
                   ),
                 ),
               ),
@@ -957,19 +1128,21 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
     );
   }
 
+  // ==========================================================================
+  // INPUT
+  // ==========================================================================
+
   Widget _buildInput() {
     return SafeArea(
       top: false,
       child: Container(
-        padding:
-            const EdgeInsets.fromLTRB(
-          12,
-          9,
-          12,
-          12,
+        padding: const EdgeInsets.fromLTRB(
+          12.0,
+          9.0,
+          12.0,
+          12.0,
         ),
-        decoration:
-            const BoxDecoration(
+        decoration: const BoxDecoration(
           border: Border(
             top: BorderSide(
               color: border,
@@ -988,43 +1161,34 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
                 textInputAction:
                     TextInputAction.send,
                 onSubmitted: _sendMessage,
-                style:
-                    const TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 13,
+                  fontSize: 13.0,
                 ),
-                decoration:
-                    InputDecoration(
+                decoration: InputDecoration(
                   hintText:
                       'Ask about our fragrances...',
-                  hintStyle:
-                      const TextStyle(
-                    color:
-                        Colors.white38,
-                    fontSize: 12,
+                  hintStyle: const TextStyle(
+                    color: Colors.white38,
+                    fontSize: 12.0,
                   ),
                   filled: true,
-                  fillColor:
-                      inputBackground,
-                  border:
-                      OutlineInputBorder(
+                  fillColor: inputBackground,
+                  border: OutlineInputBorder(
                     borderRadius:
-                        BorderRadius
-                            .circular(13),
-                    borderSide:
-                        BorderSide.none,
+                        BorderRadius.circular(13.0),
+                    borderSide: BorderSide.none,
                   ),
                   contentPadding:
-                      const EdgeInsets
-                          .symmetric(
-                    horizontal: 14,
-                    vertical: 12,
+                      const EdgeInsets.symmetric(
+                    horizontal: 14.0,
+                    vertical: 12.0,
                   ),
                 ),
               ),
             ),
 
-            const SizedBox(width: 8),
+            const SizedBox(width: 8.0),
 
             InkWell(
               onTap: _isLoading
@@ -1035,24 +1199,23 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
                       );
                     },
               borderRadius:
-                  BorderRadius.circular(13),
+                  BorderRadius.circular(13.0),
               child: Container(
-                width: 46,
-                height: 46,
-                decoration:
-                    BoxDecoration(
+                width: 46.0,
+                height: 46.0,
+                decoration: BoxDecoration(
                   color: _isLoading
                       ? Colors.white12
                       : gold,
                   borderRadius:
-                      BorderRadius.circular(13),
+                      BorderRadius.circular(13.0),
                 ),
                 child: Icon(
                   Icons.arrow_upward,
                   color: _isLoading
                       ? Colors.white38
                       : Colors.black,
-                  size: 20,
+                  size: 20.0,
                 ),
               ),
             ),
@@ -1062,47 +1225,17 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
     );
   }
 
-  // ============================================================
+  // ==========================================================================
   // BUILD
-  // ============================================================
+  // ==========================================================================
 
   @override
   Widget build(BuildContext context) {
-    final screenSize =
+    final Size screenSize =
         MediaQuery.sizeOf(context);
 
     _initializePosition(screenSize);
-
-    // Make sure resizing the browser doesn't
-    // leave the AI outside the visible screen.
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) {
-      if (!mounted) return;
-
-      final oldLeft = _left;
-      final oldTop = _top;
-
-      _keepInsideViewport(
-        screenSize,
-        widgetWidth:
-            _isOpen && screenSize.width < 600
-                ? screenSize.width - 24
-                : _isOpen
-                    ? 420
-                    : 210,
-        widgetHeight:
-            _isOpen && screenSize.width < 600
-                ? screenSize.height - 110
-                : _isOpen
-                    ? 650
-                    : 52,
-      );
-
-      if (oldLeft != _left ||
-          oldTop != _top) {
-        setState(() {});
-      }
-    });
+    _scheduleViewportClamp(screenSize);
 
     return Positioned(
       left: _left,
@@ -1113,6 +1246,10 @@ class _ShanoAiChatState extends State<ShanoAiChat> {
     );
   }
 }
+
+// =============================================================================
+// CHAT MESSAGE
+// =============================================================================
 
 class _ChatMessage {
   final String text;
@@ -1126,14 +1263,18 @@ class _ChatMessage {
   });
 }
 
+// =============================================================================
+// TYPING DOT
+// =============================================================================
+
 class _TypingDot extends StatelessWidget {
   const _TypingDot();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 5,
-      height: 5,
+      width: 5.0,
+      height: 5.0,
       decoration: const BoxDecoration(
         color: Color(0xFFD6B36A),
         shape: BoxShape.circle,

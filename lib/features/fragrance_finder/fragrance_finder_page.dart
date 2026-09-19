@@ -699,7 +699,7 @@ class _FragranceFinderPageState extends State<FragranceFinderPage> {
                 'occasion and personal style.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(.65),
+                  color: Colors.white.withValues(alpha: .65),
                   fontSize: 16,
                   height: 1.7,
                 ),
@@ -747,7 +747,7 @@ class _FragranceFinderPageState extends State<FragranceFinderPage> {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.white,
                         side: BorderSide(
-                          color: Colors.white.withOpacity(.25),
+                          color: Colors.white.withValues(alpha: .25),
                         ),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 28,
@@ -862,8 +862,8 @@ class _FragranceFinderPageState extends State<FragranceFinderPage> {
           ),
           decoration: BoxDecoration(
             color: selected
-                ? const Color(0xFFD4AF37).withOpacity(.12)
-                : Colors.white.withOpacity(.025),
+                ? const Color(0xFFD4AF37).withValues(alpha: .12)
+                : Colors.white.withValues(alpha: .025),
             border: Border.all(
               color: selected
                   ? const Color(0xFFD4AF37)
@@ -993,7 +993,7 @@ class _FragranceFinderPageState extends State<FragranceFinderPage> {
 
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(.025),
+                  color: Colors.white.withValues(alpha: .025),
                   border: Border.all(
                     color: Colors.white12,
                   ),
@@ -1057,7 +1057,7 @@ class _FragranceFinderPageState extends State<FragranceFinderPage> {
                 _recommendationReason,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(.7),
+                  color: Colors.white.withValues(alpha: .7),
                   fontSize: 16,
                   height: 1.7,
                 ),
@@ -1072,7 +1072,7 @@ class _FragranceFinderPageState extends State<FragranceFinderPage> {
                 '${_style ?? ''}',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(.45),
+                  color: Colors.white.withValues(alpha: .45),
                   fontSize: 13,
                   height: 1.6,
                 ),
@@ -1134,7 +1134,7 @@ class _FragranceFinderPageState extends State<FragranceFinderPage> {
                     'fragrances available in our collection.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(.35),
+                      color: Colors.white.withValues(alpha: .35),
                       fontSize: 12,
                     ),
                   ),
@@ -1219,7 +1219,7 @@ class _FragranceFinderPageState extends State<FragranceFinderPage> {
           Icons.auto_awesome,
           size: 42,
           color: const Color(0xFFD4AF37)
-              .withOpacity(.7),
+              .withValues(alpha: .7),
         ),
 
         const SizedBox(height: 15),
@@ -1298,7 +1298,7 @@ class _FragranceFinderPageState extends State<FragranceFinderPage> {
         Text(
           description,
           style: TextStyle(
-            color: Colors.white.withOpacity(.65),
+            color: Colors.white.withValues(alpha: .65),
             fontSize: 15,
             height: 1.7,
           ),
@@ -1359,7 +1359,7 @@ class _FragranceFinderPageState extends State<FragranceFinderPage> {
               'We could not find a fragrance match right now.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white.withOpacity(.6),
+                color: Colors.white.withValues(alpha: .6),
                 fontSize: 15,
               ),
             ),
@@ -1393,9 +1393,9 @@ class _FragranceFinderPageState extends State<FragranceFinderPage> {
       ),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.red.withOpacity(.06),
+        color: Colors.red.withValues(alpha: .06),
         border: Border.all(
-          color: Colors.red.withOpacity(.25),
+          color: Colors.red.withValues(alpha: .25),
         ),
       ),
       child: Row(

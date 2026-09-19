@@ -115,7 +115,7 @@ class _AnnouncementBarState extends State<AnnouncementBar> {
                 Container(
                   width: 1,
                   height: 20,
-                  color: Colors.black.withOpacity(0.20),
+                  color: Colors.black.withValues(alpha: 0.20),
                 ),
                 _buildButton(),
               ],

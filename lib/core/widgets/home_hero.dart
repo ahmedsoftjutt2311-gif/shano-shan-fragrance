@@ -25,12 +25,7 @@ class HomeHero extends StatelessWidget {
         final bool mobile = width < 650;
         final bool tablet = width >= 650 && width < 1050;
 
-        // ------------------------------------------------------------
-        // RESPONSIVE HERO HEIGHT
-        // ------------------------------------------------------------
-
-        final screenHeight =
-            MediaQuery.sizeOf(context).height;
+        final screenHeight = MediaQuery.sizeOf(context).height;
 
         final double heroHeight;
 
@@ -60,27 +55,33 @@ class HomeHero extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // ========================================================
-              // RESPONSIVE BACKGROUND
-              // ========================================================
+              // ============================================================
+              // HERO BACKGROUND
+              // ============================================================
 
               Image.asset(
                 'assets/branding/shano_shan_hero_background.png',
                 width: double.infinity,
                 height: double.infinity,
                 fit: BoxFit.cover,
-                alignment: Alignment.center,
+
+                // On mobile the bottles remain slightly toward the
+                // right side so the text area stays visually cleaner.
+                alignment: mobile
+                    ? Alignment.centerRight
+                    : Alignment.center,
+
                 filterQuality: FilterQuality.high,
-                errorBuilder: (_, __, ___) {
+                errorBuilder: (_, _, _) {
                   return const ColoredBox(
                     color: Color(0xFF020202),
                   );
                 },
               ),
 
-              // ========================================================
+              // ============================================================
               // LEFT DARK GRADIENT
-              // ========================================================
+              // ============================================================
 
               Positioned.fill(
                 child: IgnorePointer(
@@ -90,12 +91,23 @@ class HomeHero extends StatelessWidget {
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                         stops: mobile
-                            ? const [0.0, 0.72, 1.0]
-                            : const [0.0, 0.40, 0.62, 0.84],
+                            ? const [
+                                0.0,
+                                0.58,
+                                0.82,
+                                1.0,
+                              ]
+                            : const [
+                                0.0,
+                                0.40,
+                                0.62,
+                                0.84,
+                              ],
                         colors: mobile
                             ? const [
                                 Color(0xFF020202),
-                                Color(0xE9020202),
+                                Color(0xF2020202),
+                                Color(0xB0020202),
                                 Color(0x00020202),
                               ]
                             : const [
@@ -110,9 +122,37 @@ class HomeHero extends StatelessWidget {
                 ),
               ),
 
-              // ========================================================
+              // ============================================================
+              // MOBILE EXTRA VIGNETTE
+              // ============================================================
+
+              if (mobile)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: RadialGradient(
+                          center: const Alignment(0.55, 0.0),
+                          radius: 1.15,
+                          colors: const [
+                            Color(0x00000000),
+                            Color(0x50000000),
+                            Color(0x99000000),
+                          ],
+                          stops: const [
+                            0.35,
+                            0.72,
+                            1.0,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+              // ============================================================
               // CINEMATIC VIGNETTE
-              // ========================================================
+              // ============================================================
 
               Positioned.fill(
                 child: IgnorePointer(
@@ -132,9 +172,9 @@ class HomeHero extends StatelessWidget {
                 ),
               ),
 
-              // ========================================================
+              // ============================================================
               // HERO CONTENT
-              // ========================================================
+              // ============================================================
 
               SafeArea(
                 bottom: false,
@@ -172,6 +212,10 @@ class HomeHero extends StatelessWidget {
     );
   }
 }
+
+// ============================================================================
+// HERO CONTENT
+// ============================================================================
 
 class _HeroContent extends StatelessWidget {
   const _HeroContent({
@@ -237,9 +281,7 @@ class _HeroContent extends StatelessWidget {
               height: 1.2,
               color: HomeHero.gold,
             ),
-
             const SizedBox(width: 13),
-
             Flexible(
               child: Text(
                 'SHANO SHAN FRAGRANCE',
@@ -260,46 +302,40 @@ class _HeroContent extends StatelessWidget {
           height: mobile ? 23 : 30,
         ),
 
+        // ============================================================
+        // MAIN TITLE
+        // ============================================================
+
         _LetterRevealText(
           text: 'A FRAGRANCE',
           style: mainTitleStyle,
-          characterDelay:
-              const Duration(milliseconds: 55),
+          characterDelay: const Duration(milliseconds: 55),
         ),
 
         _LetterRevealText(
           text: 'THAT LEAVES',
           style: mainTitleStyle,
-          characterDelay:
-              const Duration(milliseconds: 55),
-          startDelay:
-              const Duration(milliseconds: 650),
+          characterDelay: const Duration(milliseconds: 55),
+          startDelay: const Duration(milliseconds: 650),
         ),
 
         Row(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment:
-              CrossAxisAlignment.baseline,
-          textBaseline:
-              TextBaseline.alphabetic,
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
           children: [
             _LetterRevealText(
               text: 'AN ',
               style: mainTitleStyle,
-              characterDelay:
-                  const Duration(milliseconds: 55),
-              startDelay:
-                  const Duration(milliseconds: 1250),
+              characterDelay: const Duration(milliseconds: 55),
+              startDelay: const Duration(milliseconds: 1250),
             ),
-
             Flexible(
               child: _LetterRevealText(
                 text: 'IMPRESSION.',
                 style: impressionStyle,
-                characterDelay:
-                    const Duration(milliseconds: 70),
-                startDelay:
-                    const Duration(milliseconds: 1400),
+                characterDelay: const Duration(milliseconds: 70),
+                startDelay: const Duration(milliseconds: 1400),
               ),
             ),
           ],
@@ -333,6 +369,10 @@ class _HeroContent extends StatelessWidget {
           height: mobile ? 27 : 35,
         ),
 
+        // ============================================================
+        // BUTTONS
+        // ============================================================
+
         Wrap(
           spacing: 14,
           runSpacing: 12,
@@ -356,16 +396,15 @@ class _HeroContent extends StatelessWidget {
   }
 }
 
-// ======================================================
+// ============================================================================
 // LETTER REVEAL
-// ======================================================
+// ============================================================================
 
 class _LetterRevealText extends StatefulWidget {
   const _LetterRevealText({
     required this.text,
     required this.style,
-    this.characterDelay =
-        const Duration(milliseconds: 60),
+    this.characterDelay = const Duration(milliseconds: 60),
     this.startDelay = Duration.zero,
   });
 
@@ -375,14 +414,14 @@ class _LetterRevealText extends StatefulWidget {
   final Duration startDelay;
 
   @override
-  State<_LetterRevealText> createState() =>
-      _LetterRevealTextState();
+  State<_LetterRevealText> createState() => _LetterRevealTextState();
 }
 
-class _LetterRevealTextState
-    extends State<_LetterRevealText> {
+class _LetterRevealTextState extends State<_LetterRevealText> {
   int visibleCharacters = 0;
+
   Timer? _timer;
+  Timer? _delayTimer;
 
   @override
   void initState() {
@@ -392,9 +431,11 @@ class _LetterRevealTextState
 
   void _startAnimation() {
     _timer?.cancel();
+    _delayTimer?.cancel();
+
     visibleCharacters = 0;
 
-    Future.delayed(widget.startDelay, () {
+    _delayTimer = Timer(widget.startDelay, () {
       if (!mounted) return;
 
       _timer = Timer.periodic(
@@ -409,8 +450,7 @@ class _LetterRevealTextState
             visibleCharacters++;
           });
 
-          if (visibleCharacters >=
-              widget.text.length) {
+          if (visibleCharacters >= widget.text.length) {
             timer.cancel();
           }
         },
@@ -421,6 +461,7 @@ class _LetterRevealTextState
   @override
   void dispose() {
     _timer?.cancel();
+    _delayTimer?.cancel();
     super.dispose();
   }
 
@@ -441,9 +482,9 @@ class _LetterRevealTextState
   }
 }
 
-// ======================================================
+// ============================================================================
 // HERO BUTTON
-// ======================================================
+// ============================================================================
 
 class _HeroButton extends StatefulWidget {
   const _HeroButton({
@@ -459,12 +500,10 @@ class _HeroButton extends StatefulWidget {
   final bool mobile;
 
   @override
-  State<_HeroButton> createState() =>
-      _HeroButtonState();
+  State<_HeroButton> createState() => _HeroButtonState();
 }
 
-class _HeroButtonState
-    extends State<_HeroButton> {
+class _HeroButtonState extends State<_HeroButton> {
   bool hovered = false;
 
   @override
@@ -472,14 +511,15 @@ class _HeroButtonState
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) {
+        if (!mounted) return;
         setState(() => hovered = true);
       },
       onExit: (_) {
+        if (!mounted) return;
         setState(() => hovered = false);
       },
       child: AnimatedContainer(
-        duration:
-            const Duration(milliseconds: 180),
+        duration: const Duration(milliseconds: 180),
         height: widget.mobile ? 51 : 56,
         decoration: BoxDecoration(
           color: widget.filled
@@ -499,13 +539,10 @@ class _HeroButtonState
           child: InkWell(
             onTap: widget.onPressed,
             hoverColor: Colors.transparent,
-            splashColor:
-                const Color(0x22D6A33A),
+            splashColor: const Color(0x22D6A33A),
             child: Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: widget.mobile
-                    ? 18
-                    : 27,
+                horizontal: widget.mobile ? 18 : 27,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -516,12 +553,9 @@ class _HeroButtonState
                       color: widget.filled
                           ? const Color(0xFF090705)
                           : HomeHero.cream,
-                      fontSize:
-                          widget.mobile ? 10 : 12,
-                      fontWeight:
-                          FontWeight.w600,
-                      letterSpacing:
-                          widget.mobile ? 1.3 : 2.0,
+                      fontSize: widget.mobile ? 10 : 12,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: widget.mobile ? 1.3 : 2.0,
                     ),
                   ),
                   SizedBox(

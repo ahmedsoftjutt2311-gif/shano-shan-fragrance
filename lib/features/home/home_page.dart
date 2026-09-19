@@ -200,7 +200,7 @@ class _BrandStatement extends StatelessWidget {
               'that stays long after you have left the room.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white.withOpacity(.62),
+                color: Colors.white.withValues(alpha: .62),
                 fontSize: 17,
                 height: 1.8,
               ),
@@ -296,7 +296,7 @@ class _FeaturedFragrancesSection extends StatelessWidget {
                       'Discover the fragrances that define SHANO SHAN.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.white.withOpacity(.68),
+                        color: Colors.white.withValues(alpha: .68),
                         fontSize: 15,
                       ),
                     ),
@@ -534,7 +534,7 @@ class _FeaturedProductCard extends StatelessWidget {
                   Text(
                     '$currency ${_formatPrice(_price())}',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(.65),
+                      color: Colors.white.withValues(alpha: .65),
                       fontSize: 14,
                     ),
                   ),
@@ -576,7 +576,7 @@ class _ProductImage extends StatelessWidget {
         imageUrl,
         width: double.infinity,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) {
+        errorBuilder: (_, _, _) {
           return _fallback();
         },
       );
@@ -667,7 +667,7 @@ class _EmptyCollection extends StatelessWidget {
             'Discover our fragrance collection in the shop.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white.withOpacity(.5),
+              color: Colors.white.withValues(alpha: .5),
               fontSize: 14,
             ),
           ),
@@ -717,7 +717,7 @@ class _FounderSection extends StatelessWidget {
                           radius: 0.8,
                           colors: [
                             const Color(0xFFD4AF37)
-                                .withOpacity(.08),
+                                .withValues(alpha: .08),
                             Colors.transparent,
                           ],
                         ),
@@ -776,7 +776,7 @@ class _FounderSection extends StatelessWidget {
                     'to become part of your story.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(.62),
+                      color: Colors.white.withValues(alpha: .62),
                       fontSize: 15,
                       height: 1.8,
                     ),
@@ -860,7 +860,7 @@ class _ScentExperienceSection extends StatelessWidget {
           border: Border.all(
             color: Colors.white12,
           ),
-          color: Colors.white.withOpacity(.015),
+          color: Colors.white.withValues(alpha: .015),
         ),
         child: Column(
           children: [
@@ -889,7 +889,7 @@ class _ScentExperienceSection extends StatelessWidget {
               'Not sure where to begin? Let SHANO SHAN guide you.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white.withOpacity(.6),
+                color: Colors.white.withValues(alpha: .6),
                 fontSize: 16,
               ),
             ),
@@ -1045,7 +1045,7 @@ class _FinalBrandSectionState extends State<_FinalBrandSection> {
             'Discover a fragrance that becomes part of your story.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white.withOpacity(.52),
+              color: Colors.white.withValues(alpha: .52),
               fontSize: 15,
               height: 1.7,
             ),
@@ -1114,7 +1114,7 @@ class _StayConnectedSection extends StatelessWidget {
                   'SHANO SHAN',
                   maxLines: 1,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(.025),
+                    color: Colors.white.withValues(alpha: .025),
                     fontSize: mobile ? 90 : 190,
                     fontWeight: FontWeight.w800,
                     letterSpacing: mobile ? 5 : 15,
@@ -1196,7 +1196,7 @@ class _StayConnectedSection extends StatelessWidget {
                       'Follow our journey, explore new fragrances, '
                       'and stay close to the stories behind every scent.',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(.58),
+                        color: Colors.white.withValues(alpha: .58),
                         fontSize: mobile ? 14 : 16,
                         height: 1.8,
                       ),
@@ -1223,7 +1223,7 @@ class _StayConnectedSection extends StatelessWidget {
                   Container(
                     width: double.infinity,
                     height: 1,
-                    color: Colors.white.withOpacity(.10),
+                    color: Colors.white.withValues(alpha: .10),
                   ),
 
                   const SizedBox(height: 25),
@@ -1237,7 +1237,7 @@ class _StayConnectedSection extends StatelessWidget {
                       Text(
                         '© SHANO SHAN FRAGRANCE',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(.32),
+                          color: Colors.white.withValues(alpha: .32),
                           fontSize: 9,
                           letterSpacing: 1.5,
                         ),
@@ -1246,7 +1246,7 @@ class _StayConnectedSection extends StatelessWidget {
                         Text(
                           'CRAFTED FOR THOSE WHO LEAVE AN IMPRESSION.',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(.25),
+                            color: Colors.white.withValues(alpha: .25),
                             fontSize: 9,
                             letterSpacing: 1.5,
                           ),
@@ -1431,7 +1431,7 @@ class _ConnectionLinkState extends State<_ConnectionLink> {
               bottom: BorderSide(
                 color: _hovering
                     ? gold
-                    : Colors.white.withOpacity(.12),
+                    : Colors.white.withValues(alpha: .12),
                 width: _hovering ? 1.2 : 1,
               ),
             ),
@@ -1451,7 +1451,7 @@ class _ConnectionLinkState extends State<_ConnectionLink> {
                   size: 17,
                   color: _hovering
                       ? gold
-                      : Colors.white.withOpacity(.58),
+                      : Colors.white.withValues(alpha: .58),
                 ),
               ),
               const SizedBox(width: 10),
@@ -1460,7 +1460,7 @@ class _ConnectionLinkState extends State<_ConnectionLink> {
                 style: TextStyle(
                   color: _hovering
                       ? Colors.white
-                      : Colors.white.withOpacity(.58),
+                      : Colors.white.withValues(alpha: .58),
                   fontSize: 10,
                   letterSpacing: 2,
                   fontWeight: FontWeight.w600,

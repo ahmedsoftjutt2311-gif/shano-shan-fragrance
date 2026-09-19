@@ -422,7 +422,7 @@ class _CartPageState extends State<CartPage> {
       image = Image.network(
         imageUrl,
         fit: BoxFit.contain,
-        errorBuilder: (_, __, ___) {
+        errorBuilder: (_, _, _) {
           return const Center(
             child: Icon(
               Icons.broken_image_outlined,
@@ -436,7 +436,7 @@ class _CartPageState extends State<CartPage> {
       image = Image.asset(
         imageUrl,
         fit: BoxFit.contain,
-        errorBuilder: (_, __, ___) {
+        errorBuilder: (_, _, _) {
           return const Center(
             child: Icon(
               Icons.broken_image_outlined,

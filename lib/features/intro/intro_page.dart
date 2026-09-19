@@ -15,7 +15,6 @@ class _IntroPageState extends State<IntroPage>
     with TickerProviderStateMixin {
   late final VideoPlayerController _videoController;
 
-  // Final transition
   late final AnimationController _fadeController;
   late final Animation<double> _fadeAnimation;
 
@@ -29,10 +28,6 @@ class _IntroPageState extends State<IntroPage>
   void initState() {
     super.initState();
 
-    // ============================================================
-    // FINAL FADE
-    // ============================================================
-
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 700),
@@ -43,20 +38,12 @@ class _IntroPageState extends State<IntroPage>
       curve: Curves.easeInOut,
     );
 
-    // ============================================================
-    // VIDEO
-    // ============================================================
-
     _videoController = VideoPlayerController.asset(
       AppAssets.introVideo,
     );
 
     _initializeVideo();
   }
-
-  // ==============================================================
-  // INITIALIZE VIDEO
-  // ==============================================================
 
   Future<void> _initializeVideo() async {
     try {
@@ -71,24 +58,16 @@ class _IntroPageState extends State<IntroPage>
       if (!mounted) return;
 
       debugPrint('Video initialized successfully.');
-
       debugPrint(
         'Video size: '
         '${_videoController.value.size.width} x '
         '${_videoController.value.size.height}',
       );
-
       debugPrint(
-        'Video duration: '
-        '${_videoController.value.duration}',
+        'Video duration: ${_videoController.value.duration}',
       );
 
-      // ----------------------------------------------------------
-      // Chrome autoplay support
-      // ----------------------------------------------------------
-
       await _videoController.setVolume(0.0);
-
       await _videoController.seekTo(Duration.zero);
 
       _videoController.addListener(_videoListener);
@@ -96,8 +75,6 @@ class _IntroPageState extends State<IntroPage>
       setState(() {
         _isInitialized = true;
       });
-
-      debugPrint('Starting SHANO SHAN intro...');
 
       await _videoController.play();
 
@@ -118,9 +95,9 @@ class _IntroPageState extends State<IntroPage>
     }
   }
 
-  // ==============================================================
+  // ============================================================
   // VIDEO LISTENER
-  // ==============================================================
+  // ============================================================
 
   void _videoListener() {
     if (_isNavigating) return;
@@ -134,30 +111,34 @@ class _IntroPageState extends State<IntroPage>
 
     if (duration <= Duration.zero) return;
 
+    /*
+     * Do not depend only on !isPlaying.
+     *
+     * Browser video implementations can report the final position
+     * slightly differently. Detect the end by position as well.
+     */
     final remaining = duration - position;
 
-    if (remaining <= const Duration(milliseconds: 200) &&
-        !value.isPlaying) {
+    if (remaining <= const Duration(milliseconds: 250)) {
       _videoFinished();
     }
   }
 
-  // ==============================================================
+  // ============================================================
   // VIDEO FINISHED
-  // ==============================================================
+  // ============================================================
 
   Future<void> _videoFinished() async {
     if (_isNavigating) return;
 
     debugPrint('SHANO SHAN: Intro video finished.');
-    debugPrint('SHANO SHAN: Going to Home...');
 
     await _goToHome();
   }
 
-  // ==============================================================
+  // ============================================================
   // SKIP INTRO
-  // ==============================================================
+  // ============================================================
 
   Future<void> _skipIntro() async {
     if (_isNavigating) return;
@@ -167,9 +148,9 @@ class _IntroPageState extends State<IntroPage>
     await _goToHome();
   }
 
-  // ==============================================================
+  // ============================================================
   // GO TO HOME
-  // ==============================================================
+  // ============================================================
 
   Future<void> _goToHome() async {
     if (_isNavigating) return;
@@ -186,20 +167,21 @@ class _IntroPageState extends State<IntroPage>
 
     if (!mounted) return;
 
-    // ------------------------------------------------------------
-    // Fade smoothly to black.
-    // ------------------------------------------------------------
-
+    // Smooth cinematic fade to black.
     await _fadeController.forward();
 
     if (!mounted) return;
 
+    // IMPORTANT:
+    // Video -> black fade -> Home.
+    //
+    // No additional logo animation is inserted here.
     context.go('/');
   }
 
-  // ==============================================================
+  // ============================================================
   // RETRY
-  // ==============================================================
+  // ============================================================
 
   Future<void> _retryVideo() async {
     if (!mounted) return;
@@ -208,15 +190,18 @@ class _IntroPageState extends State<IntroPage>
       _hasError = false;
       _isInitialized = false;
       _errorMessage = '';
+      _isNavigating = false;
     });
 
     try {
+      await _videoController.pause();
       await _videoController.seekTo(Duration.zero);
-
       await _videoController.setVolume(0.0);
 
       _videoController.removeListener(_videoListener);
       _videoController.addListener(_videoListener);
+
+      if (!mounted) return;
 
       setState(() {
         _isInitialized = true;
@@ -233,9 +218,9 @@ class _IntroPageState extends State<IntroPage>
     }
   }
 
-  // ==============================================================
+  // ============================================================
   // BUILD
-  // ==============================================================
+  // ============================================================
 
   @override
   Widget build(BuildContext context) {
@@ -248,37 +233,17 @@ class _IntroPageState extends State<IntroPage>
             color: Colors.black,
           ),
 
-          // ------------------------------------------------------
-          // VIDEO
-          // ------------------------------------------------------
-
           if (_isInitialized && !_hasError)
             _buildVideo(),
-
-          // ------------------------------------------------------
-          // LOADING
-          // ------------------------------------------------------
 
           if (!_isInitialized && !_hasError)
             _buildLoading(),
 
-          // ------------------------------------------------------
-          // SKIP INTRO
-          // ------------------------------------------------------
-
           if (_isInitialized && !_hasError)
             _buildSkipButton(),
 
-          // ------------------------------------------------------
-          // ERROR
-          // ------------------------------------------------------
-
           if (_hasError)
             _buildError(),
-
-          // ------------------------------------------------------
-          // FINAL FADE
-          // ------------------------------------------------------
 
           IgnorePointer(
             child: AnimatedBuilder(
@@ -297,9 +262,9 @@ class _IntroPageState extends State<IntroPage>
     );
   }
 
-  // ==============================================================
+  // ============================================================
   // SKIP BUTTON
-  // ==============================================================
+  // ============================================================
 
   Widget _buildSkipButton() {
     return Positioned(
@@ -331,9 +296,9 @@ class _IntroPageState extends State<IntroPage>
     );
   }
 
-  // ==============================================================
+  // ============================================================
   // VIDEO
-  // ==============================================================
+  // ============================================================
 
   Widget _buildVideo() {
     final videoSize = _videoController.value.size;
@@ -348,7 +313,15 @@ class _IntroPageState extends State<IntroPage>
 
     return SizedBox.expand(
       child: FittedBox(
-        fit: BoxFit.cover,
+        /*
+         * IMPORTANT:
+         *
+         * The intro is a 9:16 portrait video.
+         * contain keeps the ENTIRE video visible on laptop/desktop.
+         *
+         * Do not change this back to BoxFit.cover.
+         */
+        fit: BoxFit.contain,
         alignment: Alignment.center,
         child: SizedBox(
           width: videoSize.width,
@@ -361,9 +334,9 @@ class _IntroPageState extends State<IntroPage>
     );
   }
 
-  // ==============================================================
+  // ============================================================
   // LOADING
-  // ==============================================================
+  // ============================================================
 
   Widget _buildLoading() {
     return const Center(
@@ -393,9 +366,9 @@ class _IntroPageState extends State<IntroPage>
     );
   }
 
-  // ==============================================================
+  // ============================================================
   // ERROR
-  // ==============================================================
+  // ============================================================
 
   Widget _buildError() {
     return Center(
@@ -503,9 +476,9 @@ class _IntroPageState extends State<IntroPage>
     );
   }
 
-  // ==============================================================
+  // ============================================================
   // DISPOSE
-  // ==============================================================
+  // ============================================================
 
   @override
   void dispose() {
